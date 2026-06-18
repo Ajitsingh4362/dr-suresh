@@ -220,9 +220,9 @@ export default function Home() {
   }, [])
 
   return (
-    <div ref={ref} style={{ overflowX: 'hidden' }}>
-
+    <>
       {showPopup && <ConsultationPopup onClose={() => setShowPopup(false)} />}
+      <div ref={ref} style={{ overflowX: 'hidden' }}>
 
       {/* HERO */}
       <section style={{
@@ -542,5 +542,6 @@ export default function Home() {
         }
       `}</style>
     </div>
+    </>
   )
 }
