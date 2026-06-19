@@ -10,6 +10,7 @@ import AdminNotes from './admin/AdminNotes'
 import AdminPatients from './admin/AdminPatients'
 import AdminPatientProfile from './admin/AdminPatientProfile'
 import AdminAnalytics from './admin/AdminAnalytics'
+import AdminCalendar from './admin/AdminCalendar'
 
 const AUTH_KEY = 'mmm_admin_authed'
 
@@ -68,10 +69,11 @@ export default function Admin() {
 
   const navItems = [
     { to: '/admin/analytics', label: 'Analytics', icon: '📈' },
+    { to: '/admin/calendar', label: 'Calendar', icon: '📅' },
     { to: '/admin/patients', label: 'Patients', icon: '👥' },
+    { to: '/admin/appointments', label: 'Appointments', icon: '📋' },
     { to: '/admin/posts', label: 'Blog Posts', icon: '📝' },
     { to: '/admin/gallery', label: 'Gallery', icon: '🖼️' },
-    { to: '/admin/appointments', label: 'Appointments', icon: '📅' },
     { to: '/admin/settings', label: 'Popup Settings', icon: '⚙️' },
     { to: '/admin/notes', label: 'My Notes', icon: '🗒️' },
   ]
@@ -101,6 +103,7 @@ export default function Admin() {
         <Routes>
           <Route index element={<Navigate to="analytics" replace />} />
           <Route path="analytics" element={<AdminAnalytics />} />
+          <Route path="calendar" element={<AdminCalendar />} />
           <Route path="patients" element={<AdminPatients />} />
           <Route path="patients/:id" element={<AdminPatientProfile />} />
           <Route path="posts" element={<AdminBlogList />} />
