@@ -12,6 +12,7 @@ import AdminPatientProfile from './admin/AdminPatientProfile'
 import AdminAnalytics from './admin/AdminAnalytics'
 import AdminCalendar from './admin/AdminCalendar'
 import AdminTestimonials from './admin/AdminTestimonials'
+import NotificationBell from '../components/NotificationBell'
 
 const AUTH_KEY = 'mmm_admin_authed'
 
@@ -95,6 +96,7 @@ export default function Admin() {
             </NavLink>
           ))}
         </nav>
+        <NotificationBell />
         <div className="admin-sidebar-footer">
           <Link to="/" className="admin-nav-link" target="_blank">🌐 View Site</Link>
           <button className="admin-nav-link" onClick={logout}>🚪 Logout</button>
