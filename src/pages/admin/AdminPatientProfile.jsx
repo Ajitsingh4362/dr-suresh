@@ -109,6 +109,49 @@ export default function AdminPatientProfile() {
   const [showConsultForm, setShowConsultForm] = useState(false)
   const [newConsult, setNewConsult] = useState({ date: new Date().toISOString().split('T')[0], chief_complaint: '', observations: '', prescription: '', follow_up_date: '', follow_up_notes: '', consultation_type: 'in-person' })
 
+  // Template picker
+  const [showTemplatePicker, setShowTemplatePicker] = useState(false)
+  const [templates, setTemplates] = useState([])
+  const [templateSearch, setTemplateSearch] = useState('')
+
+  async function loadTemplates() {
+    const { data } = await supabase.from('prescription_templates').select('*').order('use_count', { ascending: false })
+    setTemplates(data || [])
+    setShowTemplatePicker(true)
+  }
+
+  async function applyTemplate(t) {
+    const meds = Array.isArray(t.medicines) ? t.medicines : JSON.parse(t.medicines || '[]')
+    const prescription = meds.map(m =>
+      `${m.name} ${m.potency} — ${m.dose}, ${m.frequency}, ${m.duration}${m.notes ? ` (${m.notes})` : ''}`
+    ).join('\n')
+
+    const notes = [
+      t.instructions ? `Instructions: ${t.instructions}` : '',
+      t.diet_guidelines ? `Diet: ${t.diet_guidelines}` : '',
+      t.lifestyle_notes ? `Lifestyle: ${t.lifestyle_notes}` : '',
+    ].filter(Boolean).join('\n\n')
+
+    setNewConsult(prev => ({
+      ...prev,
+      prescription: prescription,
+      follow_up_notes: t.follow_up_duration ? `Follow-up recommended in ${t.follow_up_duration}` : prev.follow_up_notes,
+      observations: notes || prev.observations,
+    }))
+
+    // Increment use count
+    await supabase.from('prescription_templates').update({ use_count: (t.use_count || 0) + 1 }).eq('id', t.id)
+
+    setShowTemplatePicker(false)
+    setTemplateSearch('')
+    setShowConsultForm(true)
+  }
+
+  const filteredTemplates = templates.filter(t =>
+    !templateSearch || t.name.toLowerCase().includes(templateSearch.toLowerCase()) ||
+    (t.condition_tags || []).some(tag => tag.toLowerCase().includes(templateSearch.toLowerCase()))
+  )
+
   // Notes
   const [notes, setNotes] = useState([])
   const [newNote, setNewNote] = useState('')
@@ -423,8 +466,71 @@ export default function AdminPatientProfile() {
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
             <p style={{ fontFamily: 'var(--font-display)', fontSize: '1.2rem', fontWeight: 600, color: 'var(--navy-800)', margin: 0 }}>{consultations.length} Consultation{consultations.length !== 1 ? 's' : ''}</p>
-            <button className="admin-btn-primary admin-btn-sm" onClick={() => setShowConsultForm(p => !p)}>+ New Consultation</button>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button className="admin-btn-outline admin-btn-sm" onClick={loadTemplates}>💊 Apply Template</button>
+              <button className="admin-btn-primary admin-btn-sm" onClick={() => setShowConsultForm(p => !p)}>+ New Consultation</button>
+            </div>
           </div>
+
+          {/* Template Picker Modal */}
+          {showTemplatePicker && (
+            <>
+              <div style={{ position: 'fixed', inset: 0, background: 'rgba(7,15,28,0.5)', backdropFilter: 'blur(4px)', zIndex: 1000 }} onClick={() => setShowTemplatePicker(false)} />
+              <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', background: 'var(--white)', borderRadius: '8px', width: '90%', maxWidth: '560px', maxHeight: '80vh', overflow: 'hidden', zIndex: 1001, display: 'flex', flexDirection: 'column', boxShadow: '0 20px 60px rgba(7,15,28,0.25)' }}>
+                {/* Modal header */}
+                <div style={{ background: 'var(--navy-800)', padding: '18px 20px', position: 'relative', flexShrink: 0 }}>
+                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'var(--gold)' }} />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <p style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem', fontWeight: 600, color: 'var(--gold-pale)', margin: 0 }}>💊 Apply Prescription Template</p>
+                      <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-body)', margin: '3px 0 0' }}>Select a template to auto-fill the consultation</p>
+                    </div>
+                    <button onClick={() => setShowTemplatePicker(false)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', fontSize: '20px' }}>✕</button>
+                  </div>
+                  <input
+                    placeholder="Search by name or condition..."
+                    value={templateSearch}
+                    onChange={e => setTemplateSearch(e.target.value)}
+                    autoFocus
+                    style={{ width: '100%', marginTop: '12px', padding: '9px 12px', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '2px', background: 'rgba(255,255,255,0.08)', color: '#fff', fontSize: '0.88rem', fontFamily: 'var(--font-body)', outline: 'none' }}
+                  />
+                </div>
+
+                {/* Template list */}
+                <div style={{ overflowY: 'auto', flex: 1 }}>
+                  {filteredTemplates.length === 0 ? (
+                    <p style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}>No templates found</p>
+                  ) : filteredTemplates.map(t => {
+                    const meds = Array.isArray(t.medicines) ? t.medicines : JSON.parse(t.medicines || '[]')
+                    const catColors = { Homeopathy: '#1e6f6a', Psychotherapy: '#4a3d8f', Lifestyle: '#6b8f3d', Nutrition: '#8f6b3d', Integrative: '#b9914f' }
+                    return (
+                      <div key={t.id} onClick={() => applyTemplate(t)}
+                        style={{ padding: '14px 20px', borderBottom: '1px solid rgba(15,39,68,0.06)', cursor: 'pointer', transition: 'background 0.15s' }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'var(--ivory)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
+                          <p style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--navy-800)', fontFamily: 'var(--font-body)', margin: 0 }}>{t.name}</p>
+                          <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0, marginLeft: '12px' }}>
+                            {t.use_count > 0 && <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}>Used {t.use_count}×</span>}
+                            <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '100px', background: catColors[t.category] || '#666', color: '#fff', fontFamily: 'var(--font-body)', fontWeight: 600 }}>{t.category}</span>
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '6px' }}>
+                          {(t.condition_tags || []).map(tag => (
+                            <span key={tag} style={{ fontSize: '10px', padding: '1px 7px', borderRadius: '100px', background: 'rgba(15,39,68,0.06)', color: 'var(--navy-800)', fontFamily: 'var(--font-body)' }}>{tag}</span>
+                          ))}
+                        </div>
+                        <p style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', margin: 0 }}>
+                          💊 {meds.map(m => `${m.name} ${m.potency}`).join(' · ')}
+                          {t.follow_up_duration ? ` · 📅 ${t.follow_up_duration}` : ''}
+                        </p>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </>
+          )}
 
           {showConsultForm && (
             <div style={{ background: 'var(--ivory)', border: '1px solid rgba(15,39,68,0.08)', borderRadius: '2px', padding: '20px', marginBottom: '20px' }}>
