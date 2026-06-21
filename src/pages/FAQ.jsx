@@ -1,8 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
 import { supabase } from '../lib/supabase'
-import Navbar from '../components/Navbar'
-import Footer from '../components/Footer'
-import WhatsAppFloat from '../components/WhatsAppFloat'
 import { Link } from 'react-router-dom'
 
 const CAT_COLORS = {
@@ -94,7 +91,6 @@ export default function FAQPage() {
 
   return (
     <div style={{ overflowX: 'hidden' }}>
-      <Navbar />
 
       {/* Hero */}
       <section style={{ background: 'linear-gradient(160deg, var(--navy-900), var(--navy-800))', padding: '120px 0 70px', position: 'relative', overflow: 'hidden' }}>
@@ -158,8 +154,6 @@ export default function FAQPage() {
         </div>
       </section>
 
-      <Footer />
-      <WhatsAppFloat />
     </div>
   )
 }
