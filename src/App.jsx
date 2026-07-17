@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import WhatsAppFloat from './components/WhatsAppFloat'
+import CallFloat from './components/CallFloat'
 import Home from './pages/Home'
 import About from './pages/About'
 import Programs from './pages/Programs'
@@ -35,6 +36,7 @@ function Layout() {
       </Routes>
       {!isAdmin && <Footer />}
       {!isAdmin && <WhatsAppFloat />}
+      {!isAdmin && <CallFloat />}
     </>
   )
 }
