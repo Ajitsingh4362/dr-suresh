@@ -64,7 +64,9 @@ export default function FAQPage() {
   useEffect(() => {
     supabase.from('faqs').select('*').eq('visible', true).order('sort_order').order('created_at')
       .then(({ data }) => {
-        const list = (data && data.length > 0) ? data : DEFAULT_FAQS
+        // NOTE: backend still connected above — using static list for display until
+        // this site gets its own Supabase project (old DB has Dr. Kriti's data in it)
+        const list = DEFAULT_FAQS
         setFaqs(list)
         const cats = ['All', ...new Set(list.map(f => f.category))]
         setCategories(cats)
