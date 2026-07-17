@@ -3,9 +3,20 @@ import { supabase } from '../lib/supabase'
 import { Link } from 'react-router-dom'
 
 const CAT_COLORS = {
-  General: '#1e6f6a', Homeopathy: '#4a3d8f', Consultation: '#b9914f',
-  Programs: '#8f3d3d', Lifestyle: '#6b8f3d', Other: '#666'
+  General: '#1e6f6a', Treatments: '#4a3d8f', Appointments: '#b9914f',
+  Emergency: '#8f3d3d', Children: '#6b8f3d', Other: '#666'
 }
+
+const DEFAULT_FAQS = [
+  { id: 'd1', category: 'General', question: 'What services does Usha Multi Speciality Dental Clinic offer?', answer: 'We offer general dentistry, cosmetic dentistry, orthodontics (braces), dental implants, root canal treatment, pediatric dentistry, and emergency dental care — all under one roof.', visible: true },
+  { id: 'd2', category: 'Treatments', question: 'Is root canal treatment painful?', answer: 'Not with modern techniques. We use proper anaesthesia and pain management, so most patients feel little to no discomfort during the procedure.', visible: true },
+  { id: 'd3', category: 'Treatments', question: 'How long does a dental implant last?', answer: 'With good oral hygiene and regular check-ups, dental implants can last many years — often decades — making them a reliable long-term solution for missing teeth.', visible: true },
+  { id: 'd4', category: 'Appointments', question: 'How do I book an appointment?', answer: 'You can call or WhatsApp us at +91 89873 67274, or fill out the appointment form on our Contact page. Our team will confirm your slot within 24 hours.', visible: true },
+  { id: 'd5', category: 'Appointments', question: 'What are your clinic timings?', answer: 'We are open Monday to Saturday, with morning and evening slots. Sundays are for emergencies only. Exact timings are listed on our Contact page.', visible: true },
+  { id: 'd6', category: 'Children', question: 'Do you treat children?', answer: 'Yes, we offer gentle, child-friendly dental care — from routine check-ups and cavity prevention to early orthodontic screening.', visible: true },
+  { id: 'd7', category: 'Emergency', question: 'What should I do for a dental emergency?', answer: 'Call us right away at +91 89873 67274. We accommodate emergency appointments for severe pain, broken teeth, or injuries whenever possible.', visible: true },
+  { id: 'd8', category: 'Treatments', question: 'Do you offer teeth whitening and smile makeovers?', answer: 'Yes, our cosmetic dentistry services include professional teeth whitening, veneers, bonding, and complete smile makeovers tailored to your goals.', visible: true },
+]
 
 function FAQItem({ faq, index }) {
   const [open, setOpen] = useState(false)
@@ -53,7 +64,7 @@ export default function FAQPage() {
   useEffect(() => {
     supabase.from('faqs').select('*').eq('visible', true).order('sort_order').order('created_at')
       .then(({ data }) => {
-        const list = data || []
+        const list = (data && data.length > 0) ? data : DEFAULT_FAQS
         setFaqs(list)
         const cats = ['All', ...new Set(list.map(f => f.category))]
         setCategories(cats)
