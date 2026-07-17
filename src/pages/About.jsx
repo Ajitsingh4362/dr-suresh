@@ -46,8 +46,8 @@ export default function About() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '32px', maxWidth: '640px', margin: '0 auto' }}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ width: '160px', height: '160px', borderRadius: '50%', margin: '0 auto 18px', overflow: 'hidden', border: '3px solid var(--gold)', background: 'var(--ivory)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '56px' }}>
-                🦷
+              <div style={{ width: '160px', height: '160px', borderRadius: '50%', margin: '0 auto 18px', overflow: 'hidden', border: '3px solid var(--gold)' }}>
+                <img src="/dr-suresh-kumar.jpg" alt="Dr. Suresh Kumar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '19px', color: 'var(--navy-800)', fontWeight: 600 }}>Dr. Suresh Kumar</div>
               <div style={{ fontSize: '12px', color: 'var(--gold)', letterSpacing: '1px', textTransform: 'uppercase', marginTop: '4px' }}>BDS</div>
@@ -70,7 +70,9 @@ export default function About() {
 
             {/* Card */}
             <div style={{ background: 'var(--navy-800)', borderRadius: '2px', padding: '40px', border: '1px solid rgba(199,166,106,0.15)', position: 'sticky', top: '100px' }}>
-              <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--teal), var(--navy-600))', margin: '0 auto 20px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '44px', border: '2px solid rgba(199,166,106,0.3)' }}>🦷</div>
+              <div style={{ width: '100px', height: '100px', borderRadius: '50%', margin: '0 auto 20px', overflow: 'hidden', border: '2px solid rgba(199,166,106,0.3)' }}>
+                <img src="/dr-suresh-kumar.jpg" alt="Dr. Suresh Kumar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
               <div style={{ textAlign: 'center', marginBottom: '28px' }}>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: '22px', color: 'var(--gold-pale)', fontWeight: 600 }}>Dr. Suresh Kumar</div>
                 <div style={{ fontSize: '11px', color: 'var(--gold)', letterSpacing: '1.5px', textTransform: 'uppercase', marginTop: '6px' }}>Usha Multi Speciality Dental Clinic</div>
