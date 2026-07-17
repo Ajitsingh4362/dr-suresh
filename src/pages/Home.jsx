@@ -332,6 +332,7 @@ export default function Home() {
                 paddingTop: '36px', borderTop: '1px solid rgba(199,166,106,0.15)',
               }}>
                 {[
+                  { num: '2010', label: 'Established' },
                   { num: 'RCT', label: 'Painless Root Canal' },
                   { num: 'Braces', label: 'Orthodontics' },
                   { num: 'Implants', label: 'Tooth Replacement' },

@@ -80,6 +80,7 @@ export default function About() {
               <div style={{ borderTop: '1px solid rgba(199,166,106,0.15)', paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 {[
                   { label: 'Qualification', value: 'BDS' },
+                  { label: 'Established', value: '2010' },
                   { label: 'Clinic', value: 'Sitamarhi, Bihar' },
                   { label: 'Focus', value: 'Family & Cosmetic Dentistry' },
                   { label: 'Specialization', value: 'Multi-Speciality Dental Care' },
