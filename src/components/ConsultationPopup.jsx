@@ -16,7 +16,7 @@ export default function ConsultationPopup({ onClose }) {
       <div className="popup-box" onClick={e => e.stopPropagation()}>
         <button className="popup-close" onClick={onClose} aria-label="Close">✕</button>
         <div className="popup-icon" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <img src="/usha-dental-logo.png" alt="Usha Multi Speciality Dental Clinic" style={{ height: '80px', width: 'auto', objectFit: 'contain', margin: '0 auto' }} />
+          <img src="/usha-dental-logo.png" alt="Usha Multi Speciality Dental Clinic" style={{ height: '130px', width: 'auto', objectFit: 'contain', margin: '0 auto' }} />
         </div>
         <h2 className="popup-title">{settings.title}</h2>
         <p className="popup-sub">{settings.subtitle}</p>
