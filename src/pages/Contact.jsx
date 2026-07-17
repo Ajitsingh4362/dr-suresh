@@ -11,13 +11,13 @@ const WHATSAPP = '918987367274'
 const RAZORPAY_KEY = 'rzp_test_XXXXXXXXXXXXXXXX'
 
 const PROGRAMS = [
-  '90-Day Health Reset Program',
-  'Cancer Support & Recovery Care',
-  'Chronic Condition Support Program',
-  'High-Performance Health Program',
-  'Fertility & Women\'s Wellness Program',
-  'Liver & Digestive Restoration Program',
-  'Mind-Body Medicine Program',
+  'Root Canal Treatment (RCT)',
+  'Cosmetic Dentistry / Smile Makeover',
+  'Dental Implants',
+  'Orthodontics (Braces)',
+  'Pediatric Dentistry',
+  'Emergency Dental Care',
+  'Teeth Cleaning & General Check-up',
   'General Consultation',
 ]
 
@@ -55,7 +55,7 @@ export default function Contact() {
       currency: 'INR',
       name: 'Usha Multi Speciality Dental Clinic',
       description: form.program || 'Consultation Fee',
-      image: '/logo dr kriti.jpeg',
+      image: '/usha-dental-logo.png',
       prefill: {
         name: form.name,
         email: form.email,
@@ -144,10 +144,10 @@ export default function Contact() {
             <span style={{ fontSize: '11px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--gold)', letterSpacing: '2.5px', textTransform: 'uppercase' }}>Get in Touch</span>
           </div>
           <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(38px, 5vw, 64px)', color: 'var(--white)', fontWeight: 600, marginBottom: '20px' }}>
-            Apply for a Consultation
+            Book Your Appointment
           </h1>
           <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.55)', maxWidth: '520px', lineHeight: '1.85', fontWeight: 300 }}>
-            Begin with a detailed assessment to understand the most suitable healing pathway for your specific health needs.
+            Don't wait to achieve the healthy, beautiful smile you deserve — book your visit at your convenience.
           </p>
         </div>
       </section>
@@ -166,8 +166,8 @@ export default function Contact() {
               </h2>
 
               {[
-                { icon: '📍', title: 'Clinic Address', desc: '# 4, Sri Muthyalamma Devi Street K,\nSeppings Road Cross,\nBangalore – 560001' },
-                { icon: '📞', title: 'Phone & WhatsApp', desc: '+91 90193 72125' },
+                { icon: '📍', title: 'Clinic Address', desc: 'Near Bhawdepur Chowk, Shiv Mandir,\nMata Vaishno Mandir Road, Bhavdepur,\nSitamarhi – 843302, Bihar' },
+                { icon: '📞', title: 'Phone & WhatsApp', desc: '+91 89873 67274' },
                 { icon: '✉️', title: 'Email', desc: 'info@ushamultispecialitydentalclinic.com' },
               ].map((item, i) => (
                 <div key={i} style={{ display: 'flex', gap: '16px', padding: '20px 0', borderBottom: '1px solid rgba(15,39,68,0.08)', alignItems: 'flex-start' }}>
@@ -191,7 +191,7 @@ export default function Contact() {
               {/* Map */}
               <div style={{ marginTop: '32px', borderRadius: '2px', overflow: 'hidden', border: '1px solid rgba(15,39,68,0.1)', height: '220px' }}>
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3888.0!2d77.5946!3d12.9716!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae168f03f1b4c9%3A0x8e6f2b4b2d47e8b!2sSeppings%20Rd%2C%20Bengaluru%2C%20Karnataka!5e0!3m2!1sen!2sin!4v1699000000000"
+                  src="https://maps.google.com/maps?q=Usha%20Multi%20Speciality%20Dental%20Clinic%2C%20Bhavdepur%2C%20Sitamarhi%2C%20Bihar%20843302&output=embed"
                   width="100%" height="220" style={{ border: 0 }} allowFullScreen="" loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade" title="Usha Multi Speciality Dental Clinic Location" />
               </div>
@@ -232,8 +232,8 @@ export default function Contact() {
             {/* Form */}
             <div style={{ background: 'var(--navy-800)', padding: '40px', borderRadius: '2px', border: '1px solid rgba(199,166,106,0.15)', minWidth: 0, position: 'relative', overflow: 'hidden' }}>
               <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'var(--gold)' }} />
-              <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '28px', color: 'var(--gold-pale)', marginBottom: '6px' }}>Apply for Consultation</h3>
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.45)', marginBottom: '28px' }}>We will reach out within 24 hours to schedule your assessment.</p>
+              <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '28px', color: 'var(--gold-pale)', marginBottom: '6px' }}>Book an Appointment</h3>
+              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.45)', marginBottom: '28px' }}>We will reach out within 24 hours to confirm your appointment.</p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div className="form-row-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
@@ -259,16 +259,16 @@ export default function Contact() {
                 </div>
 
                 <div>
-                  <label style={{ fontSize: '10px', color: 'var(--gold)', letterSpacing: '1.5px', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Program of Interest</label>
+                  <label style={{ fontSize: '10px', color: 'var(--gold)', letterSpacing: '1.5px', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Treatment Interested In</label>
                   <select name="program" value={form.program} onChange={handleChange} style={{ ...inp, cursor: 'pointer' }}>
-                    <option value="" style={{ background: '#0F2744' }}>Select a program...</option>
+                    <option value="" style={{ background: '#0F2744' }}>Select a treatment...</option>
                     {PROGRAMS.map(p => <option key={p} value={p} style={{ background: '#0F2744' }}>{p}</option>)}
                   </select>
                 </div>
 
                 <div>
-                  <label style={{ fontSize: '10px', color: 'var(--gold)', letterSpacing: '1.5px', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Primary Health Concern *</label>
-                  <input name="concern" value={form.concern} onChange={handleChange} placeholder="Brief description of your health concern" style={inp}
+                  <label style={{ fontSize: '10px', color: 'var(--gold)', letterSpacing: '1.5px', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Dental Concern *</label>
+                  <input name="concern" value={form.concern} onChange={handleChange} placeholder="Brief description of your dental concern" style={inp}
                     onFocus={e => e.target.style.borderColor = 'rgba(199,166,106,0.6)'}
                     onBlur={e => e.target.style.borderColor = 'rgba(199,166,106,0.2)'} />
                 </div>
@@ -355,7 +355,7 @@ export default function Contact() {
                 )}
                 {status === 'error' && (
                   <div style={{ background: 'rgba(180,60,40,0.15)', border: '1px solid rgba(180,60,40,0.3)', borderRadius: '2px', padding: '16px', fontSize: '13px', color: '#f0907a' }}>
-                    ⚠️ Please fill Name, Phone, and Primary Health Concern — these are required.
+                    ⚠️ Please fill Name, Phone, and Dental Concern — these are required.
                   </div>
                 )}
 
