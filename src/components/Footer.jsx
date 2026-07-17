@@ -12,7 +12,7 @@ export default function Footer() {
             <img
               src="/usha-dental-logo.png"
               alt="Usha Multi Speciality Dental Clinic"
-              style={{ height: '80px', width: 'auto', marginBottom: '16px', objectFit: 'contain' }}
+              style={{ height: '96px', width: 'auto', marginBottom: '16px', objectFit: 'contain' }}
             />
             <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', lineHeight: '1.8', maxWidth: '240px' }}>
               Complete dental care in Sitamarhi — painless procedures, modern technology, care for the whole family.

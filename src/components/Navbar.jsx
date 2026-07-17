@@ -41,7 +41,7 @@ export default function Navbar() {
               src="/usha-dental-logo.png"
               alt="Usha Multi Speciality Dental Clinic"
               style={{
-                height: scrolled ? '52px' : '64px',
+                height: scrolled ? '62px' : '76px',
                 width: 'auto',
                 transition: 'height 0.4s ease',
                 objectFit: 'contain',
