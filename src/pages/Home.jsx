@@ -6,23 +6,23 @@ import ConsultationPopup from '../components/ConsultationPopup'
 import TestimonialsSection from '../components/TestimonialsSection'
 
 const HIGHLIGHTS = [
-  { icon: '🎗️', title: 'Cancer Revival & Support', desc: 'Integrative complementary support during treatment — rebuilding strength, resilience, and hope alongside your medical care.', highlight: true },
-  { icon: '🧠', title: 'Mind-Body Medicine', desc: 'Understanding the deep connection between emotional states and physical health — addressing the root, not just the symptom.', highlight: true },
-  { icon: '🌸', title: 'Fertility & Women\'s Wellness', desc: 'Holistic, personalised support for the journey to motherhood — hormonal balance, emotional well-being, and mind-body fertility optimization.' },
-  { icon: '💆', title: 'Emotional Well-being', desc: 'Sustainable resilience for modern professionals — moving beyond stress management to lasting emotional strength.' },
-  { icon: '🔬', title: 'Chronic Systemic Disorders', desc: 'Comprehensive root-cause evaluation of long-term health challenges — autoimmune, metabolic, thyroid, digestive, and more.' },
-  { icon: '🌿', title: 'Allied Healing Sciences', desc: 'Homeopathy, Psychotherapy, Acupuncture, NLP, Mindfulness — multiple evidence-informed disciplines working together.' },
+  { icon: '🦷', title: 'Root Canal Treatment', desc: 'Painless, precise RCT using modern techniques — relieving pain while saving your natural tooth.', highlight: true },
+  { icon: '😁', title: 'Cosmetic Dentistry', desc: 'Smile makeovers, teeth whitening, veneers, and bonding — designed around how you want to look and feel.', highlight: true },
+  { icon: '🦴', title: 'Dental Implants', desc: 'Permanent, natural-looking replacements for missing teeth, planned and placed with precision.' },
+  { icon: '📐', title: 'Orthodontics', desc: 'Braces and aligners for children and adults — straighter teeth, better bite, and more confident smiles.' },
+  { icon: '🧒', title: 'Child Dentistry', desc: 'Gentle, friendly dental care for kids — building healthy habits and easing dental anxiety early.' },
+  { icon: '🚨', title: 'Emergency Dental Care', desc: 'Sudden tooth pain, breakage, or injury — prompt attention when you need it most.' },
 ]
 
 const WHY = [
-  '15+ Years Clinical Experience',
-  'International Training — India & Australia',
-  'Homeopathy + Psychotherapy Integration',
-  'Personalised Healing Roadmaps',
-  'Cancer Support Specialist',
-  'Mind-Body Health Expert',
-  'Women\'s Health & Fertility Focus',
-  'Compassionate, Confidential Care',
+  'Multi-Speciality Dental Care',
+  'Painless, Modern Procedures',
+  'Family & Cosmetic Dentistry',
+  'Advanced Dental Technology',
+  'Child-Friendly Treatment',
+  'Emergency Care Available',
+  'Experienced Dental Team',
+  'Comfortable, Hygienic Clinic',
 ]
 
 /* ---------- animated right-side visual ---------- */
@@ -266,14 +266,14 @@ export default function Home() {
                     letterSpacing: '0.5px',
                     lineHeight: 1.2,
                   }}>
-                    Dr. Kirthi
+                    Dr. Suresh Kumar
                   </div>
                   <div style={{
                     fontSize: '10px', color: 'rgba(255,255,255,0.45)',
                     letterSpacing: '2px', textTransform: 'uppercase',
                     marginTop: '4px', fontFamily: 'var(--font-body)',
                   }}>
-                    C-Suite Mind Body Specialist
+                    Multi-Speciality Dental Care
                   </div>
                 </div>
               </div>
@@ -284,9 +284,9 @@ export default function Home() {
                 fontWeight: 600, color: 'var(--white)',
                 lineHeight: 1.1, marginBottom: '24px',
               }}>
-                Where Medicine<br />Meets Mindset,{' '}
+                Gentle Care<br />for a{' '}
                 <span style={{ color: 'var(--gold)', fontStyle: 'italic', display: 'block' }}>
-                  and Healing Becomes<br />Transformation
+                  Healthy, Confident<br />Smile
                 </span>
               </h1>
 
@@ -295,22 +295,22 @@ export default function Home() {
                 lineHeight: '1.85', maxWidth: '520px', marginBottom: '14px',
                 fontFamily: 'var(--font-body)', fontWeight: 300,
               }}>
-                Combining 15+ years of expertise in Homeopathy, Psychotherapy, Women's Health,
-                and Integrative Healing Sciences — helping individuals reclaim health and vitality
-                even when conventional pathways seem exhausted.
+                Complete dental care in Sitamarhi — from routine check-ups and fillings to
+                root canals, implants, and smile makeovers — delivered with a gentle, patient-first
+                approach.
               </p>
               <p style={{
                 fontSize: '13px', color: 'rgba(255,255,255,0.38)',
                 lineHeight: '1.7', maxWidth: '480px', marginBottom: '36px',
                 fontFamily: 'var(--font-body)',
               }}>
-                From cancer support and chronic disorders to emotional resilience and fertility —
-                each healing pathway is deeply personalised.
+                From children's first check-ups to advanced cosmetic and emergency care —
+                every treatment plan is built around your comfort.
               </p>
 
               <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginBottom: '48px' }}>
-                <Link to="/contact"><button className="btn-primary">Book a Consultation</button></Link>
-                <Link to="/programs"><button className="btn-outline">Explore Programs</button></Link>
+                <Link to="/contact"><button className="btn-primary">Book an Appointment</button></Link>
+                <Link to="/specializations"><button className="btn-outline">Our Services</button></Link>
               </div>
 
               {/* Stats */}
@@ -319,9 +319,9 @@ export default function Home() {
                 paddingTop: '36px', borderTop: '1px solid rgba(199,166,106,0.15)',
               }}>
                 {[
-                  { num: '15+', label: 'Years Experience' },
-                  { num: '1000+', label: 'Lives Impacted' },
-                  { num: '6', label: 'Healing Disciplines' },
+                  { num: 'RCT', label: 'Painless Root Canal' },
+                  { num: 'Braces', label: 'Orthodontics' },
+                  { num: 'Implants', label: 'Tooth Replacement' },
                 ].map((s, i) => (
                   <div key={i}>
                     <div style={{ fontFamily: 'var(--font-display)', fontSize: '40px', fontWeight: 700, color: 'var(--gold)', lineHeight: 1 }}>{s.num}</div>
@@ -349,7 +349,7 @@ export default function Home() {
       <section style={{ background: 'var(--navy-700, #0f2744)', padding: '20px 0', borderBottom: '1px solid rgba(199,166,106,0.15)' }}>
         <div className="container" style={{ textAlign: 'center' }}>
           <p style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(16px, 2vw, 22px)', color: 'var(--gold-pale)', fontWeight: 600, margin: 0, fontStyle: 'italic', letterSpacing: '0.3px' }}>
-            "Restoring Health. Renewing Hope. Transforming Lives."
+            "Healthy Smiles. Gentle Care. For the Whole Family."
           </p>
         </div>
       </section>
@@ -358,7 +358,7 @@ export default function Home() {
       <section style={{ background: 'var(--gold)', padding: '28px 0' }}>
         <div className="container">
           <div className="intro-strip-inner" style={{ display: 'flex', gap: '0', justifyContent: 'center', flexWrap: 'wrap', alignItems: 'center', textAlign: 'center' }}>
-            {['Homeopathic Physician', 'Psychotherapist', 'Mind-Body Specialist', 'Women\'s Health Expert', 'Holistic Health Educator'].map((t, i) => (
+            {['General Dentistry', 'Cosmetic Dentistry', 'Orthodontics', 'Pediatric Dentistry', 'Emergency Care'].map((t, i) => (
               <span key={t} style={{
                 fontSize: '12px', fontFamily: 'var(--font-body)', fontWeight: 600,
                 color: 'var(--navy-800)', letterSpacing: '1.5px', textTransform: 'uppercase',
@@ -377,9 +377,9 @@ export default function Home() {
           <div style={{ textAlign: 'center', marginBottom: '64px' }}>
             <span className="section-tag">Healing Areas</span>
             <div className="gold-line center" />
-            <h2 className="section-title">Specialized Healing Pathways</h2>
+            <h2 className="section-title">Our Dental Services</h2>
             <p className="section-desc" style={{ margin: '0 auto' }}>
-              Each specialization addresses the complete individual — physical, emotional, and psychological — with evidence-informed integrative approaches.
+              From routine care to advanced procedures, every treatment is delivered with modern technology and a gentle, patient-first approach.
             </p>
           </div>
 
@@ -424,13 +424,13 @@ export default function Home() {
         <div className="container">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'center' }} className="two-col-grid">
             <div>
-              <span className="section-tag">Why Dr. Kirthi</span>
+              <span className="section-tag">Why Usha Dental Clinic</span>
               <div className="gold-line" />
-              <h2 className="section-title light">A Different Kind of Healthcare Experience</h2>
+              <h2 className="section-title light">Dental Care You Can Trust</h2>
               <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.6)', lineHeight: '1.85', marginBottom: '32px', fontWeight: 300 }}>
-                Not just a practitioner — a trusted health strategist who bridges medicine, psychology, and holistic healing for complete transformation.
+                A multi-speciality clinic in Sitamarhi focused on painless procedures, modern technology, and care for every member of the family.
               </p>
-              <Link to="/contact"><button className="btn-primary">Begin Your Journey</button></Link>
+              <Link to="/contact"><button className="btn-primary">Book an Appointment</button></Link>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px' }}>
               {WHY.map((w, i) => (
@@ -459,11 +459,11 @@ export default function Home() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0' }}>
             {[
-              { num: '01', title: 'Initial Consultation', desc: 'Deep understanding of your health condition, history, lifestyle, and recovery goals.' },
-              { num: '02', title: 'Health Assessment', desc: 'Comprehensive review of physical patterns, emotional load, and recurring challenges.' },
-              { num: '03', title: 'Personalised Plan', desc: 'A structured, multi-disciplinary healing roadmap tailored to your unique needs.' },
-              { num: '04', title: 'Guided Support', desc: 'Ongoing therapies, monitoring, and adjustments through your healing journey.' },
-              { num: '05', title: 'Long-Term Stability', desc: 'Sustainable health management — stronger, more resilient, more in control.' },
+              { num: '01', title: 'Initial Consultation', desc: 'A thorough check-up and discussion of your dental concerns and goals.' },
+              { num: '02', title: 'Diagnosis', desc: 'Careful examination, and X-rays where needed, to pinpoint the exact issue.' },
+              { num: '03', title: 'Treatment Plan', desc: 'A clear, personalised plan — procedures, timeline, and what to expect.' },
+              { num: '04', title: 'Treatment', desc: 'Painless, precise procedures using modern equipment and techniques.' },
+              { num: '05', title: 'Follow-Up Care', desc: 'Check-ins and guidance to keep your smile healthy long after treatment.' },
             ].map((step, i) => (
               <div key={i} style={{
                 padding: '36px 28px',
@@ -487,21 +487,21 @@ export default function Home() {
       <section style={{ background: 'var(--gold)', padding: '80px 0' }}>
         <div className="container" style={{ textAlign: 'center' }}>
           <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 600, color: 'var(--navy-800)', marginBottom: '16px' }}>
-            Long-Term Health Requires More Than Temporary Relief
+            Don't Wait to Achieve the Smile You Deserve
           </h2>
           <p style={{ fontSize: '15px', color: 'rgba(15,39,68,0.7)', marginBottom: '36px', maxWidth: '520px', margin: '0 auto 36px', lineHeight: '1.8' }}>
-            Begin with a detailed assessment to understand the most suitable healing path forward for your health needs.
+            Book a check-up today and let our team find the right treatment plan for you.
           </p>
           <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link to="/contact">
               <button style={{ background: 'var(--navy-800)', color: 'var(--white)', border: 'none', padding: '14px 32px', borderRadius: '2px', fontSize: '13px', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', transition: 'var(--transition)' }}
                 onMouseEnter={e => e.currentTarget.style.background = 'var(--navy-700)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'var(--navy-800)'}>
-                Apply for Consultation
+                Book an Appointment
               </button>
             </Link>
-            <Link to="/programs">
-              <button className="btn-outline-dark">View Programs</button>
+            <Link to="/specializations">
+              <button className="btn-outline-dark">View Services</button>
             </Link>
           </div>
         </div>
@@ -515,7 +515,7 @@ export default function Home() {
             <div className="gold-line center" />
             <h2 className="section-title light">Interactive Healing Map</h2>
             <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', maxWidth: '480px', margin: '0 auto', lineHeight: '1.85', fontFamily: 'var(--font-body)', fontWeight: 300 }}>
-              Tap any glowing point to explore how Dr. Kirthi's integrative approach addresses each area of health.
+              Tap any glowing point to explore how Usha Multi Speciality Dental Clinic cares for each area of your oral health.
             </p>
           </div>
           <HealingMap />

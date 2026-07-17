@@ -10,15 +10,15 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <img
-              src="/mind_motion_matrix_navbar_logo.png"
-              alt="Mind Motion Matrix"
+              src="/usha-dental-logo.png"
+              alt="Usha Multi Speciality Dental Clinic"
               style={{ height: '80px', width: 'auto', marginBottom: '16px', objectFit: 'contain' }}
             />
             <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', lineHeight: '1.8', maxWidth: '240px' }}>
-              Where Medicine Meets Mindset, and Healing Becomes Transformation.
+              Complete dental care in Sitamarhi — painless procedures, modern technology, care for the whole family.
             </p>
             <div style={{ marginTop: '20px', display: 'flex', gap: '12px' }}>
-              <a href="https://wa.me/919019372125" target="_blank" rel="noopener noreferrer"
+              <a href="https://wa.me/918987367274" target="_blank" rel="noopener noreferrer"
                 style={{ width: '36px', height: '36px', borderRadius: '2px', background: 'rgba(199,166,106,0.1)', border: '1px solid rgba(199,166,106,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'var(--transition)' }}
                 onMouseEnter={e => e.currentTarget.style.background = 'rgba(199,166,106,0.25)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'rgba(199,166,106,0.1)'}>
@@ -32,13 +32,11 @@ export default function Footer() {
             <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--gold)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '18px' }}>Navigation</div>
             {[
               {to:'/',l:'Home'},
-              {to:'/about',l:'About Dr. Kirthi'},
-              {to:'/specializations',l:'Specializations'},
-              {to:'/programs',l:'Programs'},
-              {to:'/blog',l:'Blog'},
+              {to:'/about',l:'About Dr. Suresh Kumar'},
+              {to:'/specializations',l:'Services'},
               {to:'/gallery',l:'Gallery'},
               {to:'/faq',l:'FAQ'},
-              {to:'/contact',l:'Book Consultation'}
+              {to:'/contact',l:'Book Appointment'}
             ].map(link => (
               <NavLink key={link.to} to={link.to}
                 style={{ display: 'block', fontSize: '13px', color: 'rgba(255,255,255,0.55)', marginBottom: '10px', transition: 'color 0.25s' }}
@@ -51,14 +49,14 @@ export default function Footer() {
 
           {/* Specializations */}
           <div>
-            <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--gold)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '18px' }}>Specializations</div>
+            <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--gold)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '18px' }}>Services</div>
             {[
-              'Cancer Revival & Support',
-              'Mind-Body Medicine',
-              'Fertility & Women\'s Wellness',
-              'Emotional Well-being',
-              'Chronic Systemic Disorders',
-              'Allied Healing Sciences'
+              'Root Canal Treatment',
+              'Cosmetic Dentistry',
+              'Dental Implants',
+              'Orthodontics (Braces)',
+              'Child Dentistry',
+              'Emergency Dental Care'
             ].map(s => (
               <div key={s} style={{ fontSize: '13px', color: 'rgba(255,255,255,0.55)', marginBottom: '10px' }}>{s}</div>
             ))}
@@ -68,9 +66,9 @@ export default function Footer() {
           <div>
             <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--gold)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '18px' }}>Contact</div>
             {[
-              { icon: '📍', text: '# 4, Sri Muthyalamma Devi Street K,\nSeppings Road Cross, Bangalore – 560001' },
-              { icon: '📞', text: '+91 90193 72125' },
-              { icon: '✉️', text: 'contact@mindmotionmatrix.com' },
+              { icon: '📍', text: 'Near Bhawdepur Chowk, Shiv Mandir,\nMata Vaishno Mandir Road, Bhavdepur,\nSitamarhi – 843302, Bihar' },
+              { icon: '📞', text: '+91 89873 67274' },
+              { icon: '✉️', text: 'info@ushamultispecialitydentalclinic.com' },
             ].map((item, i) => (
               <div key={i} style={{ display: 'flex', gap: '10px', marginBottom: '14px', alignItems: 'flex-start' }}>
                 <span style={{ fontSize: '14px', flexShrink: 0, marginTop: '1px' }}>{item.icon}</span>
@@ -82,8 +80,8 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div style={{ borderTop: '1px solid rgba(199,166,106,0.1)', paddingTop: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-          <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)' }}>© {new Date().getFullYear()} Mind Motion Matrix. Dr. Kirthi Jawalkar. All rights reserved.</p>
-          <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)' }}>Bangalore, India</p>
+          <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)' }}>© {new Date().getFullYear()} Usha Multi Speciality Dental Clinic. Dr. Suresh Kumar. All rights reserved.</p>
+          <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)' }}>Sitamarhi, Bihar</p>
         </div>
       </div>
     </footer>

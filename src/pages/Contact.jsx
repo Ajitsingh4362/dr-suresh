@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase'
 const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID'
 const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID'
 const EMAILJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY'
-const WHATSAPP = '919019372125'
+const WHATSAPP = '918987367274'
 
 // ✅ RAZORPAY KEY — apni key yahan daalo
 const RAZORPAY_KEY = 'rzp_test_XXXXXXXXXXXXXXXX'
@@ -53,7 +53,7 @@ export default function Contact() {
       key: RAZORPAY_KEY,
       amount: 50000, // ₹500 in paise — doctor se confirm karke change karna
       currency: 'INR',
-      name: 'Mind Motion Matrix',
+      name: 'Usha Multi Speciality Dental Clinic',
       description: form.program || 'Consultation Fee',
       image: '/logo dr kriti.jpeg',
       prefill: {
@@ -104,7 +104,7 @@ export default function Contact() {
     } catch (_) {}
 
     // WhatsApp notification to admin
-    const adminPhone = '919019372125'
+    const adminPhone = '918987367274'
     const waMsg = encodeURIComponent(
       `🌿 New Appointment Request\n\nName: ${form.name}\nPhone: ${form.phone}\nEmail: ${form.email || 'N/A'}\nProgram: ${form.program || 'General'}\nConcern: ${form.concern}\nPayment: ${payMode === 'online' ? 'Online' : 'At Clinic'}`
     )
@@ -162,13 +162,13 @@ export default function Contact() {
               <span className="section-tag">Contact Details</span>
               <div className="gold-line" />
               <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 3vw, 36px)', color: 'var(--navy-800)', marginBottom: '32px' }}>
-                Mind Motion Matrix
+                Usha Multi Speciality Dental Clinic
               </h2>
 
               {[
                 { icon: '📍', title: 'Clinic Address', desc: '# 4, Sri Muthyalamma Devi Street K,\nSeppings Road Cross,\nBangalore – 560001' },
                 { icon: '📞', title: 'Phone & WhatsApp', desc: '+91 90193 72125' },
-                { icon: '✉️', title: 'Email', desc: 'contact@mindmotionmatrix.com' },
+                { icon: '✉️', title: 'Email', desc: 'info@ushamultispecialitydentalclinic.com' },
               ].map((item, i) => (
                 <div key={i} style={{ display: 'flex', gap: '16px', padding: '20px 0', borderBottom: '1px solid rgba(15,39,68,0.08)', alignItems: 'flex-start' }}>
                   <div style={{ width: '44px', height: '44px', background: 'var(--navy-800)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0, borderRadius: '2px' }}>{item.icon}</div>
@@ -179,7 +179,7 @@ export default function Contact() {
                 </div>
               ))}
 
-              <a href={'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent("Hello Dr. Kirthi, I'd like to book a consultation at Mind Motion Matrix.")}
+              <a href={'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent("Hello, I'd like to book an appointment at Usha Multi Speciality Dental Clinic.")}
                 target="_blank" rel="noopener noreferrer"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginTop: '28px', background: '#25D366', color: '#fff', padding: '13px 24px', borderRadius: '2px', fontSize: '13px', fontWeight: 600, textDecoration: 'none', letterSpacing: '0.5px', textTransform: 'uppercase', boxShadow: '0 4px 16px rgba(37,211,102,0.3)', transition: 'var(--transition)' }}
                 onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
@@ -193,7 +193,7 @@ export default function Contact() {
                 <iframe
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3888.0!2d77.5946!3d12.9716!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae168f03f1b4c9%3A0x8e6f2b4b2d47e8b!2sSeppings%20Rd%2C%20Bengaluru%2C%20Karnataka!5e0!3m2!1sen!2sin!4v1699000000000"
                   width="100%" height="220" style={{ border: 0 }} allowFullScreen="" loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade" title="Mind Motion Matrix Location" />
+                  referrerPolicy="no-referrer-when-downgrade" title="Usha Multi Speciality Dental Clinic Location" />
               </div>
 
               {/* OPD Timings */}
@@ -350,7 +350,7 @@ export default function Contact() {
                   <div style={{ background: 'rgba(30,111,106,0.2)', border: '1px solid rgba(30,111,106,0.4)', borderRadius: '2px', padding: '18px', fontSize: '13px', color: '#7dd5d0', lineHeight: '1.7' }}>
                     <div style={{ fontSize: '18px', marginBottom: '8px' }}>✅</div>
                     <div style={{ fontWeight: 600, marginBottom: '4px' }}>Application Received!</div>
-                    <div>Dr. Kirthi's team will reach out within 24 hours to schedule your personalised health assessment.</div>
+                    <div>Our team will reach out within 24 hours to confirm your appointment.</div>
                   </div>
                 )}
                 {status === 'error' && (

@@ -56,7 +56,7 @@ function AdminHeader() {
     
     await supabase.from('appointments').update({ status: 'confirmed' }).eq('id', appt.id)
     const phone = (appt.phone || '').replace(/[^\d]/g, '')
-    const msg = encodeURIComponent(`Hi ${appt.name}, your appointment with Dr. Kirthi Jawalkar has been confirmed${appt.preferred_date ? ` for ${new Date(appt.preferred_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long' })}` : ''}${appt.preferred_time ? ` at ${appt.preferred_time}` : ''}. Looking forward to seeing you! 🌿`)
+    const msg = encodeURIComponent(`Hi ${appt.name}, your appointment with Dr. Suresh Kumar has been confirmed${appt.preferred_date ? ` for ${new Date(appt.preferred_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long' })}` : ''}${appt.preferred_time ? ` at ${appt.preferred_time}` : ''}. Looking forward to seeing you! 🌿`)
     window.open(`https://wa.me/${phone}?text=${msg}`, '_blank')
   }
 
@@ -212,7 +212,7 @@ export default function Admin() {
     return (
       <div className="admin-login">
         <div className="admin-login-box">
-          <p className="admin-login-logo">Mind Motion Matrix</p>
+          <p className="admin-login-logo">Usha Multi Speciality Dental Clinic</p>
           <h2>Admin Login</h2>
           <input
             type="password"
@@ -252,7 +252,7 @@ export default function Admin() {
       </button>
 
       <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
-        <p className="admin-sidebar-logo">Mind Motion Matrix</p>
+        <p className="admin-sidebar-logo">Usha Multi Speciality Dental Clinic</p>
         <nav className="admin-nav">
           {navItems.map(item => (
             <NavLink key={item.to} to={item.to} className={({ isActive }) => `admin-nav-link ${isActive ? 'active' : ''}`} onClick={() => setSidebarOpen(false)}>

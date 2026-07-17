@@ -48,7 +48,7 @@ export default function AdminAppointments() {
       const dateStr = appt.preferred_date ? new Date(appt.preferred_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : 'a date our team will confirm'
       const timeStr = appt.preferred_time ? ` at ${appt.preferred_time}` : ''
       const msg = encodeURIComponent(
-        `Hi ${appt.name}, this is Mind Motion Matrix confirming your appointment with Dr. Kirthi Jawalkar for ${appt.service || 'consultation'} on ${dateStr}${timeStr}. Looking forward to seeing you! 🌿`
+        `Hi ${appt.name}, this is Usha Multi Speciality Dental Clinic confirming your appointment with Dr. Suresh Kumar for ${appt.service || 'consultation'} on ${dateStr}${timeStr}. Looking forward to seeing you! 🌿`
       )
       window.open(`https://wa.me/${cleanPhone(appt.phone)}?text=${msg}`, '_blank')
     }

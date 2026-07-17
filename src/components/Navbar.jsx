@@ -17,9 +17,7 @@ export default function Navbar() {
   const links = [
     { to: '/', label: 'Home' },
     { to: '/about', label: 'About' },
-    { to: '/specializations', label: 'Specializations' },
-    { to: '/programs', label: 'Programs' },
-    { to: '/blog', label: 'Blog' },
+    { to: '/specializations', label: 'Services' },
     { to: '/gallery', label: 'Gallery' },
     { to: '/faq', label: 'FAQ' },
     { to: '/contact', label: 'Contact' },
@@ -40,8 +38,8 @@ export default function Navbar() {
           {/* Logo Only — No Text */}
           <NavLink to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
             <img
-              src="/mind_motion_matrix_navbar_logo.png"
-              alt="Mind Motion Matrix"
+              src="/usha-dental-logo.png"
+              alt="Usha Multi Speciality Dental Clinic"
               style={{
                 height: scrolled ? '52px' : '64px',
                 width: 'auto',
@@ -102,8 +100,8 @@ export default function Navbar() {
       }}>
         {/* Mobile Logo */}
         <img
-          src="/mind_motion_matrix_navbar_logo.png"
-          alt="Mind Motion Matrix"
+          src="/usha-dental-logo.png"
+          alt="Usha Multi Speciality Dental Clinic"
           style={{ height: '80px', width: 'auto', marginBottom: '8px' }}
         />
 

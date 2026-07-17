@@ -104,7 +104,7 @@ export default function FAQPage() {
             Frequently Asked Questions
           </h1>
           <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.5)', maxWidth: '520px', lineHeight: 1.85, fontFamily: 'var(--font-body)', fontWeight: 300, margin: '0 0 32px' }}>
-            Everything you need to know about Dr. Kirthi's integrative healing approach, programs, and consultations.
+            Everything you need to know about our treatments, appointments, and clinic policies.
           </p>
           <Link to="/contact" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 28px', background: 'var(--gold)', color: 'var(--navy-800)', borderRadius: '2px', fontSize: '12px', fontWeight: 600, fontFamily: 'var(--font-body)', textDecoration: 'none', letterSpacing: '1px', textTransform: 'uppercase' }}>
             Still have questions? Book a consultation →
@@ -145,7 +145,7 @@ export default function FAQPage() {
               Didn't find your answer?
             </p>
             <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', fontFamily: 'var(--font-body)', fontWeight: 300, margin: '0 0 28px' }}>
-              Schedule a free 15-minute discovery call with Dr. Kirthi.
+              Call us to schedule your appointment.
             </p>
             <Link to="/contact" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '13px 32px', background: 'var(--gold)', color: 'var(--navy-800)', borderRadius: '2px', fontSize: '12px', fontWeight: 600, fontFamily: 'var(--font-body)', textDecoration: 'none', letterSpacing: '1px', textTransform: 'uppercase' }}>
               Book a Consultation →

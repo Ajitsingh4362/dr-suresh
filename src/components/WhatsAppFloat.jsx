@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 
 export default function WhatsAppFloat() {
   const [hovered, setHovered] = useState(false)
-  const phone = '919019372125'
-  const msg = encodeURIComponent("Hello Dr. Kirthi, I'd like to book a consultation at Mind Motion Matrix.")
+  const phone = '918987367274'
+  const msg = encodeURIComponent("Hello, I'd like to book an appointment at Usha Multi Speciality Dental Clinic.")
   return (
     <a href={`https://wa.me/${phone}?text=${msg}`} target="_blank" rel="noopener noreferrer"
       onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
@@ -11,7 +11,7 @@ export default function WhatsAppFloat() {
       aria-label="Chat on WhatsApp">
       {hovered && (
         <span style={{ background: 'var(--navy-800)', color: 'var(--gold-pale)', fontSize: '12px', fontFamily: 'var(--font-body)', padding: '6px 14px', borderRadius: '2px', whiteSpace: 'nowrap', border: '1px solid rgba(199,166,106,0.3)', boxShadow: 'var(--shadow-md)' }}>
-          Chat with Dr. Kirthi
+          Chat with Us
         </span>
       )}
       <div style={{

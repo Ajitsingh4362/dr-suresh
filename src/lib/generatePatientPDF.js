@@ -72,8 +72,8 @@ export async function generatePatientPDF({ patient, medical, consultations, auto
   }
 
   const tx = margin + 36
-  wt('Mind Motion Matrix', tx, 14, WHITE, 'bold', 14)
-  wt('Dr. Kirthi Jawalkar', tx, 20, [220,195,140], 'normal', 8.5)
+  wt('Usha Multi Speciality Dental Clinic', tx, 14, WHITE, 'bold', 14)
+  wt('Dr. Suresh Kumar', tx, 20, [220,195,140], 'normal', 8.5)
   wt('C-Suite Mind Body Specialist', tx, 26, [180,160,120], 'normal', 7.5)
   wt('Homeopathy  ·  Psychotherapy  ·  Integrative Healing', tx, 31.5, [160,140,100], 'normal', 7)
   wt('Bangalore, India', tx, 37, [140,120,90], 'normal', 7)
@@ -241,9 +241,9 @@ export async function generatePatientPDF({ patient, medical, consultations, auto
     // Clickable website
     wt('Book your appointment:', margin, H - 16, GREY, 'normal', 7)
     doc.setTextColor(...TEAL); sf('bold', 7)
-    doc.textWithLink('www.mindmotionmatrix.com', margin + 39, H - 16, { url: 'https://www.mindmotionmatrix.com' })
+    doc.textWithLink('ushamultispecialitydentalclinic.com', margin + 39, H - 16, { url: 'https://ushamultispecialitydentalclinic.com' })
 
-    wt('Mind Motion Matrix  ·  Dr. Kirthi Jawalkar', margin, H - 10, NAVY, 'bold', 7.5)
+    wt('Usha Multi Speciality Dental Clinic  ·  Dr. Suresh Kumar', margin, H - 10, NAVY, 'bold', 7.5)
     wt('Bangalore, India  ·  This report is confidential and intended for medical use only.', margin, H - 5.5, GREY, 'normal', 6.5)
     wt('Page ' + pg + ' of ' + totalPages, W - margin, H - 10, GOLD, 'bold', 7.5, { align:'right' })
   }
