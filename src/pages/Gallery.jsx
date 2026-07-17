@@ -32,12 +32,12 @@ export default function Gallery() {
             <div style={{ width: '32px', height: '1px', background: 'var(--gold)' }} />
             <span style={{ fontSize: '11px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--gold)', letterSpacing: '2.5px', textTransform: 'uppercase' }}>Gallery</span>
           </div>
-          <h1>Moments of Healing, Growth & Transformation</h1>
+          <h1>Our Clinic & Patient Smiles</h1>
           <p style={{ maxWidth: '640px', lineHeight: '1.9' }}>
-            This gallery captures meaningful milestones from consultations, workshops, speaking engagements, wellness programs, client achievements, community initiatives, and transformational journeys.
+            A look inside Usha Multi Speciality Dental Clinic — our facility, equipment, treatments in progress, and the smiles we've helped restore.
           </p>
           <p style={{ maxWidth: '600px', lineHeight: '1.9', marginTop: '16px', fontSize: '14px', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-body)', fontWeight: 300 }}>
-            Each image reflects a story of courage, resilience, learning, and hope. Behind every smile is a journey of overcoming challenges, embracing change, and moving towards a healthier and more fulfilling life.
+            From routine check-ups to complete smile makeovers, every image reflects our commitment to comfortable, high-quality dental care.
           </p>
         </div>
       </section>
@@ -46,7 +46,7 @@ export default function Gallery() {
       <section style={{ background: 'var(--gold)', padding: '28px 0' }}>
         <div className="container" style={{ textAlign: 'center' }}>
           <p style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(14px, 2vw, 18px)', color: 'var(--navy-800)', fontWeight: 600, margin: 0, lineHeight: 1.6 }}>
-            Together, we continue to create healthier minds, stronger bodies, and empowered lives.
+            Every smile tells a story — thank you for trusting us with your dental care.
           </p>
         </div>
       </section>
