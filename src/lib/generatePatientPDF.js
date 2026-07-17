@@ -49,7 +49,7 @@ export async function generatePatientPDF({ patient, medical, consultations, auto
   // Load logo
   let logoDataUrl = null
   try {
-    const response = await fetch('/mind_motion_matrix_navbar_logo.png')
+    const response = await fetch('/usha-dental-logo.png')
     const blob = await response.blob()
     logoDataUrl = await new Promise(res => {
       const reader = new FileReader()
