@@ -25,13 +25,13 @@ export default function About() {
             <span style={{ fontSize: '11px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--gold)', letterSpacing: '2.5px', textTransform: 'uppercase' }}>About</span>
           </div>
           <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(38px, 5vw, 68px)', color: 'var(--white)', fontWeight: 600, marginBottom: '20px' }}>
-            Dr. Suresh Kumar
+            Dr. Suresh Kumar & Dr. Preeti Rajguru
           </h1>
           <p style={{ fontSize: '18px', color: 'var(--gold)', fontFamily: 'var(--font-display)', fontStyle: 'italic', marginBottom: '16px' }}>
             Gentle, Modern Dental Care for the Whole Family.
           </p>
           <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.55)', maxWidth: '580px', lineHeight: '1.8', fontWeight: 300 }}>
-            Lead Dentist at Usha Multi Speciality Dental Clinic, Sitamarhi.
+            Dr. Suresh Kumar and Dr. Preeti Rajguru (MDS) lead Usha Multi Speciality Dental Clinic, Sitamarhi.
           </p>
         </div>
       </section>

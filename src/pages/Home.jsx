@@ -275,6 +275,19 @@ export default function Home() {
                   }}>
                     Multi-Speciality Dental Care
                   </div>
+                  <div style={{
+                    fontFamily: 'var(--font-display)', fontSize: '15px', color: 'var(--gold-pale)',
+                    fontWeight: 600, marginTop: '10px',
+                  }}>
+                    Dr. Preeti Rajguru
+                  </div>
+                  <div style={{
+                    fontSize: '10px', color: 'rgba(255,255,255,0.45)',
+                    letterSpacing: '2px', textTransform: 'uppercase',
+                    marginTop: '4px', fontFamily: 'var(--font-body)',
+                  }}>
+                    MDS
+                  </div>
                 </div>
               </div>
 
