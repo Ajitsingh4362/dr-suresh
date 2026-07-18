@@ -390,6 +390,40 @@ export default function Home() {
         </div>
       </section>
 
+      {/* MEET THE DOCTORS — swipeable */}
+      <section style={{ padding: '90px 0', background: 'var(--white)' }}>
+        <div className="container">
+          <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+            <span className="section-tag">Our Doctors</span>
+            <div className="gold-line center" />
+            <h2 className="section-title">Meet the Team</h2>
+          </div>
+          <div className="doctor-swipe" style={{
+            display: 'flex', gap: '24px', overflowX: 'auto',
+            scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch',
+            padding: '4px 4px 16px', maxWidth: '640px', margin: '0 auto',
+          }}>
+            {[
+              { photo: '/dr-suresh-kumar.jpg', name: 'Dr. Suresh Kumar', qual: 'BDS' },
+              { photo: '/dr-preeti-rajguru.jpg', name: 'Dr. Preeti Rajguru', qual: 'MDS' },
+            ].map((d, i) => (
+              <div key={i} style={{
+                flex: '0 0 260px', scrollSnapAlign: 'center', textAlign: 'center',
+                background: 'var(--ivory)', borderRadius: '8px', padding: '28px 20px',
+                border: '1px solid rgba(199,166,106,0.2)',
+              }}>
+                <div style={{ width: '150px', height: '150px', borderRadius: '50%', margin: '0 auto 16px', overflow: 'hidden', border: '3px solid var(--gold)' }}>
+                  <img src={d.photo} alt={d.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: '18px', color: 'var(--navy-800)', fontWeight: 600 }}>{d.name}</div>
+                <div style={{ fontSize: '12px', color: 'var(--gold)', letterSpacing: '1px', textTransform: 'uppercase', marginTop: '4px' }}>{d.qual}</div>
+              </div>
+            ))}
+          </div>
+          <p style={{ textAlign: 'center', fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>← Swipe to see both doctors →</p>
+        </div>
+      </section>
+
       {/* SPECIALIZATIONS PREVIEW */}
       <section style={{ padding: '100px 0', background: 'var(--ivory)' }}>
         <div className="container">
