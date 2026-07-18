@@ -259,8 +259,10 @@ export default function Home() {
                 borderLeft: '3px solid var(--gold)',
                 borderRadius: '2px',
                 padding: '14px 22px',
+                width: '300px',
+                boxSizing: 'border-box',
               }}>
-                <div>
+                <div style={{ width: '100%' }}>
                   <div style={{
                     fontFamily: 'var(--font-display)',
                     fontSize: '22px', fontWeight: 700,
@@ -268,27 +270,27 @@ export default function Home() {
                     letterSpacing: '0.5px',
                     lineHeight: 1.2,
                   }}>
-                    <Typewriter text="Dr. Suresh Kumar" speed={70} loop pauseAfter={2000} />
+                    <Typewriter text="Dr. Suresh Kumar" speed={70} loop pauseAfter={5000} />
                   </div>
                   <div style={{
                     fontSize: '10px', color: 'rgba(255,255,255,0.45)',
                     letterSpacing: '2px', textTransform: 'uppercase',
                     marginTop: '4px', fontFamily: 'var(--font-body)',
                   }}>
-                    <Typewriter text="Multi-Speciality Dental Care" speed={40} startDelay={1400} cursor={false} loop pauseAfter={2000} />
+                    <Typewriter text="Multi-Speciality Dental Care" speed={40} startDelay={1400} cursor={false} loop pauseAfter={5000} />
                   </div>
                   <div style={{
                     fontFamily: 'var(--font-display)', fontSize: '15px', color: 'var(--gold-pale)',
                     fontWeight: 600, marginTop: '10px',
                   }}>
-                    <Typewriter text="Dr. Preeti Rajguru" speed={70} startDelay={800} loop pauseAfter={2000} />
+                    <Typewriter text="Dr. Preeti Rajguru" speed={70} startDelay={800} loop pauseAfter={5000} />
                   </div>
                   <div style={{
                     fontSize: '10px', color: 'rgba(255,255,255,0.45)',
                     letterSpacing: '2px', textTransform: 'uppercase',
                     marginTop: '4px', fontFamily: 'var(--font-body)',
                   }}>
-                    <Typewriter text="MDS" speed={70} startDelay={2200} cursor={false} loop pauseAfter={2000} />
+                    <Typewriter text="MDS" speed={70} startDelay={2200} cursor={false} loop pauseAfter={5000} />
                   </div>
                 </div>
               </div>
