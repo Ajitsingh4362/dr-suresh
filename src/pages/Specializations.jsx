@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 const SPECS = [
   {
     icon: '🦷',
+    image: '/svc-rct.png',
     title: 'Root Canal Treatment (RCT)',
     tagline: 'Save the Tooth, Relieve the Pain',
     desc: 'When decay or infection reaches the inner pulp of a tooth, root canal treatment removes the damage and saves the natural tooth — done with modern, painless techniques.',
@@ -13,6 +14,7 @@ const SPECS = [
   },
   {
     icon: '✨',
+    image: '/svc-cosmetic.png',
     title: 'Cosmetic Dentistry',
     tagline: 'Smile Makeovers Designed Around You',
     desc: 'From teeth whitening to veneers and bonding, cosmetic dentistry is about giving you a smile you feel confident showing off — without compromising on tooth health.',
@@ -22,6 +24,7 @@ const SPECS = [
   },
   {
     icon: '🦴',
+    image: '/svc-implants.png',
     title: 'Dental Implants',
     tagline: 'A Permanent, Natural-Looking Replacement',
     desc: 'Missing teeth affect both function and confidence. Dental implants offer a long-term, natural-feeling replacement — planned and placed with precision.',
@@ -30,6 +33,7 @@ const SPECS = [
   },
   {
     icon: '📐',
+    image: '/svc-ortho.png',
     title: 'Orthodontics',
     tagline: 'Straighter Teeth, Better Bite',
     desc: 'Braces and aligners for children and adults — correcting crowding, gaps, and bite issues for a healthier, more confident smile.',
@@ -38,6 +42,7 @@ const SPECS = [
   },
   {
     icon: '🧒',
+    image: '/svc-pediatric.png',
     title: 'Pediatric Dentistry',
     tagline: 'Gentle, Friendly Care for Kids',
     desc: 'Children need a dentist who understands them. Our approach to child dentistry focuses on comfort, patience, and building healthy habits early.',
@@ -99,6 +104,9 @@ export default function Specializations() {
               <div key={i} style={{ background: s.color, padding: '48px 40px', position: 'relative', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'var(--gold)' }} />
                 <div style={{ position: 'absolute', bottom: '-20px', right: '-20px', width: '120px', height: '120px', borderRadius: '50%', background: 'rgba(199,166,106,0.06)' }} />
+                {s.image && (
+                  <img src={s.image} alt={s.title} style={{ width: '100%', height: '160px', objectFit: 'cover', borderRadius: '6px', marginBottom: '20px', border: '1px solid rgba(199,166,106,0.3)' }} />
+                )}
                 <div style={{ fontSize: '40px', marginBottom: '20px' }}>{s.icon}</div>
                 <div style={{ fontSize: '10px', color: 'var(--gold)', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '12px' }}>Core Specialty</div>
                 <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(22px, 2.5vw, 30px)', color: 'var(--white)', fontWeight: 600, marginBottom: '12px', lineHeight: 1.2 }}>{s.title}</h2>
@@ -124,6 +132,9 @@ export default function Specializations() {
               <div key={i} style={{ background: 'var(--white)', padding: '36px 32px', borderBottom: '3px solid transparent', transition: 'var(--transition)' }}
                 onMouseEnter={e => { e.currentTarget.style.borderBottom = '3px solid var(--gold)'; e.currentTarget.style.background = 'var(--ivory)' }}
                 onMouseLeave={e => { e.currentTarget.style.borderBottom = '3px solid transparent'; e.currentTarget.style.background = 'var(--white)' }}>
+                {s.image && (
+                  <img src={s.image} alt={s.title} style={{ width: '100%', height: '130px', objectFit: 'cover', borderRadius: '6px', marginBottom: '16px' }} />
+                )}
                 <div style={{ fontSize: '32px', marginBottom: '16px' }}>{s.icon}</div>
                 <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '20px', fontWeight: 600, color: 'var(--navy-800)', marginBottom: '8px' }}>{s.title}</h3>
                 <p style={{ fontSize: '12px', color: 'var(--gold)', fontStyle: 'italic', marginBottom: '12px' }}>{s.tagline}</p>
