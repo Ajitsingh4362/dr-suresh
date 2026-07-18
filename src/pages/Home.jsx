@@ -345,9 +345,14 @@ export default function Home() {
               </div>
             </div>
 
-            {/* RIGHT — animated visual */}
+            {/* RIGHT — hero image */}
             <div className="hero-visual-wrapper">
-              <HeroVisual />
+              <img src="/smile-closeup.png" alt="Healthy confident smile" style={{
+                width: '100%', height: 'auto', borderRadius: '14px',
+                border: '2px solid rgba(199,166,106,0.35)',
+                boxShadow: '0 30px 60px -20px rgba(0,0,0,0.5)',
+                display: 'block',
+              }} />
             </div>
           </div>
         </div>
