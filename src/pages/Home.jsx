@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import HealingMap from '../components/HealingMap'
+import Tilt3D from '../components/Tilt3D'
 import BlogPreview from '../components/BlogPreview'
 import ConsultationPopup from '../components/ConsultationPopup'
 import TestimonialsSection from '../components/TestimonialsSection'
@@ -560,18 +560,18 @@ export default function Home() {
         </div>
       </section>
 
-      {/* HEALING MAP — 3D interactive body */}
+      {/* PREMIUM 3D SHOWCASE */}
       <section className="healing-map-section">
         <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-            <span className="section-tag" style={{ color: 'var(--gold)' }}>Explore Healing Areas</span>
+          <div style={{ textAlign: 'center', marginBottom: '56px' }}>
+            <span className="section-tag" style={{ color: 'var(--gold)' }}>Step Inside</span>
             <div className="gold-line center" />
-            <h2 className="section-title light">Interactive Healing Map</h2>
+            <h2 className="section-title light">Our Clinic, Up Close</h2>
             <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', maxWidth: '480px', margin: '0 auto', lineHeight: '1.85', fontFamily: 'var(--font-body)', fontWeight: 300 }}>
-              Tap any glowing point to explore how Usha Multi Speciality Dental Clinic cares for each area of your oral health.
+              Move your cursor over the image for a closer look at Usha Multi Speciality Dental Clinic.
             </p>
           </div>
-          <HealingMap />
+          <Tilt3D image="/clinic-banner-2.png" alt="Usha Multi Speciality Dental Clinic" />
         </div>
       </section>
 
