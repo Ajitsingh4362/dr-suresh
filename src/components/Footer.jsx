@@ -36,6 +36,7 @@ export default function Footer() {
               {to:'/specializations',l:'Services'},
               {to:'/gallery',l:'Gallery'},
               {to:'/faq',l:'FAQ'},
+              {to:'/social-service',l:'Social Service'},
               {to:'/contact',l:'Book Appointment'}
             ].map(link => (
               <NavLink key={link.to} to={link.to}

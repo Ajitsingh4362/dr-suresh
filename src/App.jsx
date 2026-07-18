@@ -13,6 +13,7 @@ import Blog from './pages/Blog'
 import BlogPost from './pages/BlogPost'
 import Gallery from './pages/Gallery'
 import FAQ from './pages/FAQ'
+import SocialService from './pages/SocialService'
 import Admin from './pages/Admin'
 
 function Layout() {
@@ -32,6 +33,7 @@ function Layout() {
         <Route path="/blog/:slug" element={<BlogPost />} />
         <Route path="/gallery" element={<Gallery />} />
         <Route path="/faq" element={<FAQ />} />
+        <Route path="/social-service" element={<SocialService />} />
         <Route path="/admin/*" element={<Admin />} />
       </Routes>
       {!isAdmin && <Footer />}

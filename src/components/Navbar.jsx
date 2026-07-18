@@ -20,6 +20,7 @@ export default function Navbar() {
     { to: '/specializations', label: 'Services' },
     { to: '/gallery', label: 'Gallery' },
     { to: '/faq', label: 'FAQ' },
+    { to: '/social-service', label: 'Social Service' },
     { to: '/contact', label: 'Contact' },
   ]
 
