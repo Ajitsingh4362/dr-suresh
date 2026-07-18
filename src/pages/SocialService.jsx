@@ -6,7 +6,7 @@ export default function SocialService() {
       {/* Hero */}
       <section style={{
         background: 'linear-gradient(160deg, var(--navy-900), var(--navy-800))',
-        padding: '160px 0 80px', color: 'var(--white)',
+        padding: '188px 0 80px', color: 'var(--white)',
       }}>
         <div className="container">
           <span className="section-tag">Giving Back</span>

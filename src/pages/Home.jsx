@@ -232,7 +232,7 @@ export default function Home() {
         background: 'linear-gradient(160deg, var(--navy-900) 0%, var(--navy-800) 60%, #122040 100%)',
         minHeight: '100vh', display: 'flex', alignItems: 'center',
         position: 'relative', overflow: 'hidden',
-        paddingTop: '100px', paddingBottom: '80px',
+        paddingTop: '128px', paddingBottom: '80px',
       }}>
         {/* Background decorative blobs */}
         <div style={{ position: 'absolute', top: '-5%', right: '-8%', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(30,111,106,0.1) 0%, transparent 70%)', pointerEvents: 'none' }} />

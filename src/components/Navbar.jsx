@@ -26,8 +26,35 @@ export default function Navbar() {
 
   return (
     <>
+      <div style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1001,
+        background: 'var(--navy-900)', borderBottom: '1px solid rgba(199,166,106,0.2)',
+        overflow: 'hidden', whiteSpace: 'nowrap', padding: '6px 0',
+      }}>
+        <div style={{ display: 'inline-flex', animation: 'marquee-scroll 26s linear infinite' }}>
+          {[0, 1].map(g => (
+            <div key={g} style={{ display: 'inline-flex', flexShrink: 0 }}>
+              {new Array(4).fill(0).map((_, i) => (
+                <span key={i} style={{
+                  display: 'inline-block', color: 'var(--gold-pale)', fontSize: '11px',
+                  letterSpacing: '1px', fontFamily: 'var(--font-body)', fontWeight: 300,
+                  padding: '0 28px',
+                }}>
+                  ✦ Usha Multi Speciality Dental Clinic — Book Your Appointment Today — Call +91 89873 67274
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+        <style>{`
+          @keyframes marquee-scroll {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+          }
+        `}</style>
+      </div>
       <nav style={{
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
+        position: 'fixed', top: '28px', left: 0, right: 0, zIndex: 1000,
         background: scrolled ? 'rgba(7,15,28,0.97)' : 'rgba(7,15,28,0.5)',
         backdropFilter: 'blur(20px)',
         borderBottom: '1px solid rgba(199,166,106,0.12)',

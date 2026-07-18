@@ -68,7 +68,7 @@ export default function Programs() {
     <div ref={ref} style={{ overflowX: 'hidden' }}>
 
       {/* HERO */}
-      <section style={{ background: 'linear-gradient(160deg, var(--navy-900), var(--navy-800))', padding: '140px 0 80px', position: 'relative', overflow: 'hidden' }}>
+      <section style={{ background: 'linear-gradient(160deg, var(--navy-900), var(--navy-800))', padding: '168px 0 80px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: '-10%', right: '-5%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(199,166,106,0.07) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div className="container">
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>

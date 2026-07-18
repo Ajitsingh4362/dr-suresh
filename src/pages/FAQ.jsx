@@ -106,7 +106,7 @@ export default function FAQPage() {
     <div style={{ overflowX: 'hidden' }}>
 
       {/* Hero */}
-      <section style={{ background: 'linear-gradient(160deg, var(--navy-900), var(--navy-800))', padding: '120px 0 70px', position: 'relative', overflow: 'hidden' }}>
+      <section style={{ background: 'linear-gradient(160deg, var(--navy-900), var(--navy-800))', padding: '148px 0 70px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(199,166,106,0.04) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
