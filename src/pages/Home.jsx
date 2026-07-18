@@ -303,6 +303,11 @@ export default function Home() {
                 </span>
               </h1>
 
+              <img src="/dr-suresh-kumar.jpg" alt="Dr. Suresh Kumar" style={{
+                width: '96px', height: '96px', borderRadius: '50%', objectFit: 'cover',
+                border: '2px solid var(--gold)', marginBottom: '24px', display: 'block',
+              }} />
+
               <p style={{
                 fontSize: '15px', color: 'rgba(255,255,255,0.6)',
                 lineHeight: '1.85', maxWidth: '520px', marginBottom: '14px',
