@@ -438,6 +438,37 @@ export default function Home() {
         </div>
       </section>
 
+      {/* MEET THE DOCTORS */}
+      <section style={{ padding: '90px 0', background: 'var(--white)' }}>
+        <div className="container">
+          <div style={{ textAlign: 'center', marginBottom: '56px' }}>
+            <span className="section-tag">Our Doctors</span>
+            <div className="gold-line center" />
+            <h2 className="section-title">Meet the Team</h2>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '32px', maxWidth: '640px', margin: '0 auto' }}>
+            <Reveal>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ width: '160px', height: '160px', borderRadius: '50%', margin: '0 auto 18px', overflow: 'hidden', border: '3px solid var(--gold)' }}>
+                  <img src="/dr-suresh-kumar.jpg" alt="Dr. Suresh Kumar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: '19px', color: 'var(--navy-800)', fontWeight: 600 }}>Dr. Suresh Kumar</div>
+                <div style={{ fontSize: '12px', color: 'var(--gold)', letterSpacing: '1px', textTransform: 'uppercase', marginTop: '4px' }}>BDS</div>
+              </div>
+            </Reveal>
+            <Reveal delay={120}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ width: '160px', height: '160px', borderRadius: '50%', margin: '0 auto 18px', overflow: 'hidden', border: '3px solid var(--gold)' }}>
+                  <img src="/dr-preeti-rajguru.jpg" alt="Dr. Preeti Rajguru" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: '19px', color: 'var(--navy-800)', fontWeight: 600 }}>Dr. Preeti Rajguru</div>
+                <div style={{ fontSize: '12px', color: 'var(--gold)', letterSpacing: '1px', textTransform: 'uppercase', marginTop: '4px' }}>MDS</div>
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
       {/* WHY CHOOSE */}
       <section style={{ padding: '100px 0', background: 'linear-gradient(160deg, var(--navy-800), var(--navy-900))' }}>
         <div className="container">
