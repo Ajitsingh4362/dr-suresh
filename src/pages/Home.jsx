@@ -392,8 +392,14 @@ export default function Home() {
       </section>
 
       {/* MEET THE DOCTORS — swipeable */}
-      <section className="doctors-section" style={{ padding: '90px 0', background: 'var(--white)' }}>
-        <div className="container">
+      <section className="doctors-section" style={{
+        padding: '90px 0',
+        background: 'var(--ivory)',
+        backgroundImage: 'radial-gradient(rgba(199,166,106,0.35) 1.5px, transparent 1.5px)',
+        backgroundSize: '26px 26px',
+        position: 'relative',
+      }}>
+        <div className="container" style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ textAlign: 'center', marginBottom: '48px' }}>
             <span className="section-tag">Our Doctors</span>
             <div className="gold-line center" />
@@ -410,7 +416,7 @@ export default function Home() {
             ].map((d, i) => (
               <div key={i} style={{
                 flex: '0 0 260px', scrollSnapAlign: 'center', textAlign: 'center',
-                background: 'var(--ivory)', borderRadius: '8px', padding: '28px 20px',
+                background: 'var(--white)', borderRadius: '8px', padding: '28px 20px', boxShadow: '0 8px 24px rgba(15,39,68,0.08)',
                 border: '1px solid rgba(199,166,106,0.2)',
               }}>
                 <div style={{ width: '150px', height: '150px', borderRadius: '50%', margin: '0 auto 16px', overflow: 'hidden', border: '3px solid var(--gold)' }}>
