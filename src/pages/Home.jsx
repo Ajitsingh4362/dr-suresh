@@ -239,7 +239,7 @@ export default function Home() {
         <div style={{ position: 'absolute', bottom: '-10%', left: '-5%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(199,166,106,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
         {/* Top-right dot pattern */}
-        <div style={{
+        <div className="hero-corner-pattern" style={{
           position: 'absolute', top: '24px', right: '24px', width: '350px', height: '350px',
           backgroundImage: 'radial-gradient(rgba(240,221,181,0.9) 2px, transparent 2px)',
           backgroundSize: '18px 18px',
@@ -248,7 +248,7 @@ export default function Home() {
           pointerEvents: 'none',
         }} />
         {/* Bottom-right dot pattern */}
-        <div style={{
+        <div className="hero-corner-pattern" style={{
           position: 'absolute', bottom: '24px', right: '24px', width: '350px', height: '350px',
           backgroundImage: 'radial-gradient(rgba(240,221,181,0.9) 2px, transparent 2px)',
           backgroundSize: '18px 18px',
@@ -655,6 +655,11 @@ export default function Home() {
 
       {/* Responsive overrides */}
       <style>{`
+        @media (max-width: 1024px) {
+          .hero-corner-pattern {
+            display: none !important;
+          }
+        }
         @media (max-width: 900px) {
           .hero-grid {
             grid-template-columns: 1fr !important;
