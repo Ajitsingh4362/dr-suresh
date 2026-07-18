@@ -304,7 +304,7 @@ export default function Home() {
               </h1>
 
               <img src="/dr-suresh-kumar.jpg" alt="Dr. Suresh Kumar" style={{
-                width: '96px', height: '96px', borderRadius: '50%', objectFit: 'cover',
+                width: '180px', height: '220px', borderRadius: '6px', objectFit: 'cover',
                 border: '2px solid var(--gold)', marginBottom: '24px', display: 'block',
               }} />
 
