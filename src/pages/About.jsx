@@ -50,7 +50,7 @@ export default function About() {
                 <img src="/dr-suresh-kumar.jpg" alt="Dr. Suresh Kumar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '19px', color: 'var(--navy-800)', fontWeight: 600 }}>Dr. Suresh Kumar</div>
-              <div style={{ fontSize: '12px', color: 'var(--gold)', letterSpacing: '1px', textTransform: 'uppercase', marginTop: '4px' }}>BDS</div>
+              <div style={{ fontSize: '12px', color: 'var(--gold)', letterSpacing: '1px', textTransform: 'uppercase', marginTop: '4px' }}>Consultant Implantologist</div>
             </div>
             <div style={{ textAlign: 'center' }}>
               <div style={{ width: '160px', height: '160px', borderRadius: '50%', margin: '0 auto 18px', overflow: 'hidden', border: '3px solid var(--gold)' }}>
@@ -79,7 +79,7 @@ export default function About() {
               </div>
               <div style={{ borderTop: '1px solid rgba(199,166,106,0.15)', paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 {[
-                  { label: 'Qualification', value: 'BDS' },
+                  { label: 'Qualification', value: 'Consultant Implantologist' },
                   { label: 'Established', value: '2010' },
                   { label: 'Clinic', value: 'Sitamarhi, Bihar' },
                   { label: 'Focus', value: 'Family & Cosmetic Dentistry' },

@@ -404,7 +404,7 @@ export default function Home() {
             padding: '4px 4px 16px', maxWidth: '640px', margin: '0 auto',
           }}>
             {[
-              { photo: '/dr-suresh-kumar.jpg', name: 'Dr. Suresh Kumar', qual: 'BDS' },
+              { photo: '/dr-suresh-kumar.jpg', name: 'Dr. Suresh Kumar', qual: 'Consultant Implantologist' },
               { photo: '/dr-preeti-rajguru.jpg', name: 'Dr. Preeti Rajguru', qual: 'MDS' },
             ].map((d, i) => (
               <div key={i} style={{
