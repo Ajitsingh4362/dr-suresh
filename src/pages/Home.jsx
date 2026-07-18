@@ -258,10 +258,6 @@ export default function Home() {
                 borderRadius: '2px',
                 padding: '14px 22px',
               }}>
-                <img src="/dr-suresh-kumar.jpg" alt="Dr. Suresh Kumar" style={{
-                  width: '56px', height: '56px', borderRadius: '50%', objectFit: 'cover',
-                  border: '2px solid var(--gold)', flexShrink: 0,
-                }} />
                 <div>
                   <div style={{
                     fontFamily: 'var(--font-display)',
@@ -277,7 +273,7 @@ export default function Home() {
                     letterSpacing: '2px', textTransform: 'uppercase',
                     marginTop: '4px', fontFamily: 'var(--font-body)',
                   }}>
-                    Consultant Implantologist
+                    Multi-Speciality Dental Care
                   </div>
                   <div style={{
                     fontFamily: 'var(--font-display)', fontSize: '15px', color: 'var(--gold-pale)',
