@@ -268,27 +268,27 @@ export default function Home() {
                     letterSpacing: '0.5px',
                     lineHeight: 1.2,
                   }}>
-                    <Typewriter text="Dr. Suresh Kumar" speed={70} />
+                    <Typewriter text="Dr. Suresh Kumar" speed={70} loop pauseAfter={2000} />
                   </div>
                   <div style={{
                     fontSize: '10px', color: 'rgba(255,255,255,0.45)',
                     letterSpacing: '2px', textTransform: 'uppercase',
                     marginTop: '4px', fontFamily: 'var(--font-body)',
                   }}>
-                    <Typewriter text="Multi-Speciality Dental Care" speed={40} startDelay={1400} cursor={false} />
+                    <Typewriter text="Multi-Speciality Dental Care" speed={40} startDelay={1400} cursor={false} loop pauseAfter={2000} />
                   </div>
                   <div style={{
                     fontFamily: 'var(--font-display)', fontSize: '15px', color: 'var(--gold-pale)',
                     fontWeight: 600, marginTop: '10px',
                   }}>
-                    Dr. Preeti Rajguru
+                    <Typewriter text="Dr. Preeti Rajguru" speed={70} startDelay={800} loop pauseAfter={2000} />
                   </div>
                   <div style={{
                     fontSize: '10px', color: 'rgba(255,255,255,0.45)',
                     letterSpacing: '2px', textTransform: 'uppercase',
                     marginTop: '4px', fontFamily: 'var(--font-body)',
                   }}>
-                    MDS
+                    <Typewriter text="MDS" speed={70} startDelay={2200} cursor={false} loop pauseAfter={2000} />
                   </div>
                 </div>
               </div>

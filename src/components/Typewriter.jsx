@@ -1,28 +1,44 @@
 import { useEffect, useState } from 'react'
 
-export default function Typewriter({ text, speed = 60, startDelay = 0, cursor = true }) {
+export default function Typewriter({ text, speed = 60, deleteSpeed = 30, startDelay = 0, pauseAfter = 1600, pauseBeforeRetype = 500, cursor = true, loop = false }) {
   const [display, setDisplay] = useState('')
-  const [done, setDone] = useState(false)
 
   useEffect(() => {
-    setDisplay('')
-    setDone(false)
     let i = 0
+    let mode = 'typing' // typing | pausing | deleting | waiting
     let timeoutId
-    const startId = setTimeout(() => {
-      const tick = () => {
+
+    const tick = () => {
+      if (mode === 'typing') {
         i += 1
         setDisplay(text.slice(0, i))
         if (i < text.length) {
           timeoutId = setTimeout(tick, speed)
-        } else {
-          setDone(true)
+        } else if (loop) {
+          mode = 'pausing'
+          timeoutId = setTimeout(tick, pauseAfter)
         }
+      } else if (mode === 'pausing') {
+        mode = 'deleting'
+        timeoutId = setTimeout(tick, deleteSpeed)
+      } else if (mode === 'deleting') {
+        i -= 1
+        setDisplay(text.slice(0, i))
+        if (i > 0) {
+          timeoutId = setTimeout(tick, deleteSpeed)
+        } else {
+          mode = 'waiting'
+          timeoutId = setTimeout(tick, pauseBeforeRetype)
+        }
+      } else if (mode === 'waiting') {
+        mode = 'typing'
+        timeoutId = setTimeout(tick, speed)
       }
-      tick()
-    }, startDelay)
+    }
+
+    const startId = setTimeout(tick, startDelay)
     return () => { clearTimeout(startId); clearTimeout(timeoutId) }
-  }, [text, speed, startDelay])
+  }, [text, speed, deleteSpeed, startDelay, pauseAfter, pauseBeforeRetype, loop])
 
   return (
     <span>
@@ -32,7 +48,6 @@ export default function Typewriter({ text, speed = 60, startDelay = 0, cursor = 
           display: 'inline-block', width: '2px', height: '1em', marginLeft: '2px',
           background: 'currentColor', verticalAlign: 'middle',
           animation: 'blink-cursor 0.8s step-end infinite',
-          opacity: done ? 0.5 : 1,
         }} />
       )}
       <style>{`
