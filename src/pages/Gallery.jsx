@@ -16,7 +16,9 @@ export default function Gallery() {
       supabase.from('gallery').select('*').eq('visible', true).order('sort_order'),
       supabase.from('gallery_categories').select('*').order('sort_order'),
     ]).then(([{ data: g }, { data: c }]) => {
-      setItems(g || [])
+      // NOTE: backend still connected above — hiding DB images for now
+      // (shared DB still has old Dr. Kriti gallery images in it)
+      setItems([])
       setCats(c || [])
       setLoading(false)
     })
