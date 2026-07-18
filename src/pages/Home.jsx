@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Tilt3D from '../components/Tilt3D'
 import AutoSwipe from '../components/AutoSwipe'
+import Typewriter from '../components/Typewriter'
 import BlogPreview from '../components/BlogPreview'
 import ConsultationPopup from '../components/ConsultationPopup'
 import TestimonialsSection from '../components/TestimonialsSection'
@@ -267,14 +268,14 @@ export default function Home() {
                     letterSpacing: '0.5px',
                     lineHeight: 1.2,
                   }}>
-                    Dr. Suresh Kumar
+                    <Typewriter text="Dr. Suresh Kumar" speed={70} />
                   </div>
                   <div style={{
                     fontSize: '10px', color: 'rgba(255,255,255,0.45)',
                     letterSpacing: '2px', textTransform: 'uppercase',
                     marginTop: '4px', fontFamily: 'var(--font-body)',
                   }}>
-                    Multi-Speciality Dental Care
+                    <Typewriter text="Multi-Speciality Dental Care" speed={40} startDelay={1400} cursor={false} />
                   </div>
                   <div style={{
                     fontFamily: 'var(--font-display)', fontSize: '15px', color: 'var(--gold-pale)',
