@@ -240,7 +240,7 @@ export default function Home() {
 
         {/* Top-right dot pattern */}
         <div style={{
-          position: 'absolute', top: '24px', right: '24px', width: '140px', height: '140px',
+          position: 'absolute', top: '24px', right: '24px', width: '350px', height: '350px',
           backgroundImage: 'radial-gradient(rgba(240,221,181,0.9) 2px, transparent 2px)',
           backgroundSize: '18px 18px',
           maskImage: 'radial-gradient(circle at top right, black 40%, transparent 90%)',
@@ -249,7 +249,7 @@ export default function Home() {
         }} />
         {/* Bottom-right dot pattern */}
         <div style={{
-          position: 'absolute', bottom: '24px', right: '24px', width: '140px', height: '140px',
+          position: 'absolute', bottom: '24px', right: '24px', width: '350px', height: '350px',
           backgroundImage: 'radial-gradient(rgba(240,221,181,0.9) 2px, transparent 2px)',
           backgroundSize: '18px 18px',
           maskImage: 'radial-gradient(circle at bottom right, black 40%, transparent 90%)',
