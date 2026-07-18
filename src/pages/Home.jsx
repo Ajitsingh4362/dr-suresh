@@ -350,8 +350,31 @@ export default function Home() {
             </div>
 
             {/* RIGHT — hero image */}
-            <div className="hero-visual-wrapper">
-              <AutoSwipe images={['/smile-closeup.png', '/natures-care.png']} interval={2000} />
+            <div className="hero-visual-wrapper" style={{ position: 'relative' }}>
+              {/* Glow backdrop */}
+              <div style={{
+                position: 'absolute', top: '-30px', right: '-30px',
+                width: '90%', height: '90%',
+                background: 'radial-gradient(circle, rgba(199,166,106,0.18) 0%, transparent 70%)',
+                filter: 'blur(20px)', pointerEvents: 'none', zIndex: 0,
+              }} />
+              <div style={{ position: 'relative', zIndex: 1 }}>
+                <AutoSwipe images={['/smile-closeup.png', '/natures-care.png']} interval={2000} />
+              </div>
+              {/* Floating trust badge */}
+              <div style={{
+                position: 'absolute', left: '-24px', bottom: '-24px', zIndex: 2,
+                background: 'var(--navy-800)', border: '1px solid rgba(199,166,106,0.35)',
+                borderRadius: '10px', padding: '16px 20px',
+                boxShadow: '0 16px 40px rgba(0,0,0,0.4)',
+                display: 'flex', alignItems: 'center', gap: '12px',
+              }}>
+                <span style={{ fontSize: '24px' }}>⭐</span>
+                <div>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '17px', color: 'var(--gold-pale)', fontWeight: 700, lineHeight: 1 }}>4.9 / 5</div>
+                  <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.45)', letterSpacing: '1px', textTransform: 'uppercase', marginTop: '4px' }}>Patient Rated</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
