@@ -251,7 +251,7 @@ export default function Home() {
               {/* Doctor name box — top of hero */}
               <div style={{
                 display: 'inline-flex', alignItems: 'center', gap: '16px',
-                marginBottom: '32px',
+                marginTop: '28px', marginBottom: '32px',
                 background: 'rgba(199,166,106,0.08)',
                 border: '1px solid rgba(199,166,106,0.25)',
                 borderLeft: '3px solid var(--gold)',
