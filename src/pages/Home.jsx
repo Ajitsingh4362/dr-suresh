@@ -436,8 +436,24 @@ export default function Home() {
       </section>
 
       {/* SPECIALIZATIONS PREVIEW */}
-      <section style={{ padding: '100px 0', background: 'var(--ivory)' }}>
-        <div className="container">
+      <section style={{ padding: '100px 0', background: 'var(--ivory)', position: 'relative', overflow: 'hidden' }}>
+        {/* Top-left ornamental corner */}
+        <svg width="140" height="140" viewBox="0 0 140 140" style={{ position: 'absolute', top: 0, left: 0, opacity: 0.55 }}>
+          <path d="M0,60 Q0,0 60,0" stroke="var(--gold)" strokeWidth="1.5" fill="none" />
+          <path d="M0,90 Q0,0 90,0" stroke="var(--gold)" strokeWidth="1" fill="none" opacity="0.5" />
+          <circle cx="60" cy="0" r="3" fill="var(--gold)" />
+          <circle cx="0" cy="60" r="3" fill="var(--gold)" />
+          <circle cx="24" cy="24" r="2" fill="var(--gold)" opacity="0.7" />
+        </svg>
+        {/* Top-right ornamental corner */}
+        <svg width="140" height="140" viewBox="0 0 140 140" style={{ position: 'absolute', top: 0, right: 0, opacity: 0.55, transform: 'scaleX(-1)' }}>
+          <path d="M0,60 Q0,0 60,0" stroke="var(--gold)" strokeWidth="1.5" fill="none" />
+          <path d="M0,90 Q0,0 90,0" stroke="var(--gold)" strokeWidth="1" fill="none" opacity="0.5" />
+          <circle cx="60" cy="0" r="3" fill="var(--gold)" />
+          <circle cx="0" cy="60" r="3" fill="var(--gold)" />
+          <circle cx="24" cy="24" r="2" fill="var(--gold)" opacity="0.7" />
+        </svg>
+        <div className="container" style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ textAlign: 'center', marginBottom: '64px' }}>
             <span className="section-tag">Healing Areas</span>
             <div className="gold-line center" />
