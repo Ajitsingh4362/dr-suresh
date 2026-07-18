@@ -42,6 +42,11 @@ export default function Gallery() {
         </div>
       </section>
 
+      {/* Featured Banner */}
+      <section style={{ padding: '0' }}>
+        <img src="/clinic-banner-2.png" alt="Usha Multi Speciality Dental Clinic — Premium Care for Healthy Smiles" style={{ width: '100%', height: 'auto', display: 'block' }} />
+      </section>
+
       {/* Gallery thank you strip */}
       <section style={{ background: 'var(--gold)', padding: '28px 0' }}>
         <div className="container" style={{ textAlign: 'center' }}>
