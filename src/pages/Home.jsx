@@ -303,10 +303,18 @@ export default function Home() {
                 </span>
               </h1>
 
-              <img src="/dr-suresh-kumar.jpg" alt="Dr. Suresh Kumar" style={{
-                width: '180px', height: '220px', borderRadius: '6px', objectFit: 'cover',
-                border: '2px solid var(--gold)', marginBottom: '24px', display: 'block',
-              }} />
+              <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                <img src="/dr-suresh-kumar.jpg" alt="Dr. Suresh Kumar" style={{
+                  width: '220px', height: '270px', borderRadius: '6px', objectFit: 'cover',
+                  border: '2px solid var(--gold)', display: 'inline-block',
+                }} />
+                <div style={{
+                  fontFamily: 'var(--font-display)', fontSize: '17px', color: 'var(--gold-pale)',
+                  fontWeight: 600, marginTop: '12px',
+                }}>
+                  Dr. Suresh Kumar
+                </div>
+              </div>
 
               <p style={{
                 fontSize: '15px', color: 'rgba(255,255,255,0.6)',
