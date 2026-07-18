@@ -12,7 +12,7 @@ const SPECS = [
     color: 'var(--navy-800)',
   },
   {
-    icon: '😁',
+    icon: '✨',
     title: 'Cosmetic Dentistry',
     tagline: 'Smile Makeovers Designed Around You',
     desc: 'From teeth whitening to veneers and bonding, cosmetic dentistry is about giving you a smile you feel confident showing off — without compromising on tooth health.',
