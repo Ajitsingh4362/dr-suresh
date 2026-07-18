@@ -4,6 +4,7 @@ import HealingMap from '../components/HealingMap'
 import BlogPreview from '../components/BlogPreview'
 import ConsultationPopup from '../components/ConsultationPopup'
 import TestimonialsSection from '../components/TestimonialsSection'
+import Counter from '../components/Counter'
 
 const HIGHLIGHTS = [
   { icon: '🦷', title: 'Root Canal Treatment', desc: 'Painless, precise RCT using modern techniques — relieving pain while saving your natural tooth.', highlight: true },
@@ -371,6 +372,30 @@ export default function Home() {
       {/* PROMO BANNER */}
       <section style={{ background: 'var(--white)', padding: '0' }}>
         <img src="/clinic-banner.png" alt="Usha Multi Speciality Dental Clinic — Premium Care for Healthy Smiles" style={{ width: '100%', height: 'auto', display: 'block' }} />
+      </section>
+
+      {/* STATS COUNTER */}
+      <section style={{ background: 'var(--navy-800)', padding: '64px 0' }}>
+        <div className="container">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '32px', textAlign: 'center' }}>
+            {[
+              { end: 30000, suffix: '+', label: 'Happy Smiles' },
+              { end: 14, suffix: '+', label: 'Years of Experience' },
+              { end: 3000, suffix: '+', label: 'Patients a Year' },
+            ].map((s, i) => (
+              <Reveal key={i} delay={i * 120}>
+                <div>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px, 5vw, 54px)', color: 'var(--gold)', fontWeight: 700, lineHeight: 1 }}>
+                    <Counter end={s.end} suffix={s.suffix} />
+                  </div>
+                  <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', letterSpacing: '1px', textTransform: 'uppercase', marginTop: '10px', fontFamily: 'var(--font-body)' }}>
+                    {s.label}
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* INTRO STRIP */}
