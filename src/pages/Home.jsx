@@ -7,7 +7,7 @@ import TestimonialsSection from '../components/TestimonialsSection'
 
 const HIGHLIGHTS = [
   { icon: '🦷', title: 'Root Canal Treatment', desc: 'Painless, precise RCT using modern techniques — relieving pain while saving your natural tooth.', highlight: true },
-  { icon: '😁', title: 'Cosmetic Dentistry', desc: 'Smile makeovers, teeth whitening, veneers, and bonding — designed around how you want to look and feel.', highlight: true },
+  { icon: '✨', title: 'Cosmetic Dentistry', desc: 'Smile makeovers, teeth whitening, veneers, and bonding — designed around how you want to look and feel.', highlight: true },
   { icon: '🦴', title: 'Dental Implants', desc: 'Permanent, natural-looking replacements for missing teeth, planned and placed with precision.' },
   { icon: '📐', title: 'Orthodontics', desc: 'Braces and aligners for children and adults — straighter teeth, better bite, and more confident smiles.' },
   { icon: '🧒', title: 'Child Dentistry', desc: 'Gentle, friendly dental care for kids — building healthy habits and easing dental anxiety early.' },
