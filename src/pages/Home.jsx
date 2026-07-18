@@ -242,7 +242,7 @@ export default function Home() {
           {/* Two-column hero layout */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: '1fr 720px',
+            gridTemplateColumns: '1fr 480px',
             gap: '60px',
             alignItems: 'center',
           }} className="hero-grid">
@@ -351,7 +351,7 @@ export default function Home() {
 
             {/* RIGHT — hero image */}
             <div className="hero-visual-wrapper">
-              <AutoSwipe images={['/smile-closeup.png', '/natures-care.png']} interval={2000} height={524} />
+              <AutoSwipe images={['/smile-closeup.png', '/natures-care.png']} interval={2000} />
             </div>
           </div>
         </div>
