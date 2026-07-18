@@ -46,6 +46,10 @@ img { max-width: 100%; display: block; }
 .container { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
 @media (max-width: 768px) { .container { padding: 0 16px; } }
 
+@media (max-width: 640px) {
+  .doctors-section { padding-top: 36px !important; }
+}
+
 .section-tag {
   display: inline-block;
   font-family: var(--font-body);

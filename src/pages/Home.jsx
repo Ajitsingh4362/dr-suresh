@@ -391,7 +391,7 @@ export default function Home() {
       </section>
 
       {/* MEET THE DOCTORS — swipeable */}
-      <section style={{ padding: '90px 0', background: 'var(--white)' }}>
+      <section className="doctors-section" style={{ padding: '90px 0', background: 'var(--white)' }}>
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: '48px' }}>
             <span className="section-tag">Our Doctors</span>
