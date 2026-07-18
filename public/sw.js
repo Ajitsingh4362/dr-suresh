@@ -2,8 +2,8 @@ self.addEventListener('push', function(event) {
   const data = event.data ? event.data.json() : {}
   const options = {
     body: data.body || 'New appointment request',
-    icon: '/mind_motion_matrix_navbar_logo.png',
-    badge: '/mind_motion_matrix_navbar_logo.png',
+    icon: '/usha-dental-logo.png',
+    badge: '/usha-dental-logo.png',
     vibrate: [200, 100, 200],
     data: { url: data.url || '/admin/appointments' },
     actions: [
