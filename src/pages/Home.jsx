@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Tilt3D from '../components/Tilt3D'
+import AutoSwipe from '../components/AutoSwipe'
 import BlogPreview from '../components/BlogPreview'
 import ConsultationPopup from '../components/ConsultationPopup'
 import TestimonialsSection from '../components/TestimonialsSection'
@@ -347,12 +348,7 @@ export default function Home() {
 
             {/* RIGHT — hero image */}
             <div className="hero-visual-wrapper">
-              <img src="/smile-closeup.png" alt="Healthy confident smile" style={{
-                width: '100%', height: 'auto', borderRadius: '14px',
-                border: '2px solid rgba(199,166,106,0.35)',
-                boxShadow: '0 30px 60px -20px rgba(0,0,0,0.5)',
-                display: 'block',
-              }} />
+              <AutoSwipe images={['/smile-closeup.png', '/natures-care.png']} interval={2000} />
             </div>
           </div>
         </div>
