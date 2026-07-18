@@ -395,8 +395,7 @@ export default function Home() {
       <section className="doctors-section" style={{
         padding: '90px 0',
         background: 'var(--ivory)',
-        backgroundImage: 'radial-gradient(rgba(199,166,106,0.35) 1.5px, transparent 1.5px)',
-        backgroundSize: '26px 26px',
+        backgroundImage: 'repeating-linear-gradient(135deg, rgba(199,166,106,0.12) 0px, rgba(199,166,106,0.12) 1px, transparent 1px, transparent 42px)',
         position: 'relative',
       }}>
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
