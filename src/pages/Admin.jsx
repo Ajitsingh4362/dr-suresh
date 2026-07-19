@@ -67,15 +67,28 @@ function AdminHeader() {
     const todayStr = today.toISOString().split('T')[0]
     const in2DaysStr = in2Days.toISOString().split('T')[0]
 
-    const { data } = await supabase
+    const { data: rows, error: err1 } = await supabase
       .from('patient_consultations')
-      .select('id, follow_up_date, follow_up_notes, patient_id, patients ( id, name, phone )')
+      .select('id, follow_up_date, follow_up_notes, patient_id')
       .not('follow_up_date', 'is', null)
       .gte('follow_up_date', todayStr)
       .lte('follow_up_date', in2DaysStr)
       .order('follow_up_date', { ascending: true })
 
-    setFollowUps(data || [])
+    if (err1) { console.error('fetchFollowUps consultations error:', err1); setFollowUps([]); return }
+    if (!rows || rows.length === 0) { setFollowUps([]); return }
+
+    const patientIds = [...new Set(rows.map(r => r.patient_id))]
+    const { data: pts, error: err2 } = await supabase
+      .from('patients')
+      .select('id, name, phone')
+      .in('id', patientIds)
+
+    if (err2) console.error('fetchFollowUps patients error:', err2)
+    const ptMap = {}
+    ;(pts || []).forEach(p => { ptMap[p.id] = p })
+
+    setFollowUps(rows.map(r => ({ ...r, patients: ptMap[r.patient_id] || null })))
   }
 
   function sendFollowUpWhatsApp(f) {
