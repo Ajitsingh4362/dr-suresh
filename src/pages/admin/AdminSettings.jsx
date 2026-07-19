@@ -87,46 +87,49 @@ export default function AdminSettings() {
     setTimeout(() => setMsg(''), 2000)
   }
 
-  if (!settings) return <div className="admin-panel"><p className="admin-empty">Loading...</p></div>
-
   return (
     <div className="admin-panel">
       <div className="admin-panel-header">
-        <h1>Popup Settings</h1>
+        <h1>Settings</h1>
       </div>
 
-      <div className="admin-settings-card">
-        <p className="admin-settings-desc">
-          Controls the "Book Your Consultation" popup that appears when visitors first land on your website.
-        </p>
+      {!settings ? (
+        <p className="admin-empty">Loading popup settings...</p>
+      ) : (
+        <div className="admin-settings-card">
+          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '18px', color: 'var(--navy-800)', marginBottom: '6px' }}>Popup Settings</h2>
+          <p className="admin-settings-desc">
+            Controls the "Book Your Consultation" popup that appears when visitors first land on your website.
+          </p>
 
-        <label className="admin-checkbox admin-checkbox-lg">
-          <input type="checkbox" checked={settings.enabled} onChange={e => setSettings(s => ({ ...s, enabled: e.target.checked }))} />
-          Show popup to visitors
-        </label>
+          <label className="admin-checkbox admin-checkbox-lg">
+            <input type="checkbox" checked={settings.enabled} onChange={e => setSettings(s => ({ ...s, enabled: e.target.checked }))} />
+            Show popup to visitors
+          </label>
 
-        <div className="admin-field">
-          <label>Delay before showing (seconds)</label>
-          <input type="number" min="0" max="60" value={settings.delay_seconds} onChange={e => setSettings(s => ({ ...s, delay_seconds: parseInt(e.target.value) || 0 }))} />
+          <div className="admin-field">
+            <label>Delay before showing (seconds)</label>
+            <input type="number" min="0" max="60" value={settings.delay_seconds} onChange={e => setSettings(s => ({ ...s, delay_seconds: parseInt(e.target.value) || 0 }))} />
+          </div>
+
+          <div className="admin-field">
+            <label>Popup Title</label>
+            <input value={settings.title} onChange={e => setSettings(s => ({ ...s, title: e.target.value }))} />
+          </div>
+
+          <div className="admin-field">
+            <label>Popup Subtitle</label>
+            <input value={settings.subtitle} onChange={e => setSettings(s => ({ ...s, subtitle: e.target.value }))} />
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button className="admin-btn-primary" onClick={save} disabled={saving}>
+              {saving ? 'Saving...' : 'Save Settings'}
+            </button>
+            {msg && <span className="admin-save-msg">{msg}</span>}
+          </div>
         </div>
-
-        <div className="admin-field">
-          <label>Popup Title</label>
-          <input value={settings.title} onChange={e => setSettings(s => ({ ...s, title: e.target.value }))} />
-        </div>
-
-        <div className="admin-field">
-          <label>Popup Subtitle</label>
-          <input value={settings.subtitle} onChange={e => setSettings(s => ({ ...s, subtitle: e.target.value }))} />
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button className="admin-btn-primary" onClick={save} disabled={saving}>
-            {saving ? 'Saving...' : 'Save Settings'}
-          </button>
-          {msg && <span className="admin-save-msg">{msg}</span>}
-        </div>
-      </div>
+      )}
 
       <AccountSection />
     </div>
