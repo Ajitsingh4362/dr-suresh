@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 
 const PROGRAMS = [
-  'Fertility Revival Program',
-  'Cancer Recovery Program',
-  'Chronic Illness Program',
-  'Allied Healing Sciences',
+  'Root Canal Treatment',
+  'Cosmetic Dentistry / Smile Makeover',
+  'Dental Implant',
+  'Orthodontics (Braces)',
+  'Pediatric Dentistry',
+  'Emergency Dental Care',
   'General Consultation',
-  'Psychotherapy',
   'Other',
 ]
 

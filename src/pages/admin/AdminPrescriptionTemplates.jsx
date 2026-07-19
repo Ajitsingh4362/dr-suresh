@@ -5,7 +5,7 @@ const CATEGORIES = ['Homeopathy', 'Psychotherapy', 'Lifestyle', 'Nutrition', 'In
 const POTENCIES = ['Q (Mother Tincture)', '3C', '6C', '12C', '30C', '200C', '1M', '10M', '50M', 'CM', 'LM1', 'LM2', 'LM3', 'Tablet', 'Drops', 'Other']
 const FREQUENCIES = ['Once daily', 'Twice daily', 'Three times daily', 'Four times daily', 'Once weekly', 'Twice weekly', 'Bedtime', 'Morning only', 'As needed (acute)', 'Every 15 mins (acute)', 'Other']
 const FOLLOW_UPS = ['1 week', '2 weeks', '3 weeks', '4 weeks', '6 weeks', '8 weeks', '3 months', '6 months']
-const COMMON_TAGS = ['PCOS', 'Fertility', 'Anxiety', 'Stress', 'Cancer', 'Thyroid', 'Diabetes', 'Chronic Fatigue', 'Migraines', 'Skin', 'Immunity', 'Sleep', 'Hormonal', 'Digestive', 'Mental Health', 'Recovery', 'Autoimmune', 'Weight', 'Allergy', 'Women\'s Health']
+const COMMON_TAGS = ['Root Canal', 'Cavity', 'Gum Disease', 'Tooth Pain', 'Orthodontics', 'Implant', 'Cosmetic', 'Whitening', 'Pediatric', 'Emergency', 'Extraction', 'Sensitivity', 'Wisdom Tooth', 'Bad Breath', 'Bleeding Gums', 'Bruxism', 'Post-Surgery', 'Denture', 'Braces', 'Follow-up']
 
 const EMPTY_MED = { name: '', potency: '30C', dose: '2 pills', frequency: 'Twice daily', duration: '4 weeks', notes: '' }
 const EMPTY_TEMPLATE = { name: '', category: 'Homeopathy', condition_tags: [], medicines: [{ ...EMPTY_MED }], instructions: '', diet_guidelines: '', lifestyle_notes: '', follow_up_duration: '4 weeks' }
