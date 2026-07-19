@@ -83,8 +83,8 @@ export async function generatePatientPDF({ patient, medical, consultations, auto
 
   // ─── PATIENT INFO ─────────────────────────────────────────
   let y = 53
-  dr(margin, y, contentW, 48, LIGHT)
-  dr(margin, y, 3, 48, GOLD)
+  dr(margin, y, contentW, 40, LIGHT)
+  dr(margin, y, 3, 40, GOLD)
   wt(patient.name || 'Patient', margin + 8, y + 9, NAVY, 'bold', 14)
   if (patient.status) {
     dr(margin + 8, y + 12, 24, 6, TEAL)
@@ -104,15 +104,7 @@ export async function generatePatientPDF({ patient, medical, consultations, auto
     wt(lbl, cx, cy, GREY, 'normal', 7)
     wt(val || '—', cx, cy + 5, DARK, 'bold', 8)
   })
-
-  // Next follow-up — most recent consultation that has one set
-  const nextFollowUpC = (consultations || []).find(function(c) { return c.follow_up_date })
-  const fuDate = nextFollowUpC && nextFollowUpC.follow_up_date
-  dr(margin + 8, y + 39, contentW - 16, 7, TEAL)
-  wt('NEXT FOLLOW-UP', margin + 12, y + 43.8, WHITE, 'bold', 6.5)
-  wt(fuDate ? new Date(fuDate).toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' }) : 'Not scheduled', W - margin - 6, y + 43.8, WHITE, 'bold', 7.5, { align:'right' })
-
-  y += 54
+  y += 46
 
   // Section header helper
   const secHeader = (title) => {
