@@ -33,11 +33,7 @@ export default function TestimonialsSection() {
     supabase.from('testimonials').select('*')
       .eq('visible', true).eq('featured', true)
       .order('sort_order').limit(6)
-      .then(({ data }) => {
-        // NOTE: backend still connected above — using static list for display until
-        // this site gets its own Supabase project (old DB has Dr. Kriti's data in it)
-        setTestimonials(DEFAULT_TESTIMONIALS)
-      })
+      .then(({ data }) => setTestimonials((data && data.length > 0) ? data : DEFAULT_TESTIMONIALS))
   }, [])
 
   useEffect(() => {
