@@ -267,6 +267,7 @@ export default function Admin() {
 
       <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
         <p className="admin-sidebar-logo">Usha Multi Speciality Dental Clinic</p>
+        <NotificationBell />
         <nav className="admin-nav">
           {navItems.map(item => (
             <NavLink key={item.to} to={item.to} className={({ isActive }) => `admin-nav-link ${isActive ? 'active' : ''}`} onClick={() => setSidebarOpen(false)}>
