@@ -401,34 +401,34 @@
 .admin-shell { display: flex; min-height: 100vh; background: var(--ivory); width: 100%; overflow-x: hidden; }
 .admin-sidebar {
   width: 250px; flex-shrink: 0;
-  background: var(--navy-900); color: rgba(255,255,255,0.7);
+  background: #5c1a1a; color: rgba(255,255,255,0.9);
   display: flex; flex-direction: column; padding: 28px 18px;
   position: fixed; top: 0; left: 0;
   height: 100vh; overflow-y: auto;
   z-index: 200;
-  border-right: 1px solid rgba(199,166,106,0.1);
+  border-right: 1px solid rgba(199,166,106,0.2);
 }
 .admin-sidebar::-webkit-scrollbar { width: 4px; }
 .admin-sidebar::-webkit-scrollbar-track { background: transparent; }
-.admin-sidebar::-webkit-scrollbar-thumb { background: rgba(199,166,106,0.2); border-radius: 4px; }
+.admin-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.25); border-radius: 4px; }
 .admin-sidebar-logo {
   font-family: var(--font-display); font-size: 1.2rem; letter-spacing: 0.04em;
-  margin-bottom: 32px; padding: 0 10px; color: var(--gold-pale); flex-shrink: 0;
+  margin-bottom: 32px; padding: 0 10px; color: var(--white); flex-shrink: 0;
 }
 .admin-nav { display: flex; flex-direction: column; gap: 4px; flex: 1; }
 .admin-nav-link {
   display: flex; align-items: center; gap: 10px; padding: 11px 14px;
-  border-radius: 2px; text-decoration: none; color: rgba(255,255,255,0.55);
+  border-radius: 2px; text-decoration: none; color: rgba(255,255,255,0.85);
   font-size: 0.85rem; font-family: var(--font-body); letter-spacing: 0.02em;
   transition: var(--transition); background: none; border: none; cursor: pointer;
   text-align: left; width: 100%; white-space: nowrap;
 }
-.admin-nav-link:hover { background: rgba(255,255,255,0.04); color: var(--white); }
-.admin-nav-link.active { background: rgba(199,166,106,0.12); color: var(--gold-pale); }
+.admin-nav-link:hover { background: rgba(255,255,255,0.12); color: var(--white); }
+.admin-nav-link.active { background: rgba(255,255,255,0.18); color: var(--white); font-weight: 600; }
 .admin-nav-icon { font-size: 1rem; flex-shrink: 0; }
 .admin-sidebar-footer {
   display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;
-  border-top: 1px solid rgba(199,166,106,0.1); padding-top: 14px; margin-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.15); padding-top: 14px; margin-top: 14px;
 }
 .admin-mobile-toggle {
   display: none; position: fixed; top: 16px; left: 16px; z-index: 300;
