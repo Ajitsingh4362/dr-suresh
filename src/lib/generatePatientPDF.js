@@ -79,7 +79,7 @@ export async function generatePatientPDF({ patient, medical, consultations, auto
   wt('Sitamarhi, Bihar', tx, 37, [140,120,90], 'normal', 7)
   wt('PATIENT REPORT', W - margin, 13, [199,166,106], 'bold', 8, { align: 'right' })
   wt('Generated: ' + new Date().toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' }), W - margin, 20, [160,140,100], 'normal', 7, { align:'right' })
-  wt('Report ID: MMM-' + Date.now().toString().slice(-6), W - margin, 26, [140,120,90], 'normal', 7, { align:'right' })
+  wt('Report ID: UMDC-' + Date.now().toString().slice(-6), W - margin, 26, [140,120,90], 'normal', 7, { align:'right' })
 
   // ─── PATIENT INFO ─────────────────────────────────────────
   let y = 53
@@ -248,7 +248,7 @@ export async function generatePatientPDF({ patient, medical, consultations, auto
     wt('Page ' + pg + ' of ' + totalPages, W - margin, H - 10, GOLD, 'bold', 7.5, { align:'right' })
   }
 
-  var filename = 'MMM-Report-' + (patient.name || 'Patient').replace(/\s+/g, '-') + '-' + new Date().toISOString().split('T')[0] + '.pdf'
+  var filename = 'UMDC-Report-' + (patient.name || 'Patient').replace(/\s+/g, '-') + '-' + new Date().toISOString().split('T')[0] + '.pdf'
 
   if (autoPrint) {
     // Open in new tab for printing
