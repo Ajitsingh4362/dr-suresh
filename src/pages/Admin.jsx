@@ -248,6 +248,7 @@ export default function Admin() {
     { to: '/admin/analytics', label: 'Analytics', icon: '📈' },
     { to: '/admin/calendar', label: 'Calendar', icon: '📅' },
     { to: '/admin/patients', label: 'Patients', icon: '👥' },
+    { to: '/admin/patients/new', label: 'Add Patient', icon: '➕' },
     { to: '/admin/appointments', label: 'Appointments', icon: '📋' },
     { to: '/admin/templates', label: 'Rx Templates', icon: '💊' },
     { to: '/admin/faq', label: 'FAQ Manager', icon: '❓' },
