@@ -14,16 +14,17 @@ import AdminCalendar from './admin/AdminCalendar'
 import AdminTestimonials from './admin/AdminTestimonials'
 import AdminPrescriptionTemplates from './admin/AdminPrescriptionTemplates'
 import AdminFAQ from './admin/AdminFAQ'
-import NotificationBell from '../components/NotificationBell'
 
 function AdminHeader() {
   const [pending, setPending] = useState([])
+  const [followUps, setFollowUps] = useState([])
   const [showDropdown, setShowDropdown] = useState(false)
   const [showToast, setShowToast] = useState(null)
   const navigate = useNavigate()
 
   useEffect(() => {
     fetchPending()
+    fetchFollowUps()
     const channel = supabase
       .channel('admin-header-notif')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'appointments' }, (payload) => {
@@ -34,8 +35,13 @@ function AdminHeader() {
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'appointments' }, () => {
         fetchPending()
       })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'patient_consultations' }, () => {
+        fetchFollowUps()
+      })
       .subscribe()
-    return () => supabase.removeChannel(channel)
+    const onFocus = () => fetchFollowUps()
+    window.addEventListener('focus', onFocus)
+    return () => { supabase.removeChannel(channel); window.removeEventListener('focus', onFocus) }
   }, [])
 
   async function fetchPending() {
@@ -46,6 +52,39 @@ function AdminHeader() {
       .order('created_at', { ascending: false })
       .limit(10)
     setPending(data || [])
+  }
+
+  function cleanPhone(phone) {
+    let p = (phone || '').replace(/[^\d]/g, '')
+    if (p.length === 10) p = '91' + p
+    return p
+  }
+
+  async function fetchFollowUps() {
+    const today = new Date()
+    const in2Days = new Date(today)
+    in2Days.setDate(in2Days.getDate() + 2)
+    const todayStr = today.toISOString().split('T')[0]
+    const in2DaysStr = in2Days.toISOString().split('T')[0]
+
+    const { data } = await supabase
+      .from('patient_consultations')
+      .select('id, follow_up_date, follow_up_notes, patient_id, patients ( id, name, phone )')
+      .not('follow_up_date', 'is', null)
+      .gte('follow_up_date', todayStr)
+      .lte('follow_up_date', in2DaysStr)
+      .order('follow_up_date', { ascending: true })
+
+    setFollowUps(data || [])
+  }
+
+  function sendFollowUpWhatsApp(f) {
+    if (!f.patients?.phone) return
+    const dateStr = new Date(f.follow_up_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long' })
+    const msg = encodeURIComponent(
+      `Hi ${f.patients.name}, this is Usha Multi Speciality Dental Clinic. This is a reminder that your follow-up with Dr. Suresh Kumar is scheduled on ${dateStr}. Please let us know if this works for you, or if you'd like to reschedule. 🦷`
+    )
+    window.open(`https://wa.me/${cleanPhone(f.patients.phone)}?text=${msg}`, '_blank')
   }
 
   async function confirm(appt) {
@@ -72,11 +111,11 @@ function AdminHeader() {
         <div style={{ position: 'relative' }}>
           <button
             onClick={() => setShowDropdown(p => !p)}
-            style={{ position: 'relative', background: pending.length > 0 ? 'rgba(192,57,43,0.08)' : 'var(--white)', border: `1px solid ${pending.length > 0 ? 'rgba(192,57,43,0.25)' : 'rgba(15,39,68,0.12)'}`, borderRadius: '2px', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }}>
+            style={{ position: 'relative', background: (pending.length + followUps.length) > 0 ? 'rgba(192,57,43,0.08)' : 'var(--white)', border: `1px solid ${(pending.length + followUps.length) > 0 ? 'rgba(192,57,43,0.25)' : 'rgba(15,39,68,0.12)'}`, borderRadius: '2px', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }}>
             <span style={{ fontSize: '18px' }}>🔔</span>
-            {pending.length > 0 && (
+            {(pending.length + followUps.length) > 0 && (
               <span style={{ position: 'absolute', top: '-6px', right: '-6px', background: '#c0392b', color: '#fff', fontSize: '9px', fontWeight: 700, minWidth: '18px', height: '18px', borderRadius: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-body)', padding: '0 4px' }}>
-                {pending.length > 9 ? '9+' : pending.length}
+                {(pending.length + followUps.length) > 9 ? '9+' : (pending.length + followUps.length)}
               </span>
             )}
           </button>
@@ -87,12 +126,12 @@ function AdminHeader() {
               {/* Backdrop */}
               <div style={{ position: 'fixed', inset: 0, zIndex: 998 }} onClick={() => setShowDropdown(false)} />
 
-              <div style={{ position: 'fixed', top: '64px', right: '12px', left: '12px', maxWidth: '380px', marginLeft: 'auto', background: 'var(--white)', border: '1px solid rgba(15,39,68,0.1)', borderRadius: '4px', boxShadow: '0 12px 40px rgba(7,15,28,0.15)', zIndex: 999, overflow: 'hidden' }}>
+              <div style={{ position: 'fixed', top: '64px', right: '12px', left: '12px', maxWidth: '380px', marginLeft: 'auto', background: 'var(--white)', border: '1px solid rgba(15,39,68,0.1)', borderRadius: '4px', boxShadow: '0 12px 40px rgba(7,15,28,0.15)', zIndex: 999, overflow: 'hidden', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
                 {/* Dropdown header */}
-                <div style={{ background: 'var(--navy-800)', padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ background: 'var(--navy-800)', padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
                   <div>
-                    <p style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', fontWeight: 600, color: 'var(--gold-pale)', margin: 0 }}>Pending Appointments</p>
-                    <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-body)', margin: '2px 0 0' }}>{pending.length} awaiting confirmation</p>
+                    <p style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', fontWeight: 600, color: 'var(--gold-pale)', margin: 0 }}>Notifications</p>
+                    <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-body)', margin: '2px 0 0' }}>{pending.length} pending · {followUps.length} follow-up{followUps.length !== 1 ? 's' : ''}</p>
                   </div>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                     <button onClick={() => { navigate('/admin/appointments'); setShowDropdown(false) }} style={{ fontSize: '10px', color: 'var(--gold)', fontFamily: 'var(--font-body)', fontWeight: 600, background: 'none', border: '1px solid rgba(199,166,106,0.3)', borderRadius: '2px', padding: '4px 10px', cursor: 'pointer', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
@@ -103,12 +142,15 @@ function AdminHeader() {
                 </div>
 
                 {/* List */}
-                {pending.length === 0 ? (
+                <div style={{ overflowY: 'auto' }}>
+                {pending.length === 0 && followUps.length === 0 ? (
                   <div style={{ padding: '32px 16px', textAlign: 'center' }}>
                     <p style={{ fontSize: '24px', margin: '0 0 8px' }}>✅</p>
-                    <p style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', margin: 0 }}>All caught up! No pending appointments.</p>
+                    <p style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', margin: 0 }}>All caught up! No pending appointments or follow-ups.</p>
                   </div>
                 ) : (
+                  <>
+                  {pending.length > 0 && (
                   <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
                     {pending.map((a, i) => (
                       <div key={a.id} style={{ padding: '14px 16px', borderBottom: i < pending.length - 1 ? '1px solid rgba(15,39,68,0.06)' : 'none' }}>
@@ -141,7 +183,35 @@ function AdminHeader() {
                       </div>
                     ))}
                   </div>
+                  )}
+
+                  {followUps.length > 0 && (
+                    <div>
+                      {followUps.map(f => {
+                        const isToday = f.follow_up_date === new Date().toISOString().split('T')[0]
+                        const dateLabel = new Date(f.follow_up_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+                        return (
+                          <div key={f.id} style={{ padding: '12px 16px', borderBottom: '1px solid rgba(15,39,68,0.06)' }}>
+                            <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--navy-800)', margin: '0 0 3px', fontFamily: 'var(--font-body)' }}>
+                              🦷 Follow-up: {f.patients?.name || 'Patient'}
+                            </p>
+                            <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '0 0 8px', fontFamily: 'var(--font-body)' }}>
+                              {isToday ? 'Today' : `On ${dateLabel}`}
+                            </p>
+                            <button
+                              onClick={() => sendFollowUpWhatsApp(f)}
+                              disabled={!f.patients?.phone}
+                              style={{ fontSize: '11px', fontWeight: 600, padding: '6px 12px', borderRadius: '2px', border: 'none', background: '#25D366', color: '#fff', cursor: f.patients?.phone ? 'pointer' : 'not-allowed', opacity: f.patients?.phone ? 1 : 0.5, fontFamily: 'var(--font-body)' }}>
+                              💬 Send WhatsApp Reminder
+                            </button>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                  </>
                 )}
+                </div>
               </div>
             </>
           )}
@@ -270,7 +340,6 @@ export default function Admin() {
           <img src="/usha-dental-logo.png" alt="Usha Multi Speciality Dental Clinic" className="admin-sidebar-logo-img" />
           <p className="admin-sidebar-logo">Usha Multi Speciality Dental Clinic</p>
         </div>
-        <NotificationBell />
         <nav className="admin-nav">
           {navItems.map(item => (
             <NavLink key={item.to} to={item.to} className={({ isActive }) => `admin-nav-link ${isActive ? 'active' : ''}`} onClick={() => setSidebarOpen(false)}>
