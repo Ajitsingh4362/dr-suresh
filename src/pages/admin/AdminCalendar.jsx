@@ -201,6 +201,8 @@ export default function AdminCalendar() {
             </button>
           ))}
         </div>
+
+        <button className="admin-btn-primary" onClick={() => navigate('/admin/patients/new')}>+ Add Patient</button>
       </div>
 
       {/* Legend */}
