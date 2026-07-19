@@ -91,7 +91,7 @@ export default function AdminPatientProfile() {
   // Patient basic info
   const [patient, setPatient] = useState({
     name: prefill.name || '', phone: prefill.phone || '', email: prefill.email || '',
-    age: '', gender: '', blood_group: '', address: '', occupation: '',
+    date_of_birth: '', age: '', gender: '', blood_group: '', address: '', occupation: '',
     referred_by: '', emergency_contact_name: '', emergency_contact_phone: '',
     avatar_color: '#b9914f', tags: prefill.service ? [prefill.service].filter(s => TAGS.includes(s)) : [], status: 'active'
   })
@@ -189,18 +189,33 @@ export default function AdminPatientProfile() {
   function setP(key, val) { setPatient(p => ({ ...p, [key]: val })) }
   function setM(key, val) { setMedical(m => ({ ...m, [key]: val })) }
 
+  function calcAge(dobStr) {
+    if (!dobStr) return ''
+    const dob = new Date(dobStr)
+    if (isNaN(dob)) return ''
+    const today = new Date()
+    let a = today.getFullYear() - dob.getFullYear()
+    const m = today.getMonth() - dob.getMonth()
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) a--
+    return a >= 0 ? String(a) : ''
+  }
+
+  function setDob(v) {
+    setPatient(p => ({ ...p, date_of_birth: v, age: v ? calcAge(v) : p.age }))
+  }
+
   async function savePatient() {
     if (!patient.name || !patient.phone) { setMsg('Name and phone required'); return }
     setSaving(true)
     let patientId = id
 
     if (isNew) {
-      const { data, error } = await supabase.from('patients').insert({ ...patient, age: patient.age ? parseInt(patient.age) : null }).select().single()
+      const { data, error } = await supabase.from('patients').insert({ ...patient, age: patient.age ? parseInt(patient.age) : null, date_of_birth: patient.date_of_birth || null }).select().single()
       if (error) { setMsg('Error: ' + error.message); setSaving(false); return }
       patientId = data.id
       navigate(`/admin/patients/${patientId}`, { replace: true })
     } else {
-      await supabase.from('patients').update({ ...patient, age: patient.age ? parseInt(patient.age) : null }).eq('id', id)
+      await supabase.from('patients').update({ ...patient, age: patient.age ? parseInt(patient.age) : null, date_of_birth: patient.date_of_birth || null }).eq('id', id)
     }
 
     // Save medical history
@@ -427,6 +442,7 @@ export default function AdminPatientProfile() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <Field label="Phone / WhatsApp *" value={patient.phone} onChange={v => setP('phone', v)} />
             <Field label="Email Address" value={patient.email} onChange={v => setP('email', v)} />
+            <Field label="Date of Birth" value={patient.date_of_birth} onChange={setDob} type="date" />
             <Field label="Age" value={patient.age} onChange={v => setP('age', v)} type="number" />
             <Field label="Gender" value={patient.gender} onChange={v => setP('gender', v)} options={['Female', 'Male', 'Non-binary', 'Prefer not to say']} />
             <Field label="Blood Group" value={patient.blood_group} onChange={v => setP('blood_group', v)} options={BLOOD_GROUPS} />
