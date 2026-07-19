@@ -266,7 +266,10 @@ export default function Admin() {
       </button>
 
       <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
-        <p className="admin-sidebar-logo">Usha Multi Speciality Dental Clinic</p>
+        <div className="admin-sidebar-brand">
+          <img src="/usha-dental-logo.png" alt="Usha Multi Speciality Dental Clinic" className="admin-sidebar-logo-img" />
+          <p className="admin-sidebar-logo">Usha Multi Speciality Dental Clinic</p>
+        </div>
         <NotificationBell />
         <nav className="admin-nav">
           {navItems.map(item => (
