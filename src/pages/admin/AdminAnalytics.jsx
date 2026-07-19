@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 
 // Simple bar chart component (no external library needed)
@@ -74,6 +75,7 @@ function StatCard({ icon, label, value, sub, color = 'var(--navy-800)', trend })
 }
 
 export default function AdminAnalytics() {
+  const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [appts, setAppts] = useState([])
   const [patients, setPatients] = useState([])
@@ -149,7 +151,8 @@ export default function AdminAnalytics() {
     <div className="admin-panel" style={{ maxWidth: '1100px' }}>
       <div className="admin-panel-header">
         <h1>Analytics Dashboard</h1>
-        <div style={{ display: 'flex', gap: '6px' }}>
+        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+          <button className="admin-btn-primary" onClick={() => navigate('/admin/patients/new')} style={{ marginRight: '4px' }}>+ Add Patient</button>
           {[['7', '7 Days'], ['30', '30 Days'], ['90', '90 Days'], ['365', '1 Year']].map(([val, label]) => (
             <button key={val} onClick={() => setRange(val)} style={{ padding: '7px 14px', fontSize: '11px', fontFamily: 'var(--font-body)', fontWeight: 600, borderRadius: '2px', border: '1px solid rgba(15,39,68,0.12)', cursor: 'pointer', background: range === val ? 'var(--navy-800)' : 'var(--white)', color: range === val ? 'var(--gold-pale)' : 'var(--text-muted)', transition: 'all 0.2s' }}>
               {label}
