@@ -69,9 +69,8 @@ function AdminHeader() {
 
     const { data: rows, error: err1 } = await supabase
       .from('patient_consultations')
-      .select('id, follow_up_date, follow_up_notes, patient_id, reminder_sent')
+      .select('id, follow_up_date, follow_up_notes, patient_id, last_reminder_sent_date')
       .not('follow_up_date', 'is', null)
-      .eq('reminder_sent', false)
       .gte('follow_up_date', todayStr)
       .lte('follow_up_date', in2DaysStr)
       .order('follow_up_date', { ascending: true })
@@ -79,7 +78,11 @@ function AdminHeader() {
     if (err1) { console.error('fetchFollowUps consultations error:', err1); setFollowUps([]); return }
     if (!rows || rows.length === 0) { setFollowUps([]); return }
 
-    const patientIds = [...new Set(rows.map(r => r.patient_id))]
+    // Only hide it if it's already been sent TODAY — it comes back fresh tomorrow
+    const visible = rows.filter(r => r.last_reminder_sent_date !== todayStr)
+    if (visible.length === 0) { setFollowUps([]); return }
+
+    const patientIds = [...new Set(visible.map(r => r.patient_id))]
     const { data: pts, error: err2 } = await supabase
       .from('patients')
       .select('id, name, phone')
@@ -89,19 +92,25 @@ function AdminHeader() {
     const ptMap = {}
     ;(pts || []).forEach(p => { ptMap[p.id] = p })
 
-    setFollowUps(rows.map(r => ({ ...r, patients: ptMap[r.patient_id] || null })))
+    setFollowUps(visible.map(r => ({ ...r, patients: ptMap[r.patient_id] || null })))
   }
 
   async function sendFollowUpWhatsApp(f) {
     if (!f.patients?.phone) return
+    const todayStr = new Date().toISOString().split('T')[0]
+    const daysAway = Math.round((new Date(f.follow_up_date) - new Date(todayStr)) / 86400000)
     const dateStr = new Date(f.follow_up_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long' })
-    const msg = encodeURIComponent(
-      `Hi ${f.patients.name}, this is Usha Multi Speciality Dental Clinic. This is a reminder that your follow-up with Dr. Suresh Kumar is scheduled on ${dateStr}. Please let us know if this works for you, or if you'd like to reschedule. 🦷`
-    )
+
+    let line
+    if (daysAway <= 0) line = `Today is your follow-up date with Dr. Suresh Kumar at Usha Multi Speciality Dental Clinic.`
+    else if (daysAway === 1) line = `This is a reminder that your follow-up with Dr. Suresh Kumar is tomorrow, ${dateStr}.`
+    else line = `This is a reminder that your follow-up with Dr. Suresh Kumar is scheduled on ${dateStr}.`
+
+    const msg = encodeURIComponent(`Hi ${f.patients.name}, this is Usha Multi Speciality Dental Clinic. ${line} Please let us know if this works for you, or if you'd like to reschedule. 🦷`)
     window.open(`https://wa.me/${cleanPhone(f.patients.phone)}?text=${msg}`, '_blank')
-    // Remove from the list right away and mark as sent so it doesn't come back
+    // Remove from today's list, but it comes back tomorrow if the follow-up date hasn't passed yet
     setFollowUps(prev => prev.filter(x => x.id !== f.id))
-    await supabase.from('patient_consultations').update({ reminder_sent: true }).eq('id', f.id)
+    await supabase.from('patient_consultations').update({ last_reminder_sent_date: todayStr }).eq('id', f.id)
   }
 
   async function confirm(appt) {
