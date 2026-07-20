@@ -110,6 +110,7 @@ img { max-width: 100%; display: block; }
   .two-col-grid { grid-template-columns: 1fr !important; }
   .three-col-grid { grid-template-columns: 1fr !important; }
   .contact-grid { grid-template-columns: 1fr !important; }
+  .contact-form-col { order: -1; }
   .form-row-2 { grid-template-columns: 1fr !important; }
   .hero-grid { grid-template-columns: 1fr !important; }
 }

@@ -230,7 +230,7 @@ export default function Contact() {
             </div>
 
             {/* Form */}
-            <div style={{ background: 'var(--navy-800)', padding: '40px', borderRadius: '2px', border: '1px solid rgba(199,166,106,0.15)', minWidth: 0, position: 'relative', overflow: 'hidden' }}>
+            <div className="contact-form-col" style={{ background: 'var(--navy-800)', padding: '40px', borderRadius: '2px', border: '1px solid rgba(199,166,106,0.15)', minWidth: 0, position: 'relative', overflow: 'hidden' }}>
               <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'var(--gold)' }} />
               <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '28px', color: 'var(--gold-pale)', marginBottom: '6px' }}>Book an Appointment</h3>
               <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.45)', marginBottom: '28px' }}>We will reach out within 24 hours to confirm your appointment.</p>
