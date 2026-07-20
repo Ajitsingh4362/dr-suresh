@@ -313,6 +313,7 @@ export default function Admin() {
     return (
       <div className="admin-login">
         <div className="admin-login-box">
+          <img src="/usha-dental-logo.png" alt="Usha Multi Speciality Dental Clinic" style={{ height: '70px', width: 'auto', display: 'block', margin: '0 auto 12px' }} />
           <p className="admin-login-logo">Usha Multi Speciality Dental Clinic</p>
           <h2>Admin Login</h2>
           <input
