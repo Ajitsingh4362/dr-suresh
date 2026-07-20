@@ -111,6 +111,10 @@ img { max-width: 100%; display: block; }
   .mobile-book-cta-wrap { display: block; }
 }
 @media (max-width: 768px) {
+  .mobile-book-cta-wrap { padding: 20px 0 !important; }
+  .healing-areas-section { padding-top: 36px !important; }
+}
+@media (max-width: 768px) {
   .two-col-grid { grid-template-columns: 1fr !important; }
   .three-col-grid { grid-template-columns: 1fr !important; }
 .contact-grid {

@@ -494,7 +494,7 @@ export default function Home() {
       </div>
 
       {/* SPECIALIZATIONS PREVIEW */}
-      <section style={{ padding: '100px 0', background: 'var(--ivory)', position: 'relative', overflow: 'hidden' }}>
+      <section className="healing-areas-section" style={{ padding: '100px 0', background: 'var(--ivory)', position: 'relative', overflow: 'hidden' }}>
         {/* Top-left ornamental corner */}
         <svg width="140" height="140" viewBox="0 0 140 140" style={{ position: 'absolute', top: 0, left: 0, opacity: 0.55 }}>
           <path d="M0,60 Q0,0 60,0" stroke="var(--gold)" strokeWidth="1.5" fill="none" />
