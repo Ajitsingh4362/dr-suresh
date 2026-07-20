@@ -436,6 +436,13 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Shape divider: gold -> ivory, into Our Doctors section */}
+      <div style={{ position: 'relative', background: 'var(--gold)', lineHeight: 0 }}>
+        <svg viewBox="0 0 1200 60" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '48px' }}>
+          <path d="M0,0 C300,60 900,60 1200,0 L1200,60 L0,60 Z" fill="#FAF8F4" />
+        </svg>
+      </div>
+
       {/* MEET THE DOCTORS — swipeable */}
       <section className="doctors-section" style={{
         padding: '90px 0',
