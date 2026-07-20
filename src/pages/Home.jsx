@@ -273,9 +273,9 @@ export default function Home() {
               <div style={{
                 display: 'inline-flex', alignItems: 'center', gap: '16px',
                 marginTop: '28px', marginBottom: '32px',
-                background: 'rgba(199,166,106,0.08)',
-                border: '1px solid rgba(199,166,106,0.25)',
-                borderLeft: '3px solid var(--gold)',
+                background: 'var(--gold)',
+                border: '1px solid rgba(15,39,68,0.15)',
+                borderLeft: '3px solid var(--navy-800)',
                 borderRadius: '2px',
                 padding: '14px 22px',
                 width: '300px',
@@ -285,29 +285,29 @@ export default function Home() {
                   <div style={{
                     fontFamily: 'var(--font-display)',
                     fontSize: '22px', fontWeight: 700,
-                    color: 'var(--gold)',
+                    color: '#000000',
                     letterSpacing: '0.5px',
                     lineHeight: 1.2,
                   }}>
                     <Typewriter text="Dr. Suresh Kumar" speed={70} loop pauseAfter={5000} />
                   </div>
                   <div style={{
-                    fontSize: '10px', color: 'rgba(255,255,255,0.45)',
+                    fontSize: '10px', color: '#000000',
                     letterSpacing: '2px', textTransform: 'uppercase',
-                    marginTop: '4px', fontFamily: 'var(--font-body)',
+                    marginTop: '4px', fontFamily: 'var(--font-body)', fontWeight: 600,
                   }}>
                     <Typewriter text="Multi-Speciality Dental Care" speed={40} startDelay={1400} cursor={false} loop pauseAfter={5000} />
                   </div>
                   <div style={{
-                    fontFamily: 'var(--font-display)', fontSize: '15px', color: 'var(--gold-pale)',
+                    fontFamily: 'var(--font-display)', fontSize: '15px', color: '#000000',
                     fontWeight: 600, marginTop: '10px',
                   }}>
                     <Typewriter text="Dr. Preeti Rajguru" speed={70} startDelay={800} loop pauseAfter={5000} />
                   </div>
                   <div style={{
-                    fontSize: '10px', color: 'rgba(255,255,255,0.45)',
+                    fontSize: '10px', color: '#000000',
                     letterSpacing: '2px', textTransform: 'uppercase',
-                    marginTop: '4px', fontFamily: 'var(--font-body)',
+                    marginTop: '4px', fontFamily: 'var(--font-body)', fontWeight: 600,
                   }}>
                     <Typewriter text="MDS" speed={70} startDelay={2200} cursor={false} loop pauseAfter={5000} />
                   </div>
