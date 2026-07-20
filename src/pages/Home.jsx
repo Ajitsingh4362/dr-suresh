@@ -488,6 +488,11 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Mobile/Tablet-only CTA, just above Healing Areas */}
+      <div className="mobile-book-cta-wrap" style={{ padding: '32px 0', background: 'var(--ivory)', textAlign: 'center' }}>
+        <Link to="/contact"><button className="btn-primary">Book an Appointment</button></Link>
+      </div>
+
       {/* SPECIALIZATIONS PREVIEW */}
       <section style={{ padding: '100px 0', background: 'var(--ivory)', position: 'relative', overflow: 'hidden' }}>
         {/* Top-left ornamental corner */}

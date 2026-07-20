@@ -105,7 +105,11 @@ img { max-width: 100%; display: block; }
 .gold-line { width: 48px; height: 2px; background: var(--gold); margin: 16px 0 24px; }
 .gold-line.center { margin: 16px auto 24px; }
 
-/* Responsive grids */
+/* Mobile/Tablet-only Book Appointment CTA above Healing Areas */
+.mobile-book-cta-wrap { display: none; }
+@media (max-width: 1024px) {
+  .mobile-book-cta-wrap { display: block; }
+}
 @media (max-width: 768px) {
   .two-col-grid { grid-template-columns: 1fr !important; }
   .three-col-grid { grid-template-columns: 1fr !important; }
