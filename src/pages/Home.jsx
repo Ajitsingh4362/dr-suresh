@@ -405,6 +405,14 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Shape divider: navy -> white */}
+      <div style={{ position: 'relative', background: 'var(--navy-800)', lineHeight: 0 }}>
+        <svg viewBox="0 0 1200 100" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '64px' }}>
+          <path d="M0,38 C300,95 900,5 1200,48 L1200,100 L0,100 Z" fill="#FFFFFF" />
+          <path d="M0,38 C300,95 900,5 1200,48" fill="none" stroke="#C9A45C" strokeWidth="2.5" opacity="0.55" />
+        </svg>
+      </div>
+
       {/* TAGLINE STRIP */}
       <section style={{ background: 'var(--navy-700, #0f2744)', padding: '20px 0', borderBottom: '1px solid rgba(199,166,106,0.15)' }}>
         <div className="container" style={{ textAlign: 'center' }}>
