@@ -200,14 +200,17 @@ export default function AdminPatientProfile() {
       patientId = data.id
       navigate(`/admin/patients/${patientId}`, { replace: true })
     } else {
-      await supabase.from('patients').update({ ...patient, age: patient.age ? parseInt(patient.age) : null }).eq('id', id)
+      const { error } = await supabase.from('patients').update({ ...patient, age: patient.age ? parseInt(patient.age) : null }).eq('id', id)
+      if (error) { setMsg('Error: ' + error.message); setSaving(false); return }
     }
 
     // Save medical history
     if (medicalId) {
-      await supabase.from('patient_medical_history').update(medical).eq('id', medicalId)
+      const { error } = await supabase.from('patient_medical_history').update(medical).eq('id', medicalId)
+      if (error) { setMsg('Error: ' + error.message); setSaving(false); return }
     } else {
-      const { data } = await supabase.from('patient_medical_history').insert({ ...medical, patient_id: patientId }).select().single()
+      const { data, error } = await supabase.from('patient_medical_history').insert({ ...medical, patient_id: patientId }).select().single()
+      if (error) { setMsg('Error: ' + error.message); setSaving(false); return }
       if (data) setMedicalId(data.id)
     }
 
@@ -218,7 +221,16 @@ export default function AdminPatientProfile() {
 
   async function addConsultation() {
     if (!newConsult.chief_complaint) return
-    await supabase.from('patient_consultations').insert({ ...newConsult, patient_id: id })
+    const payload = {
+      ...newConsult,
+      patient_id: id,
+      follow_up_date: newConsult.follow_up_date || null,
+    }
+    const { error } = await supabase.from('patient_consultations').insert(payload)
+    if (error) {
+      alert('Could not save consultation: ' + error.message)
+      return
+    }
     setNewConsult({ date: new Date().toISOString().split('T')[0], chief_complaint: '', observations: '', prescription: '', follow_up_date: '', follow_up_notes: '', consultation_type: 'in-person' })
     setShowConsultForm(false)
     fetchAll()
@@ -226,19 +238,22 @@ export default function AdminPatientProfile() {
 
   async function deleteConsultation(cid) {
     if (!confirm('Delete this consultation record?')) return
-    await supabase.from('patient_consultations').delete().eq('id', cid)
+    const { error } = await supabase.from('patient_consultations').delete().eq('id', cid)
+    if (error) { alert('Could not delete: ' + error.message); return }
     fetchAll()
   }
 
   async function addNote() {
     if (!newNote.trim()) return
-    await supabase.from('patient_notes').insert({ patient_id: id, note: newNote, note_type: noteType })
+    const { error } = await supabase.from('patient_notes').insert({ patient_id: id, note: newNote, note_type: noteType })
+    if (error) { alert('Could not save note: ' + error.message); return }
     setNewNote('')
     fetchAll()
   }
 
   async function deleteNote(nid) {
-    await supabase.from('patient_notes').delete().eq('id', nid)
+    const { error } = await supabase.from('patient_notes').delete().eq('id', nid)
+    if (error) { alert('Could not delete: ' + error.message); return }
     fetchAll()
   }
 
@@ -250,13 +265,16 @@ export default function AdminPatientProfile() {
     const { error } = await supabase.storage.from('patient-documents').upload(path, file)
     if (!error) {
       // Store the storage path, not public URL
-      await supabase.from('patient_documents').insert({
+      const { error: insertErr } = await supabase.from('patient_documents').insert({
         patient_id: id,
         name: file.name,
         file_url: path, // store path only
         file_type: file.type
       })
+      if (insertErr) alert('File uploaded but could not save record: ' + insertErr.message)
       fetchAll()
+    } else {
+      alert('Upload failed: ' + error.message)
     }
     setUploading(false)
   }
@@ -271,7 +289,8 @@ export default function AdminPatientProfile() {
 
   async function deleteDoc(did) {
     if (!confirm('Delete this document?')) return
-    await supabase.from('patient_documents').delete().eq('id', did)
+    const { error } = await supabase.from('patient_documents').delete().eq('id', did)
+    if (error) { alert('Could not delete: ' + error.message); return }
     fetchAll()
   }
 
