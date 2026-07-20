@@ -535,8 +535,9 @@ export default function Home() {
             ))}
           </div>
 
-          <div style={{ textAlign: 'center', marginTop: '48px' }}>
+          <div style={{ textAlign: 'center', marginTop: '48px', display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link to="/specializations"><button className="btn-outline-dark">Explore All Specializations</button></Link>
+            <Link to="/contact"><button className="btn-primary">Book an Appointment</button></Link>
           </div>
         </div>
       </section>
