@@ -114,6 +114,18 @@ img { max-width: 100%; display: block; }
   .mobile-book-cta-wrap { padding: 20px 0 !important; }
   .healing-areas-section { padding-top: 36px !important; }
 }
+@media (min-width: 769px) {
+  .contact-grid {
+    grid-template-areas: "info form" "opd opd" !important;
+  }
+  .contact-grid .contact-opd {
+    text-align: center;
+  }
+  .contact-grid .contact-opd > div {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+}
 @media (max-width: 768px) {
   .two-col-grid { grid-template-columns: 1fr !important; }
   .three-col-grid { grid-template-columns: 1fr !important; }
