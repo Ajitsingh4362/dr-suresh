@@ -518,6 +518,14 @@ export default function Home() {
                 {h.highlight && (
                   <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'var(--gold)' }} />
                 )}
+                {h.highlight && (
+                  <svg width="90" height="90" viewBox="0 0 90 90" style={{ position: 'absolute', top: 0, right: 0, opacity: 0.4, pointerEvents: 'none' }}>
+                    <rect x="34" y="8" width="22" height="22" fill="none" stroke="var(--gold)" strokeWidth="1.5" transform="rotate(45 45 19)" />
+                    <rect x="12" y="-6" width="14" height="14" fill="var(--gold)" opacity="0.25" transform="rotate(45 19 1)" />
+                    <rect x="56" y="34" width="14" height="14" fill="var(--gold)" opacity="0.25" transform="rotate(45 63 41)" />
+                    <rect x="40" y="34" width="8" height="8" fill="var(--gold)" opacity="0.6" transform="rotate(45 44 38)" />
+                  </svg>
+                )}
                 <div style={{ fontSize: '32px', marginBottom: '16px' }}>{h.icon}</div>
                 <h3 style={{
                   fontFamily: 'var(--font-display)',
