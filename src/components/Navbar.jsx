@@ -28,7 +28,7 @@ export default function Navbar() {
     <>
       <div style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1001,
-        background: 'var(--navy-900)', borderBottom: '1px solid rgba(199,166,106,0.2)',
+        background: '#ffffff', borderBottom: '1px solid rgba(15,39,68,0.12)',
         overflow: 'hidden', whiteSpace: 'nowrap', padding: '6px 0',
       }}>
         <div style={{ display: 'inline-flex', animation: 'marquee-scroll 26s linear infinite' }}>
@@ -36,7 +36,7 @@ export default function Navbar() {
             <div key={g} style={{ display: 'inline-flex', flexShrink: 0 }}>
               {new Array(4).fill(0).map((_, i) => (
                 <span key={i} style={{
-                  display: 'inline-block', color: 'var(--gold-pale)', fontSize: '11px',
+                  display: 'inline-block', color: 'var(--navy-800)', fontSize: '11px',
                   letterSpacing: '1px', fontFamily: 'var(--font-body)', fontWeight: 300,
                   padding: '0 28px',
                 }}>
