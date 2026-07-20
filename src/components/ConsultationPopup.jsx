@@ -14,13 +14,12 @@ export default function ConsultationPopup({ onClose }) {
   return (
     <div className="popup-overlay" onClick={onClose}>
       <div className="popup-box" onClick={e => e.stopPropagation()}>
-        {/* Top-left ornamental corner */}
-        <svg width="90" height="90" viewBox="0 0 90 90" style={{ position: 'absolute', top: 0, left: 0, opacity: 0.5, pointerEvents: 'none' }}>
-          <path d="M0,40 Q0,0 40,0" stroke="var(--gold)" strokeWidth="1.5" fill="none" />
-          <path d="M0,60 Q0,0 60,0" stroke="var(--gold)" strokeWidth="1" fill="none" opacity="0.5" />
-          <circle cx="40" cy="0" r="2.5" fill="var(--gold)" />
-          <circle cx="0" cy="40" r="2.5" fill="var(--gold)" />
-          <circle cx="16" cy="16" r="1.8" fill="var(--gold)" opacity="0.7" />
+        {/* Top-left diamond pattern */}
+        <svg width="90" height="90" viewBox="0 0 90 90" style={{ position: 'absolute', top: 0, left: 0, opacity: 0.55, pointerEvents: 'none' }}>
+          <rect x="8" y="8" width="22" height="22" fill="none" stroke="var(--gold)" strokeWidth="1.5" transform="rotate(45 19 19)" />
+          <rect x="34" y="-6" width="14" height="14" fill="var(--gold)" opacity="0.25" transform="rotate(45 41 1)" />
+          <rect x="-6" y="34" width="14" height="14" fill="var(--gold)" opacity="0.25" transform="rotate(45 1 41)" />
+          <rect x="24" y="24" width="8" height="8" fill="var(--gold)" opacity="0.6" transform="rotate(45 28 28)" />
         </svg>
         <button className="popup-close" onClick={onClose} aria-label="Close">✕</button>
         <div className="popup-icon" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
