@@ -224,6 +224,7 @@ export default function AdminPatientProfile() {
     const payload = {
       ...newConsult,
       patient_id: id,
+      date: newConsult.date || new Date().toISOString().split('T')[0],
       follow_up_date: newConsult.follow_up_date || null,
     }
     const { error } = await supabase.from('patient_consultations').insert(payload)
