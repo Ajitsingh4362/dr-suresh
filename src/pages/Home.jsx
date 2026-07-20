@@ -551,7 +551,15 @@ export default function Home() {
       </section>
 
       {/* WHY CHOOSE */}
-      <section style={{ padding: '100px 0', background: 'linear-gradient(160deg, var(--navy-800), var(--navy-900))' }}>
+      <section style={{ padding: '100px 0', background: 'linear-gradient(160deg, var(--navy-800), var(--navy-900))', position: 'relative', overflow: 'hidden' }}>
+        {/* Top-right dot grid pattern */}
+        <svg width="130" height="130" viewBox="0 0 130 130" style={{ position: 'absolute', top: '24px', right: '24px', opacity: 0.5, pointerEvents: 'none' }}>
+          {Array.from({ length: 6 }).map((_, row) =>
+            Array.from({ length: 6 }).map((_, col) => (
+              <circle key={`${row}-${col}`} cx={10 + col * 22} cy={10 + row * 22} r="2" fill="var(--gold)" />
+            ))
+          )}
+        </svg>
         <div className="container">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'center' }} className="two-col-grid">
             <div>
