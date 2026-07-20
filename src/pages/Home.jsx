@@ -436,11 +436,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Shape divider: gold -> ivory, into Our Doctors section */}
-      <div style={{ position: 'relative', background: 'var(--gold)', lineHeight: 0 }}>
+      {/* Shape divider: navy (hero-style blue) -> ivory, into Our Doctors section */}
+      <div style={{ position: 'relative', background: 'linear-gradient(160deg, var(--navy-900) 0%, var(--navy-800) 100%)', lineHeight: 0 }}>
         <svg viewBox="0 0 1200 100" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '64px' }}>
           <path d="M0,38 C300,95 900,5 1200,48 L1200,100 L0,100 Z" fill="#FAF8F4" />
-          <path d="M0,38 C300,95 900,5 1200,48" fill="none" stroke="#C9A45C" strokeWidth="2.5" opacity="0.55" />
+          <path d="M0,38 C300,95 900,5 1200,48" fill="none" stroke="#6f93c2" strokeWidth="2.5" opacity="0.55" />
         </svg>
       </div>
 
