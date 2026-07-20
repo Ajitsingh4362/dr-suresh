@@ -642,6 +642,9 @@ export default function Home() {
             </p>
           </div>
           <Tilt3D image="/clinic-banner-2.png" alt="Usha Multi Speciality Dental Clinic" />
+          <div className="mobile-book-cta-wrap" style={{ padding: '32px 0 0', background: 'transparent', textAlign: 'center' }}>
+            <Link to="/contact"><button className="btn-primary">Book an Appointment</button></Link>
+          </div>
         </div>
       </section>
 
