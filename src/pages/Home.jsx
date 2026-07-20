@@ -438,8 +438,9 @@ export default function Home() {
 
       {/* Shape divider: gold -> ivory, into Our Doctors section */}
       <div style={{ position: 'relative', background: 'var(--gold)', lineHeight: 0 }}>
-        <svg viewBox="0 0 1200 60" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '48px' }}>
-          <path d="M0,0 C300,60 900,60 1200,0 L1200,60 L0,60 Z" fill="#FAF8F4" />
+        <svg viewBox="0 0 1200 100" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '64px' }}>
+          <path d="M0,38 C300,95 900,5 1200,48 L1200,100 L0,100 Z" fill="#FAF8F4" />
+          <path d="M0,38 C300,95 900,5 1200,48" fill="none" stroke="#C9A45C" strokeWidth="2.5" opacity="0.55" />
         </svg>
       </div>
 
