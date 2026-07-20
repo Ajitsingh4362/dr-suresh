@@ -69,8 +69,9 @@ function AdminHeader() {
 
     const { data: rows, error: err1 } = await supabase
       .from('patient_consultations')
-      .select('id, follow_up_date, follow_up_notes, patient_id')
+      .select('id, follow_up_date, follow_up_notes, patient_id, reminder_sent')
       .not('follow_up_date', 'is', null)
+      .eq('reminder_sent', false)
       .gte('follow_up_date', todayStr)
       .lte('follow_up_date', in2DaysStr)
       .order('follow_up_date', { ascending: true })
@@ -91,13 +92,16 @@ function AdminHeader() {
     setFollowUps(rows.map(r => ({ ...r, patients: ptMap[r.patient_id] || null })))
   }
 
-  function sendFollowUpWhatsApp(f) {
+  async function sendFollowUpWhatsApp(f) {
     if (!f.patients?.phone) return
     const dateStr = new Date(f.follow_up_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long' })
     const msg = encodeURIComponent(
       `Hi ${f.patients.name}, this is Usha Multi Speciality Dental Clinic. This is a reminder that your follow-up with Dr. Suresh Kumar is scheduled on ${dateStr}. Please let us know if this works for you, or if you'd like to reschedule. 🦷`
     )
     window.open(`https://wa.me/${cleanPhone(f.patients.phone)}?text=${msg}`, '_blank')
+    // Remove from the list right away and mark as sent so it doesn't come back
+    setFollowUps(prev => prev.filter(x => x.id !== f.id))
+    await supabase.from('patient_consultations').update({ reminder_sent: true }).eq('id', f.id)
   }
 
   async function confirm(appt) {
@@ -215,7 +219,7 @@ function AdminHeader() {
                               onClick={() => sendFollowUpWhatsApp(f)}
                               disabled={!f.patients?.phone}
                               style={{ fontSize: '11px', fontWeight: 600, padding: '6px 12px', borderRadius: '2px', border: 'none', background: '#25D366', color: '#fff', cursor: f.patients?.phone ? 'pointer' : 'not-allowed', opacity: f.patients?.phone ? 1 : 0.5, fontFamily: 'var(--font-body)' }}>
-                              💬 Send WhatsApp Reminder
+                              💬 Send Reminder & Dismiss
                             </button>
                           </div>
                         )
