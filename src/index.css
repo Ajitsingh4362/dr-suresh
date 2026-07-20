@@ -47,7 +47,7 @@ img { max-width: 100%; display: block; }
 @media (max-width: 768px) { .container { padding: 0 16px; } }
 
 @media (max-width: 640px) {
-  .doctors-section { padding-top: 36px !important; }
+  .doctors-section { padding-top: 36px !important; padding-bottom: 36px !important; }
 }
 
 .section-tag {
