@@ -158,7 +158,7 @@ export default function Contact() {
           <div className="contact-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '56px', alignItems: 'start' }}>
 
             {/* Left */}
-            <div style={{ minWidth: 0 }}>
+            <div className="contact-info" style={{ minWidth: 0 }}>
               <span className="section-tag">Contact Details</span>
               <div className="gold-line" />
               <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 3vw, 36px)', color: 'var(--navy-800)', marginBottom: '32px' }}>
@@ -195,37 +195,37 @@ export default function Contact() {
                   width="100%" height="220" style={{ border: 0 }} allowFullScreen="" loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade" title="Usha Multi Speciality Dental Clinic Location" />
               </div>
+            </div>
 
-              {/* OPD Timings */}
-              <div style={{ marginTop: '40px' }}>
-                <span className="section-tag">Clinic Hours</span>
-                <div className="gold-line" />
-                <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '28px', color: 'var(--navy-800)', marginBottom: '20px' }}>OPD Timings</h3>
-                <div style={{ background: 'var(--navy-800)', borderRadius: '4px', overflow: 'hidden', border: '1px solid rgba(199,166,106,0.15)' }}>
-                  {OPD_TIMINGS.map((row, i) => (
-                    <div key={i} style={{
-                      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                      padding: '14px 20px',
-                      borderBottom: i < OPD_TIMINGS.length - 1 ? '1px solid rgba(199,166,106,0.08)' : 'none',
-                      background: i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
-                      gap: '12px',
-                    }}>
-                      {/* Day name */}
-                      <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', fontFamily: 'var(--font-body)', minWidth: '120px', flexShrink: 0 }}>{row.day}</span>
+            {/* OPD Timings */}
+            <div className="contact-opd" style={{ marginTop: '0' }}>
+              <span className="section-tag">Clinic Hours</span>
+              <div className="gold-line" />
+              <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '28px', color: 'var(--navy-800)', marginBottom: '20px' }}>OPD Timings</h3>
+              <div style={{ background: 'var(--navy-800)', borderRadius: '4px', overflow: 'hidden', border: '1px solid rgba(199,166,106,0.15)' }}>
+                {OPD_TIMINGS.map((row, i) => (
+                  <div key={i} style={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    padding: '14px 20px',
+                    borderBottom: i < OPD_TIMINGS.length - 1 ? '1px solid rgba(199,166,106,0.08)' : 'none',
+                    background: i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
+                    gap: '12px',
+                  }}>
+                    {/* Day name */}
+                    <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', fontFamily: 'var(--font-body)', minWidth: '120px', flexShrink: 0 }}>{row.day}</span>
 
-                      {/* Timings stacked */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flex: 1 }}>
-                        <span style={{ fontSize: '12px', color: row.open ? 'rgba(255,255,255,0.85)' : 'rgba(255,100,100,0.8)', fontFamily: 'var(--font-body)', whiteSpace: 'nowrap' }}>{row.morning}</span>
-                        {row.evening && (
-                          <span style={{ fontSize: '12px', color: row.open ? 'rgba(199,166,106,0.8)' : 'rgba(255,180,100,0.8)', fontFamily: 'var(--font-body)', whiteSpace: 'nowrap' }}>{row.evening}</span>
-                        )}
-                      </div>
-
-                      {/* Status dot */}
-                      <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: row.open ? '#4ade80' : '#f97316', flexShrink: 0 }} />
+                    {/* Timings stacked */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flex: 1 }}>
+                      <span style={{ fontSize: '12px', color: row.open ? 'rgba(255,255,255,0.85)' : 'rgba(255,100,100,0.8)', fontFamily: 'var(--font-body)', whiteSpace: 'nowrap' }}>{row.morning}</span>
+                      {row.evening && (
+                        <span style={{ fontSize: '12px', color: row.open ? 'rgba(199,166,106,0.8)' : 'rgba(255,180,100,0.8)', fontFamily: 'var(--font-body)', whiteSpace: 'nowrap' }}>{row.evening}</span>
+                      )}
                     </div>
-                  ))}
-                </div>
+
+                    {/* Status dot */}
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: row.open ? '#4ade80' : '#f97316', flexShrink: 0 }} />
+                  </div>
+                ))}
               </div>
             </div>
 

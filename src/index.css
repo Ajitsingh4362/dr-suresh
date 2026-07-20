@@ -109,8 +109,16 @@ img { max-width: 100%; display: block; }
 @media (max-width: 768px) {
   .two-col-grid { grid-template-columns: 1fr !important; }
   .three-col-grid { grid-template-columns: 1fr !important; }
-  .contact-grid { grid-template-columns: 1fr !important; }
-  .contact-form-col { order: -1; }
+.contact-grid {
+  grid-template-areas: "info form" "opd form";
+}
+.contact-grid .contact-info { grid-area: info; }
+.contact-grid .contact-opd { grid-area: opd; }
+.contact-grid .contact-form-col { grid-area: form; }
+
+@media (max-width: 768px) {
+  .contact-grid { grid-template-columns: 1fr !important; grid-template-areas: "form" "opd" "info" !important; }
+}
   .form-row-2 { grid-template-columns: 1fr !important; }
   .hero-grid { grid-template-columns: 1fr !important; }
 }
