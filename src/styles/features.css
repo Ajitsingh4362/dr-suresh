@@ -241,21 +241,16 @@
 }
 .page-hero::before {
   content: ''; position: absolute; inset: 0;
-  background-image: radial-gradient(rgba(199,166,106,0.9) 1.5px, transparent 1.5px);
-  background-size: 26px 26px;
-  -webkit-mask-image: radial-gradient(ellipse 60% 100% at 100% 0%, black 0%, transparent 55%),
-                       radial-gradient(ellipse 60% 100% at 0% 100%, black 0%, transparent 55%);
-  mask-image: radial-gradient(ellipse 60% 100% at 100% 0%, black 0%, transparent 55%),
-              radial-gradient(ellipse 60% 100% at 0% 100%, black 0%, transparent 55%);
-  opacity: 0.35;
+  background-image: url('/hero-pattern.svg');
+  background-size: cover;
+  background-position: center;
 }
 .page-hero::after {
-  content: ''; position: absolute; inset: 0;
-  background-image: repeating-linear-gradient(135deg, rgba(199,166,106,0.06) 0px, rgba(199,166,106,0.06) 1px, transparent 1px, transparent 34px);
-  pointer-events: none;
+  content: none;
 }
 @media (max-width: 1024px) {
   .page-hero::before { display: none; }
+  .hero-corner-pattern { display: none !important; }
   .hero-corner-pattern { display: none !important; }
 }
 .page-hero-inner { position: relative; z-index: 1; }

@@ -1,0 +1,119 @@
+<svg width="1600" height="500" viewBox="0 0 1600 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#050c17"/>
+      <stop offset="60%" stop-color="#0d2340"/>
+      <stop offset="100%" stop-color="#122a4d"/>
+    </linearGradient>
+    <radialGradient id="fadeTR" cx="100%" cy="0%" r="80%">
+      <stop offset="0%" stop-color="#000" stop-opacity="0.95"/>
+      <stop offset="60%" stop-color="#000" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0.0"/>
+    </radialGradient>
+    <radialGradient id="fadeBL" cx="0%" cy="100%" r="80%">
+      <stop offset="0%" stop-color="#000" stop-opacity="0.95"/>
+      <stop offset="60%" stop-color="#000" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0.0"/>
+    </radialGradient>
+    <mask id="cornerMask">
+      <rect width="1600" height="500" fill="url(#fadeTR)"/>
+      <rect width="1600" height="500" fill="url(#fadeBL)"/>
+    </mask>
+    <g id="sunburst">
+      <g stroke="#C9A45C" stroke-width="1">
+        <line x1="0" y1="0" x2="0" y2="-260" transform="rotate(0)"/>
+      </g>
+    </g>
+  </defs>
+
+  <rect width="1600" height="500" fill="url(#bg)"/>
+
+  <!-- ===== TOP-RIGHT ARCHITECTURAL MEDALLION ===== -->
+  <g mask="url(#cornerMask)">
+    <g transform="translate(1560,-60)">
+      <!-- sunburst fan rays -->
+      <g stroke="#C9A45C" opacity="0.69">
+        <g id="rays-tr">
+          <line x1="0" y1="0" x2="0" y2="-300" stroke-width="1"/>
+        </g>
+      </g>
+      <!-- generate 24 rays via manual rotation -->
+      <g opacity="0.64" stroke="#C9A45C" stroke-width="1">
+        <line x1="0" y1="0" x2="0" y2="-320" transform="rotate(0)"/>
+        <line x1="0" y1="0" x2="0" y2="-320" transform="rotate(15)"/>
+        <line x1="0" y1="0" x2="0" y2="-320" transform="rotate(30)"/>
+        <line x1="0" y1="0" x2="0" y2="-320" transform="rotate(45)"/>
+        <line x1="0" y1="0" x2="0" y2="-320" transform="rotate(60)"/>
+        <line x1="0" y1="0" x2="0" y2="-320" transform="rotate(75)"/>
+        <line x1="0" y1="0" x2="0" y2="-320" transform="rotate(90)"/>
+        <line x1="0" y1="0" x2="0" y2="-320" transform="rotate(105)"/>
+        <line x1="0" y1="0" x2="0" y2="-320" transform="rotate(120)"/>
+        <line x1="0" y1="0" x2="0" y2="-320" transform="rotate(135)"/>
+        <line x1="0" y1="0" x2="0" y2="-320" transform="rotate(150)"/>
+        <line x1="0" y1="0" x2="0" y2="-320" transform="rotate(165)"/>
+        <line x1="0" y1="0" x2="0" y2="-320" transform="rotate(180)"/>
+      </g>
+      <!-- concentric arcs over the rays -->
+      <circle cx="0" cy="0" r="120" fill="none" stroke="#0d2340" stroke-width="14" opacity="0.95"/>
+      <circle cx="0" cy="0" r="120" fill="none" stroke="#C9A45C" stroke-width="1.5" opacity="0.95"/>
+      <circle cx="0" cy="0" r="200" fill="none" stroke="#C9A45C" stroke-width="1" opacity="0.92"/>
+      <circle cx="0" cy="0" r="280" fill="none" stroke="#e3c079" stroke-width="1" opacity="0.57"/>
+      <circle cx="0" cy="0" r="360" fill="none" stroke="#e3c079" stroke-width="1" opacity="0.34"/>
+      <!-- inner medallion ring detail -->
+      <circle cx="0" cy="0" r="95" fill="none" stroke="#e3c079" stroke-width="1.2" opacity="0.95"/>
+      <circle cx="0" cy="0" r="70" fill="none" stroke="#e3c079" stroke-width="1.2" opacity="0.92"/>
+    </g>
+
+    <!-- Stepped architrave lines (art-deco stair motif) top-right -->
+    <g stroke="#C9A45C" stroke-width="1" opacity="0.69" fill="none">
+      <path d="M1600,180 L1460,180 L1460,120 L1400,120 L1400,60 L1340,60"/>
+      <path d="M1600,220 L1500,220 L1500,160 L1440,160 L1440,100 L1380,100"/>
+    </g>
+
+    <!-- ===== BOTTOM-LEFT ARCHITECTURAL MEDALLION ===== -->
+    <g transform="translate(20,580)">
+      <g opacity="0.64" stroke="#C9A45C" stroke-width="1">
+        <line x1="0" y1="0" x2="0" y2="-280" transform="rotate(0)"/>
+        <line x1="0" y1="0" x2="0" y2="-280" transform="rotate(20)"/>
+        <line x1="0" y1="0" x2="0" y2="-280" transform="rotate(40)"/>
+        <line x1="0" y1="0" x2="0" y2="-280" transform="rotate(60)"/>
+        <line x1="0" y1="0" x2="0" y2="-280" transform="rotate(80)"/>
+        <line x1="0" y1="0" x2="0" y2="-280" transform="rotate(100)"/>
+        <line x1="0" y1="0" x2="0" y2="-280" transform="rotate(120)"/>
+        <line x1="0" y1="0" x2="0" y2="-280" transform="rotate(140)"/>
+        <line x1="0" y1="0" x2="0" y2="-280" transform="rotate(160)"/>
+        <line x1="0" y1="0" x2="0" y2="-280" transform="rotate(180)"/>
+      </g>
+      <circle cx="0" cy="0" r="100" fill="none" stroke="#0d2340" stroke-width="12" opacity="0.95"/>
+      <circle cx="0" cy="0" r="100" fill="none" stroke="#C9A45C" stroke-width="1.5" opacity="0.95"/>
+      <circle cx="0" cy="0" r="170" fill="none" stroke="#C9A45C" stroke-width="1" opacity="0.8"/>
+      <circle cx="0" cy="0" r="240" fill="none" stroke="#e3c079" stroke-width="1" opacity="0.46"/>
+      <circle cx="0" cy="0" r="80" fill="none" stroke="#e3c079" stroke-width="1.2" opacity="0.95"/>
+    </g>
+
+    <!-- Stepped architrave lines bottom-left -->
+    <g stroke="#C9A45C" stroke-width="1" opacity="0.69" fill="none">
+      <path d="M0,340 L100,340 L100,400 L160,400 L160,460 L220,460"/>
+    </g>
+
+    <!-- Small constellation accents -->
+    <g fill="#e3c079">
+      <circle cx="1230" cy="40" r="2" opacity="0.95"/>
+      <circle cx="1270" cy="90" r="1.5" opacity="0.95"/>
+      <circle cx="300" cy="440" r="2" opacity="0.95"/>
+      <circle cx="260" cy="390" r="1.5" opacity="0.95"/>
+    </g>
+  </g>
+
+  <!-- Fine diagonal hairlines across whole banner, very subtle -->
+  <g stroke="#C9A45C" stroke-width="0.6" opacity="0.1">
+    <line x1="0" y1="0" x2="500" y2="500"/>
+    <line x1="200" y1="0" x2="700" y2="500"/>
+    <line x1="1100" y1="0" x2="1600" y2="500"/>
+    <line x1="900" y1="0" x2="1400" y2="500"/>
+  </g>
+
+  <!-- Thin full-width top and bottom border accents -->
+  <rect x="0" y="0" width="1600" height="2" fill="#C9A45C" opacity="0.57"/>
+  <rect x="0" y="498" width="1600" height="2" fill="#C9A45C" opacity="0.57"/>
+</svg>
