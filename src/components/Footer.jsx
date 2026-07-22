@@ -82,7 +82,12 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div style={{ borderTop: '1px solid rgba(199,166,106,0.1)', paddingTop: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
           <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)' }}>© {new Date().getFullYear()} Usha Multi Speciality Dental Clinic. Dr. Suresh Kumar. All rights reserved.</p>
-          <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)' }}>Sitamarhi, Bihar</p>
+          <div style={{ display: 'flex', gap: '18px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <NavLink to="/privacy-policy" style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>Privacy Policy</NavLink>
+            <NavLink to="/terms-conditions" style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>Terms & Conditions</NavLink>
+            <NavLink to="/refund-policy" style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>Refund Policy</NavLink>
+            <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)', margin: 0 }}>Sitamarhi, Bihar</p>
+          </div>
         </div>
       </div>
     </footer>
