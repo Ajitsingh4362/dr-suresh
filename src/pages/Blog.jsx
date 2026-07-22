@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import ToothLineArt from '../components/ToothLineArt'
 
 export default function Blog() {
   const ref = useRef(null)
@@ -28,7 +27,6 @@ export default function Blog() {
   return (
     <div ref={ref} style={{ overflowX: 'hidden' }}>
       <section className="page-hero">
-        <ToothLineArt style={{ top: '10px', right: '40px', width: '160px', height: '190px' }} />
         <div className="container page-hero-inner">
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
             <div style={{ width: '32px', height: '1px', background: 'var(--gold)' }} />

@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import emailjs from '@emailjs/browser'
 import { supabase } from '../lib/supabase'
-import ToothLineArt from '../components/ToothLineArt'
 
 const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID'
 const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID'
@@ -137,8 +136,9 @@ export default function Contact() {
   return (
     <div ref={ref} style={{ overflowX: 'hidden' }}>
       {/* Hero */}
-      <section className="page-hero" style={{ padding: '168px 0 80px' }}>
-        <ToothLineArt style={{ top: '10px', right: '40px', width: '160px', height: '190px' }} />
+      <section style={{ background: 'linear-gradient(160deg, var(--navy-900), var(--navy-800))', padding: '168px 0 80px', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(199,166,106,0.9) 1.5px, transparent 1.5px)', backgroundSize: '26px 26px', WebkitMaskImage: 'radial-gradient(ellipse 60% 100% at 100% 0%, black 0%, transparent 55%), radial-gradient(ellipse 60% 100% at 0% 100%, black 0%, transparent 55%)', maskImage: 'radial-gradient(ellipse 60% 100% at 100% 0%, black 0%, transparent 55%), radial-gradient(ellipse 60% 100% at 0% 100%, black 0%, transparent 55%)', opacity: 0.35 }} className="hero-corner-pattern" />
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'repeating-linear-gradient(135deg, rgba(199,166,106,0.06) 0px, rgba(199,166,106,0.06) 1px, transparent 1px, transparent 34px)', pointerEvents: 'none' }} />
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
             <div style={{ width: '32px', height: '1px', background: 'var(--gold)' }} />

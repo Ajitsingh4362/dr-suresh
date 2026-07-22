@@ -240,38 +240,23 @@
   position: relative; overflow: hidden;
 }
 .page-hero::before {
-  content: ''; position: absolute; inset: -20%;
-  background:
-    radial-gradient(circle at 15% 20%, rgba(199,166,106,0.16) 0%, transparent 45%),
-    radial-gradient(circle at 85% 75%, rgba(30,111,106,0.14) 0%, transparent 45%),
-    radial-gradient(circle at 50% 100%, rgba(199,166,106,0.08) 0%, transparent 50%);
-  filter: blur(40px);
-  animation: aurora-drift 18s ease-in-out infinite alternate;
+  content: ''; position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(199,166,106,0.9) 1.5px, transparent 1.5px);
+  background-size: 26px 26px;
+  -webkit-mask-image: radial-gradient(ellipse 60% 100% at 100% 0%, black 0%, transparent 55%),
+                       radial-gradient(ellipse 60% 100% at 0% 100%, black 0%, transparent 55%);
+  mask-image: radial-gradient(ellipse 60% 100% at 100% 0%, black 0%, transparent 55%),
+              radial-gradient(ellipse 60% 100% at 0% 100%, black 0%, transparent 55%);
+  opacity: 0.35;
+}
+.page-hero::after {
+  content: ''; position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(135deg, rgba(199,166,106,0.06) 0px, rgba(199,166,106,0.06) 1px, transparent 1px, transparent 34px);
   pointer-events: none;
 }
-@keyframes aurora-drift {
-  0%   { transform: translate(0%, 0%) scale(1); }
-  50%  { transform: translate(-3%, 2%) scale(1.08); }
-  100% { transform: translate(2%, -3%) scale(1.02); }
-}
 @media (max-width: 1024px) {
-  .page-hero::before { animation: none; filter: blur(30px); }
-}
-.tooth-line-art path {
-  stroke-dasharray: 900;
-  stroke-dashoffset: 900;
-  animation: tooth-draw 2.8s ease-out forwards, tooth-glow 4s ease-in-out 2.8s infinite;
-  opacity: 0.5;
-}
-@keyframes tooth-draw {
-  to { stroke-dashoffset: 0; }
-}
-@keyframes tooth-glow {
-  0%, 100% { opacity: 0.35; }
-  50% { opacity: 0.65; }
-}
-@media (max-width: 1024px) {
-  .tooth-line-art { display: none !important; }
+  .page-hero::before { display: none; }
+  .hero-corner-pattern { display: none !important; }
 }
 .page-hero-inner { position: relative; z-index: 1; }
 .page-hero h1 {
