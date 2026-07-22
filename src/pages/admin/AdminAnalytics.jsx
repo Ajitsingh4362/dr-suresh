@@ -79,16 +79,21 @@ export default function AdminAnalytics() {
   const [loading, setLoading] = useState(true)
   const [appts, setAppts] = useState([])
   const [patients, setPatients] = useState([])
+  const [invoices, setInvoices] = useState([])
   const [range, setRange] = useState('30') // days
+  const [revFilter, setRevFilter] = useState('month') // today | week | month | custom
+  const [revDate, setRevDate] = useState(new Date().toISOString().split('T')[0])
 
   useEffect(() => {
     async function fetchAll() {
-      const [{ data: a }, { data: p }] = await Promise.all([
+      const [{ data: a }, { data: p }, { data: inv }] = await Promise.all([
         supabase.from('appointments').select('*').order('created_at', { ascending: true }),
         supabase.from('patients').select('*').order('created_at', { ascending: true }),
+        supabase.from('patient_invoices').select('*').order('date', { ascending: true }),
       ])
       setAppts(a || [])
       setPatients(p || [])
+      setInvoices(inv || [])
       setLoading(false)
     }
     fetchAll()
@@ -147,6 +152,60 @@ export default function AdminAnalytics() {
 
   const fmtDate = d => new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
 
+  // ─── Revenue ─────────────────────────────────────
+  const todayStr = now.toISOString().split('T')[0]
+
+  function startOfWeek(d) {
+    const dt = new Date(d)
+    const day = dt.getDay() // 0=Sun
+    const diff = (day === 0 ? -6 : 1) - day // move to Monday
+    dt.setDate(dt.getDate() + diff)
+    dt.setHours(0, 0, 0, 0)
+    return dt
+  }
+
+  let revStart, revEnd, revLabel
+  if (revFilter === 'today') {
+    revStart = new Date(todayStr); revEnd = new Date(todayStr); revEnd.setHours(23, 59, 59, 999)
+    revLabel = 'Today'
+  } else if (revFilter === 'week') {
+    revStart = startOfWeek(now)
+    revEnd = new Date(revStart); revEnd.setDate(revEnd.getDate() + 6); revEnd.setHours(23, 59, 59, 999)
+    revLabel = 'This Week'
+  } else if (revFilter === 'month') {
+    revStart = new Date(now.getFullYear(), now.getMonth(), 1)
+    revEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999)
+    revLabel = 'This Month'
+  } else {
+    revStart = new Date(revDate); revEnd = new Date(revDate); revEnd.setHours(23, 59, 59, 999)
+    revLabel = new Date(revDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+  }
+
+  const revInvoices = invoices.filter(inv => {
+    const d = new Date(inv.date)
+    return d >= revStart && d <= revEnd
+  })
+  const revBilled = revInvoices.reduce((s, i) => s + Number(i.total_amount || 0), 0)
+  const revCollected = revInvoices.reduce((s, i) => s + Number(i.paid_amount || 0), 0)
+  const revDue = Math.max(revBilled - revCollected, 0)
+  const revInvoiceCount = revInvoices.length
+
+  // All-time collected (paid across all invoices, regardless of filter)
+  const allTimeCollected = invoices.reduce((s, i) => s + Number(i.paid_amount || 0), 0)
+  const allTimeDue = invoices.reduce((s, i) => s + Math.max(Number(i.total_amount || 0) - Number(i.paid_amount || 0), 0), 0)
+
+  // Last 7 days revenue trend (amount collected, by invoice date)
+  const revenueTrend = Array.from({ length: 7 }, (_, i) => {
+    const date = daysAgo(6 - i)
+    const dateStr = date.toISOString().split('T')[0]
+    const value = invoices
+      .filter(inv => inv.date === dateStr)
+      .reduce((s, inv) => s + Number(inv.paid_amount || 0), 0)
+    return { label: date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }), value }
+  })
+
+  const money = n => '\u20B9' + Number(n || 0).toLocaleString('en-IN')
+
   return (
     <div className="admin-panel" style={{ maxWidth: '1100px' }}>
       <div className="admin-panel-header">
@@ -168,6 +227,32 @@ export default function AdminAnalytics() {
         <StatCard icon="⏳" label="Pending" value={pending} sub="Awaiting confirmation" color="#b9914f" />
         <StatCard icon="👥" label="New Patients" value={rangePatients.length} sub={`${prevPatients.length} in prev period`} trend={rangePatients.length - prevPatients.length} color="#4a3d8f" />
         <StatCard icon="📊" label="Total Patients" value={patients.length} sub="All time" color="var(--navy-800)" />
+      </div>
+
+      {/* REVENUE */}
+      <div style={{ background: 'var(--white)', border: '1px solid rgba(15,39,68,0.08)', borderRadius: '2px', padding: '24px', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', marginBottom: '20px' }}>
+          <p style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem', fontWeight: 600, color: 'var(--navy-800)', margin: 0 }}>💰 Revenue — {revLabel}</p>
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+            {[['today', 'Today'], ['week', 'This Week'], ['month', 'This Month'], ['custom', 'Pick a Date']].map(([val, label]) => (
+              <button key={val} onClick={() => setRevFilter(val)} style={{ padding: '7px 14px', fontSize: '11px', fontFamily: 'var(--font-body)', fontWeight: 600, borderRadius: '2px', border: '1px solid rgba(15,39,68,0.12)', cursor: 'pointer', background: revFilter === val ? 'var(--navy-800)' : 'var(--white)', color: revFilter === val ? 'var(--gold-pale)' : 'var(--text-muted)', transition: 'all 0.2s' }}>
+                {label}
+              </button>
+            ))}
+            {revFilter === 'custom' && (
+              <input type="date" value={revDate} onChange={e => setRevDate(e.target.value)} style={{ padding: '6px 10px', border: '1px solid rgba(15,39,68,0.12)', borderRadius: '2px', fontSize: '11px', fontFamily: 'var(--font-body)' }} />
+            )}
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px', marginBottom: '24px' }}>
+          <StatCard icon="🧾" label="Billed" value={money(revBilled)} sub={`${revInvoiceCount} invoice${revInvoiceCount !== 1 ? 's' : ''}`} color="var(--navy-800)" />
+          <StatCard icon="✅" label="Collected" value={money(revCollected)} sub={revLabel} color="#1e6f6a" />
+          <StatCard icon="⏳" label="Outstanding" value={money(revDue)} sub={revLabel} color="#c0392b" />
+          <StatCard icon="📈" label="All-Time Collected" value={money(allTimeCollected)} sub={`${money(allTimeDue)} due overall`} color="var(--gold)" />
+        </div>
+
+        <BarChart data={revenueTrend} label="Collections — Last 7 Days" color="#1e6f6a" height={110} />
       </div>
 
       {/* CHARTS ROW */}
