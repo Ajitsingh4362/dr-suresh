@@ -14,6 +14,7 @@ import AdminCalendar from './admin/AdminCalendar'
 import AdminTestimonials from './admin/AdminTestimonials'
 import AdminPrescriptionTemplates from './admin/AdminPrescriptionTemplates'
 import AdminFAQ from './admin/AdminFAQ'
+import AdminWhatsApp from './admin/AdminWhatsApp'
 
 function AdminHeader() {
   const [pending, setPending] = useState([])
@@ -354,6 +355,7 @@ export default function Admin() {
     { to: '/admin/gallery', label: 'Gallery', icon: '🖼️' },
     { to: '/admin/settings', label: 'Popup Settings', icon: '⚙️' },
     { to: '/admin/notes', label: 'My Notes', icon: '🗒️' },
+    { to: '/admin/whatsapp', label: 'WhatsApp', icon: '💬' },
   ]
 
   return (
@@ -396,6 +398,7 @@ export default function Admin() {
           <Route path="testimonials" element={<AdminTestimonials />} />
           <Route path="settings" element={<AdminSettings />} />
           <Route path="notes" element={<AdminNotes />} />
+          <Route path="whatsapp" element={<AdminWhatsApp />} />
         </Routes>
       </main>
     </div>
