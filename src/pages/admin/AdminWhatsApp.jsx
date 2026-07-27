@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 
-// The Baileys notifier runs locally on whichever computer opens this page
-// (see the whatsapp-task-notifier project). It's not deployed on the internet,
-// so this always talks to localhost — this page only works when opened on
-// the same machine that has `node index.js` running.
+// The Baileys notifier must be running and reachable at this address —
+// either on this same computer (localhost) or on a small always-on
+// server if you've deployed it. See the whatsapp-task-notifier project.
 const NOTIFIER_URL = 'http://localhost:3001'
 
 export default function AdminWhatsApp() {
@@ -11,23 +10,52 @@ export default function AdminWhatsApp() {
   const [qr, setQr] = useState(null)
   const [serverReachable, setServerReachable] = useState(true)
   const [loggingOut, setLoggingOut] = useState(false)
+  const [generating, setGenerating] = useState(false)
+  const [checkedOnce, setCheckedOnce] = useState(false)
   const pollRef = useRef(null)
 
+  // On load: just check status once (no QR fetch yet) so we know
+  // whether it's already connected, without needing a click.
   useEffect(() => {
-    poll()
-    pollRef.current = setInterval(poll, 2500)
+    checkStatus()
     return () => clearInterval(pollRef.current)
   }, [])
 
-  async function poll() {
+  async function checkStatus() {
+    try {
+      const res = await fetch(`${NOTIFIER_URL}/status`)
+      const data = await res.json()
+      setServerReachable(true)
+      setConnected(data.connected)
+    } catch (e) {
+      setServerReachable(false)
+    }
+    setCheckedOnce(true)
+  }
+
+  // Called when the user clicks "Generate QR"
+  function handleGenerateQr() {
+    setGenerating(true)
+    setQr(null)
+    pollQr() // fetch immediately
+    pollRef.current = setInterval(pollQr, 2000)
+  }
+
+  async function pollQr() {
     try {
       const res = await fetch(`${NOTIFIER_URL}/qr`)
       const data = await res.json()
       setServerReachable(true)
       setConnected(data.connected)
       setQr(data.qr)
+      if (data.connected) {
+        clearInterval(pollRef.current)
+        setGenerating(false)
+      }
     } catch (e) {
       setServerReachable(false)
+      clearInterval(pollRef.current)
+      setGenerating(false)
     }
   }
 
@@ -38,7 +66,10 @@ export default function AdminWhatsApp() {
       await fetch(`${NOTIFIER_URL}/logout`, { method: 'POST' })
     } catch (e) { /* ignore */ }
     setLoggingOut(false)
-    poll()
+    setQr(null)
+    setGenerating(false)
+    clearInterval(pollRef.current)
+    checkStatus()
   }
 
   return (
@@ -56,8 +87,9 @@ export default function AdminWhatsApp() {
         <div style={{ background: '#fdf1ef', border: '1px solid rgba(192,57,43,0.25)', borderRadius: '2px', padding: '18px 20px', marginBottom: '20px' }}>
           <p style={{ fontWeight: 600, fontSize: '13px', color: '#c0392b', margin: '0 0 6px', fontFamily: 'var(--font-body)' }}>Notifier not running</p>
           <p style={{ fontSize: '12.5px', color: '#8a4a42', margin: 0, fontFamily: 'var(--font-body)', lineHeight: 1.6 }}>
-            Couldn't reach <code>localhost:3001</code>. Open a terminal on <strong>this computer</strong>, go to the
-            <code> whatsapp-task-notifier</code> folder, and run <code>node index.js</code> — then this page will pick it up automatically.
+            Couldn't reach the WhatsApp service. If it's set to auto-start, make sure this computer is on and you're
+            opening this page from the same machine. Otherwise, double-click <code>start-hidden.vbs</code> in the
+            <code> whatsapp-task-notifier</code> folder, then try again.
           </p>
         </div>
       )}
@@ -75,9 +107,24 @@ export default function AdminWhatsApp() {
         </div>
       )}
 
-      {serverReachable && !connected && (
+      {serverReachable && !connected && checkedOnce && (
         <div style={{ background: 'var(--ivory)', border: '1px solid rgba(15,39,68,0.08)', borderRadius: '2px', padding: '28px', textAlign: 'center' }}>
-          {qr ? (
+          {!qr && !generating && (
+            <>
+              <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '0 0 18px', fontFamily: 'var(--font-body)' }}>
+                Not connected yet. Click below to generate a QR code.
+              </p>
+              <button className="admin-btn-primary admin-btn-sm" onClick={handleGenerateQr}>
+                Generate QR
+              </button>
+            </>
+          )}
+
+          {generating && !qr && (
+            <p style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}>Generating QR code...</p>
+          )}
+
+          {qr && (
             <>
               <p style={{ fontWeight: 600, fontSize: '14px', color: 'var(--navy-800)', margin: '0 0 16px', fontFamily: 'var(--font-body)' }}>
                 Scan with WhatsApp — Settings → Linked Devices → Link a Device
@@ -87,8 +134,6 @@ export default function AdminWhatsApp() {
                 QR refreshes automatically — keep this page open while scanning.
               </p>
             </>
-          ) : (
-            <p style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}>Waiting for QR code from the notifier...</p>
           )}
         </div>
       )}
