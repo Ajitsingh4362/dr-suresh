@@ -134,9 +134,7 @@ function AdminHeader() {
       const data = await res.json()
       if (!data.ok) throw new Error(data.error || 'Unknown error')
     } catch (err) {
-      // Fallback: open WhatsApp manually if the automatic service is unreachable/not connected
-      alert('Automatic WhatsApp message failed (' + err.message + '). Opening WhatsApp manually instead.')
-      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank')
+      alert('Appointment confirmed, but the automatic WhatsApp message failed to send: ' + err.message + '\n\nCheck the WhatsApp tab \u2014 the service may be asleep (wait ~30s and it wakes on the next request) or disconnected.')
     }
   }
 

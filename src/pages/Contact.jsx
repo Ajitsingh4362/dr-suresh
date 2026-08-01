@@ -103,13 +103,6 @@ export default function Contact() {
       }, EMAILJS_PUBLIC_KEY)
     } catch (_) {}
 
-    // WhatsApp notification to admin
-    const adminPhone = '918987367274'
-    const waMsg = encodeURIComponent(
-      `🌿 New Appointment Request\n\nName: ${form.name}\nPhone: ${form.phone}\nEmail: ${form.email || 'N/A'}\nProgram: ${form.program || 'General'}\nConcern: ${form.concern}\nPayment: ${payMode === 'online' ? 'Online' : 'At Clinic'}`
-    )
-    window.open(`https://wa.me/${adminPhone}?text=${waMsg}`, '_blank')
-
     setStatus('success')
     setForm({ name: '', phone: '', email: '', program: '', concern: '', message: '', preferred_date: '', preferred_time: '' })
   }
