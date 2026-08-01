@@ -8,6 +8,13 @@ const TABS = ['Overview', 'Medical History', 'Consultations', 'Billing', 'Notes'
 const TAGS = ['Root Canal', 'Orthodontics', 'Implant', 'Cosmetic', 'Pediatric', 'VIP', 'Follow-up Due']
 const AVATAR_COLORS = ['#b9914f', '#1e6f6a', '#4a3d8f', '#8f3d3d', '#3d6b8f', '#6b8f3d', '#8f6b3d']
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
+const WHATSAPP_API = 'https://dr-suresh-whatsapp.onrender.com'
+
+function cleanPhone(phone) {
+  let p = (phone || '').replace(/[^\d]/g, '')
+  if (p.length === 10) p = '91' + p
+  return p
+}
 
 function initials(name) {
   return (name || '').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
@@ -230,6 +237,16 @@ export default function AdminPatientProfile() {
       if (error) { setMsg('Error: ' + error.message); setSaving(false); return }
       patientId = data.id
       navigate(`/admin/patients/${patientId}`, { replace: true })
+
+      // Welcome message — best-effort, doesn't block saving if it fails
+      if (patient.phone) {
+        const welcomeMsg = `Hi ${patient.name}, welcome to Usha Multi Speciality Dental Clinic! Your patient record has been created. We look forward to taking care of your dental health. \ud83e\uddf7`
+        fetch(`${WHATSAPP_API}/notify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ number: cleanPhone(patient.phone), message: welcomeMsg }),
+        }).catch(err => console.error('Welcome WhatsApp message failed:', err))
+      }
     } else {
       const { error } = await supabase.from('patients').update({ ...patient, age: patient.age ? parseInt(patient.age) : null, date_of_birth: patient.date_of_birth || null }).eq('id', id)
       if (error) { setMsg('Error: ' + error.message); setSaving(false); return }

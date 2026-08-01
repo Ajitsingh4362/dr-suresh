@@ -168,8 +168,64 @@ async function checkFollowUpsAndNotify() {
   return { checked: due.length, sent: sentCount }
 }
 
+// ─── Automatic appointment reminders (1 day before) ──────
+// Finds confirmed appointments whose preferred_date is tomorrow, and sends
+// a reminder. Runs once daily — since each appointment date only matches
+// "tomorrow" on exactly one day, no separate dedup tracking is needed.
+async function checkAppointmentRemindersAndNotify() {
+  console.log('Running appointment reminder check...')
+  if (!isReady) {
+    console.log('  Skipped — WhatsApp not connected.')
+    return { checked: 0, sent: 0, skipped: 'not_connected' }
+  }
+
+  const tomorrow = new Date()
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  const tomorrowStr = tomorrow.toISOString().split('T')[0]
+
+  const { data: appts, error } = await supabase
+    .from('appointments')
+    .select('id, name, phone, service, preferred_date, preferred_time, status')
+    .eq('status', 'confirmed')
+    .eq('preferred_date', tomorrowStr)
+
+  if (error) {
+    console.error('  Error fetching appointments:', error.message)
+    return { checked: 0, sent: 0, error: error.message }
+  }
+
+  if (!appts || appts.length === 0) {
+    console.log('  No appointments tomorrow.')
+    return { checked: 0, sent: 0 }
+  }
+
+  let sentCount = 0
+  for (const appt of appts) {
+    if (!appt.phone) continue
+    const timeStr = appt.preferred_time ? ` at ${appt.preferred_time}` : ''
+    const msg = `Hi ${appt.name}, this is a reminder from Usha Multi Speciality Dental Clinic \u2014 your appointment with Dr. Suresh Kumar for ${appt.service || 'your consultation'} is tomorrow${timeStr}. See you soon!`
+
+    try {
+      await sendWhatsAppMessage(cleanPhone(appt.phone), msg)
+      sentCount++
+      console.log(`  Sent reminder to ${appt.name} (${appt.phone})`)
+      await new Promise(r => setTimeout(r, 2000))
+    } catch (err) {
+      console.error(`  Failed to send to ${appt.name}:`, err.message)
+    }
+  }
+
+  console.log(`Appointment reminder check done. ${sentCount}/${appts.length} reminders sent.`)
+  return { checked: appts.length, sent: sentCount }
+}
+
 // Runs every day at 9:00 AM India time
 cron.schedule('0 9 * * *', () => {
+  checkAppointmentRemindersAndNotify()
+}, { timezone: 'Asia/Kolkata' })
+
+// Runs every day at 9:05 AM India time (a few minutes after, to avoid overlap)
+cron.schedule('5 9 * * *', () => {
   checkFollowUpsAndNotify()
 }, { timezone: 'Asia/Kolkata' })
 
@@ -213,6 +269,15 @@ app.post('/notify', async (req, res) => {
 app.post('/check-followups', async (req, res) => {
   try {
     const result = await checkFollowUpsAndNotify()
+    res.json({ ok: true, ...result })
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message })
+  }
+})
+
+app.post('/check-appointment-reminders', async (req, res) => {
+  try {
+    const result = await checkAppointmentRemindersAndNotify()
     res.json({ ok: true, ...result })
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message })
