@@ -3,7 +3,10 @@ import { useState, useEffect, useRef } from 'react'
 // The Baileys notifier must be running and reachable at this address —
 // either on this same computer (localhost) or on a small always-on
 // server if you've deployed it. See the whatsapp-task-notifier project.
-const NOTIFIER_URL = 'http://localhost:3001'
+// The Baileys notifier runs on Render (always-on, no local PC needed).
+// Free tier spins down after inactivity, so the very first request after
+// idle time can take 20-40 seconds to wake up — that's normal, not a bug.
+const NOTIFIER_URL = 'https://dr-suresh-whatsapp.onrender.com'
 
 export default function AdminWhatsApp() {
   const [connected, setConnected] = useState(false)
@@ -85,11 +88,11 @@ export default function AdminWhatsApp() {
 
       {!serverReachable && (
         <div style={{ background: '#fdf1ef', border: '1px solid rgba(192,57,43,0.25)', borderRadius: '2px', padding: '18px 20px', marginBottom: '20px' }}>
-          <p style={{ fontWeight: 600, fontSize: '13px', color: '#c0392b', margin: '0 0 6px', fontFamily: 'var(--font-body)' }}>Notifier not running</p>
+          <p style={{ fontWeight: 600, fontSize: '13px', color: '#c0392b', margin: '0 0 6px', fontFamily: 'var(--font-body)' }}>WhatsApp service not reachable</p>
           <p style={{ fontSize: '12.5px', color: '#8a4a42', margin: 0, fontFamily: 'var(--font-body)', lineHeight: 1.6 }}>
-            Couldn't reach the WhatsApp service. If it's set to auto-start, make sure this computer is on and you're
-            opening this page from the same machine. Otherwise, double-click <code>start-hidden.vbs</code> in the
-            <code> whatsapp-task-notifier</code> folder, then try again.
+            This can happen if the service was asleep and is still waking up (free hosting spins down after inactivity —
+            can take 20-40 seconds on the first try). Wait a bit and refresh this page. If it still doesn't connect after
+            a minute, the service may genuinely be down.
           </p>
         </div>
       )}
