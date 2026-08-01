@@ -121,20 +121,27 @@ function AdminHeader() {
     // Turant UI se hatao
     setPending(prev => prev.filter(a => a.id !== appt.id))
 
-    await supabase.from('appointments').update({ status: 'confirmed' }).eq('id', appt.id)
-    const phone = cleanPhone(appt.phone)
-    const msg = `Hi ${appt.name}, your appointment with Dr. Suresh Kumar has been confirmed${appt.preferred_date ? ` for ${new Date(appt.preferred_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long' })}` : ''}${appt.preferred_time ? ` at ${appt.preferred_time}` : ''}. Looking forward to seeing you! \ud83c\udf3f`
-
     try {
+      const { error: updateErr } = await supabase.from('appointments').update({ status: 'confirmed' }).eq('id', appt.id)
+      if (updateErr) throw new Error('Database update failed: ' + updateErr.message)
+
+      const phone = cleanPhone(appt.phone)
+      if (!phone || phone.length < 12) throw new Error('Invalid phone number: "' + appt.phone + '"')
+
+      const msg = `Hi ${appt.name}, your appointment with Dr. Suresh Kumar has been confirmed${appt.preferred_date ? ` for ${new Date(appt.preferred_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long' })}` : ''}${appt.preferred_time ? ` at ${appt.preferred_time}` : ''}. Looking forward to seeing you! \ud83c\udf3f`
+
       const res = await fetch(`${WHATSAPP_API}/notify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ number: phone, message: msg }),
       })
       const data = await res.json()
-      if (!data.ok) throw new Error(data.error || 'Unknown error')
+      if (!data.ok) throw new Error(data.error || ('HTTP ' + res.status))
+
+      console.log('WhatsApp confirmation sent to', phone)
     } catch (err) {
-      alert('Appointment confirmed, but the automatic WhatsApp message failed to send: ' + err.message + '\n\nCheck the WhatsApp tab \u2014 the service may be asleep (wait ~30s and it wakes on the next request) or disconnected.')
+      console.error('confirm() failed:', err)
+      alert('Something went wrong confirming this appointment:\n\n' + err.message)
     }
   }
 
