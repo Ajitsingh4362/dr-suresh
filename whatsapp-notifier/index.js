@@ -17,7 +17,7 @@
 //   POST /notify   -> { "number": "917255049328", "message": "..." }
 
 const makeWASocket = require('@whiskeysockets/baileys').default
-const { useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys')
+const { useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = require('@whiskeysockets/baileys')
 const QRCode = require('qrcode')
 const express = require('express')
 const cors = require('cors')
@@ -30,9 +30,12 @@ let currentQrDataUrl = null // base64 PNG data URL of the latest QR
 
 async function startWhatsApp() {
   const { state, saveCreds } = await useMultiFileAuthState('./auth')
+  const { version } = await fetchLatestBaileysVersion()
+  console.log('Using WhatsApp Web version:', version.join('.'))
 
   sock = makeWASocket({
     auth: state,
+    version,
     logger: pino({ level: 'error' }), // shows real errors from inside Baileys itself
   })
 
