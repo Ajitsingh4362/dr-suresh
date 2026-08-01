@@ -23,7 +23,7 @@ const express = require('express')
 const cors = require('cors')
 const pino = require('pino')
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 let sock = null
 let isReady = false
 let currentQrDataUrl = null // base64 PNG data URL of the latest QR
