@@ -16,6 +16,9 @@ import AdminPrescriptionTemplates from './admin/AdminPrescriptionTemplates'
 import AdminFAQ from './admin/AdminFAQ'
 import AdminWhatsApp from './admin/AdminWhatsApp'
 
+// Same Render-hosted Baileys service used by the WhatsApp admin tab
+const WHATSAPP_API = 'https://dr-suresh-whatsapp.onrender.com'
+
 function AdminHeader() {
   const [pending, setPending] = useState([])
   const [followUps, setFollowUps] = useState([])
@@ -117,11 +120,24 @@ function AdminHeader() {
   async function confirm(appt) {
     // Turant UI se hatao
     setPending(prev => prev.filter(a => a.id !== appt.id))
-    
+
     await supabase.from('appointments').update({ status: 'confirmed' }).eq('id', appt.id)
-    const phone = (appt.phone || '').replace(/[^\d]/g, '')
-    const msg = encodeURIComponent(`Hi ${appt.name}, your appointment with Dr. Suresh Kumar has been confirmed${appt.preferred_date ? ` for ${new Date(appt.preferred_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long' })}` : ''}${appt.preferred_time ? ` at ${appt.preferred_time}` : ''}. Looking forward to seeing you! 🌿`)
-    window.open(`https://wa.me/${phone}?text=${msg}`, '_blank')
+    const phone = cleanPhone(appt.phone)
+    const msg = `Hi ${appt.name}, your appointment with Dr. Suresh Kumar has been confirmed${appt.preferred_date ? ` for ${new Date(appt.preferred_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long' })}` : ''}${appt.preferred_time ? ` at ${appt.preferred_time}` : ''}. Looking forward to seeing you! \ud83c\udf3f`
+
+    try {
+      const res = await fetch(`${WHATSAPP_API}/notify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ number: phone, message: msg }),
+      })
+      const data = await res.json()
+      if (!data.ok) throw new Error(data.error || 'Unknown error')
+    } catch (err) {
+      // Fallback: open WhatsApp manually if the automatic service is unreachable/not connected
+      alert('Automatic WhatsApp message failed (' + err.message + '). Opening WhatsApp manually instead.')
+      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank')
+    }
   }
 
   const fmtDate = d => d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : ''
