@@ -80,3 +80,17 @@ the QR (delete `./auth` and re-scan with his phone when ready).
   want it deployed to an always-on server instead, so it works with no
   local PC dependency.
 - If it disconnects and won't reconnect, delete `./auth` and re-scan.
+
+## Automatic follow-up reminders (new)
+
+Every day at **9:00 AM (India time)**, the service automatically checks for
+patients whose follow-up date is within the next 2 days, and sends them a
+WhatsApp reminder — no admin panel click needed, no one needs to be online.
+Each patient only gets reminded once per day (tracked via
+`last_reminder_sent_date` on their consultation record).
+
+To trigger this manually right now (for testing, instead of waiting for 9 AM):
+
+```bash
+curl -X POST https://dr-suresh-whatsapp.onrender.com/check-followups
+```
