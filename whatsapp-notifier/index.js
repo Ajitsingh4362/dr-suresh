@@ -324,6 +324,22 @@ app.get('/contacts', (req, res) => {
   res.json({ ok: true, count: list.length, contacts: list })
 })
 
+app.get('/db-contacts', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('patients')
+      .select('id, name, phone')
+      .order('name', { ascending: true })
+
+    if (error) throw new Error(error.message)
+
+    const withPhone = (data || []).filter(p => p.phone)
+    res.json({ ok: true, count: withPhone.length, total_patients: (data || []).length, patients: withPhone })
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message })
+  }
+})
+
 app.post('/check-followups', async (req, res) => {
   try {
     const result = await checkFollowUpsAndNotify()
