@@ -77,15 +77,17 @@ async function startWhatsApp() {
 
 // ─── Helper: send a message ─────────────────────────────
 // number format: country code + number, no + or spaces. e.g. "917255049328"
-async function sendWhatsAppMessage(number, message) {
+async function sendWhatsAppMessage(number, message, mentionNumber) {
   if (!isReady) throw new Error('WhatsApp is not connected yet.')
 
-  let jid = number.includes('@') ? number : `${number}@s.whatsapp.net`
-
-  // For raw phone numbers, ask WhatsApp to resolve the actual ID first —
-  // sending straight to "<number>@s.whatsapp.net" without this can
-  // silently fail to deliver for some accounts.
-  if (!number.includes('@')) {
+  let jid
+  if (number.includes('@g.us') || number.includes('@')) {
+    // Already a full JID (group or otherwise) — use as-is
+    jid = number
+  } else {
+    // Raw phone number — ask WhatsApp to resolve the actual ID first.
+    // Sending straight to "<number>@s.whatsapp.net" without this can
+    // silently fail to deliver for some accounts.
     const results = await sock.onWhatsApp(number)
     const match = results && results[0]
     if (!match || !match.exists) {
@@ -94,7 +96,13 @@ async function sendWhatsAppMessage(number, message) {
     jid = match.jid
   }
 
-  await sock.sendMessage(jid, { text: message })
+  const payload = { text: message }
+  if (mentionNumber) {
+    const mentionJid = mentionNumber.includes('@') ? mentionNumber : `${mentionNumber}@s.whatsapp.net`
+    payload.mentions = [mentionJid]
+  }
+
+  await sock.sendMessage(jid, payload)
 }
 
 function cleanPhone(phone) {
@@ -268,13 +276,24 @@ app.post('/logout', async (req, res) => {
 })
 
 app.post('/notify', async (req, res) => {
-  const { number, message } = req.body
+  const { number, message, mentionNumber } = req.body
   if (!number || !message) {
     return res.status(400).json({ ok: false, error: 'number and message are required' })
   }
   try {
-    await sendWhatsAppMessage(number, message)
+    await sendWhatsAppMessage(number, message, mentionNumber)
     res.json({ ok: true })
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message })
+  }
+})
+
+app.get('/groups', async (req, res) => {
+  if (!isReady) return res.status(400).json({ ok: false, error: 'WhatsApp is not connected yet.' })
+  try {
+    const groups = await sock.groupFetchAllParticipating()
+    const list = Object.values(groups).map(g => ({ id: g.id, name: g.subject, participants: g.participants.length }))
+    res.json({ ok: true, groups: list })
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message })
   }
