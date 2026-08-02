@@ -33,11 +33,19 @@ let sock = null
 let isReady = false
 let currentQrDataUrl = null // base64 PNG data URL of the latest QR
 const contactsCache = {} // jid -> { id, name, notify }
+const pendingSends = {} // messageId -> { resolve } — waiting for delivery ack
+let sendQueue = Promise.resolve() // serializes all outgoing sends so they're spaced out, not bursty
 
 // Same public Supabase project the website uses (anon key — already public in the frontend)
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://scihrslohphuakyczrkv.supabase.co'
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjaWhyc2xvaHBodWFreWN6cmt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0NTY1NjAsImV4cCI6MjEwMDAzMjU2MH0.v3sAY8Gm6N94h1MdzQabHevm7Fy8COEKLgUsX74LKBs'
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+// This is a trusted backend-only service (never exposed to a browser), so it should use the
+// service_role key to read patient data — the anon key can't see it under RLS (by design,
+// so the public website can't read patient records). Get this from Supabase dashboard ->
+// Settings -> API -> service_role key, and set it as SUPABASE_SERVICE_ROLE_KEY in Render's
+// environment variables. Falls back to the anon key (which will only see public tables) if
+// the service role key isn't set, so this still boots without it.
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjaWhyc2xvaHBodWFreWN6cmt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0NTY1NjAsImV4cCI6MjEwMDAzMjU2MH0.v3sAY8Gm6N94h1MdzQabHevm7Fy8COEKLgUsX74LKBs'
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 async function startWhatsApp() {
   const { state, saveCreds } = await useMultiFileAuthState('./auth')
@@ -48,6 +56,7 @@ async function startWhatsApp() {
     auth: state,
     version,
     logger: pino({ level: 'error' }), // shows real errors from inside Baileys itself
+    markOnlineOnConnect: true,
   })
 
   sock.ev.on('connection.update', async (update) => {
@@ -75,6 +84,22 @@ async function startWhatsApp() {
 
   sock.ev.on('creds.update', saveCreds)
 
+  // Track delivery status for messages we send, so we know if WhatsApp's
+  // server actually accepted/delivered them (status 2 = SERVER_ACK,
+  // 3 = DELIVERY_ACK, 4 = READ) vs silently dropped them (stays at 1 = PENDING).
+  sock.ev.on('messages.update', (updates) => {
+    for (const u of updates) {
+      const id = u.key?.id
+      if (id && pendingSends[id]) {
+        const status = u.update?.status
+        if (status >= 2) {
+          pendingSends[id].resolve(status)
+          delete pendingSends[id]
+        }
+      }
+    }
+  })
+
   // Build up a contacts cache as WhatsApp syncs them to us
   sock.ev.on('contacts.upsert', (contacts) => {
     for (const c of contacts) {
@@ -94,24 +119,34 @@ async function startWhatsApp() {
 
 // ─── Helper: send a message ─────────────────────────────
 // number format: country code + number, no + or spaces. e.g. "917255049328"
-async function sendWhatsAppMessage(number, message, mentionNumber) {
+// Wrapped in a queue so sends are spaced out (not fired in a burst), with a
+// "typing" presence simulation before each one and one automatic retry if
+// WhatsApp never acknowledges delivery — this is what actually improves
+// delivery to numbers that have no prior chat history with this account.
+function sendWhatsAppMessage(number, message, mentionNumber) {
+  const task = sendQueue.then(() => sendOnce(number, message, mentionNumber))
+  // Keep the queue alive even if this particular send fails, so later
+  // messages don't get stuck behind a rejected promise.
+  sendQueue = task.catch(() => {})
+  return task
+}
+
+function wait(ms) { return new Promise(r => setTimeout(r, ms)) }
+
+async function resolveJid(number) {
+  if (number.includes('@g.us') || number.includes('@')) return number // already a full JID
+  const results = await sock.onWhatsApp(number)
+  const match = results && results[0]
+  if (!match || !match.exists) {
+    throw new Error(`${number} does not appear to be a valid WhatsApp number`)
+  }
+  return match.jid
+}
+
+async function sendOnce(number, message, mentionNumber, isRetry = false) {
   if (!isReady) throw new Error('WhatsApp is not connected yet.')
 
-  let jid
-  if (number.includes('@g.us') || number.includes('@')) {
-    // Already a full JID (group or otherwise) — use as-is
-    jid = number
-  } else {
-    // Raw phone number — ask WhatsApp to resolve the actual ID first.
-    // Sending straight to "<number>@s.whatsapp.net" without this can
-    // silently fail to deliver for some accounts.
-    const results = await sock.onWhatsApp(number)
-    const match = results && results[0]
-    if (!match || !match.exists) {
-      throw new Error(`${number} does not appear to be a valid WhatsApp number`)
-    }
-    jid = match.jid
-  }
+  const jid = await resolveJid(number)
 
   const payload = { text: message }
   if (mentionNumber) {
@@ -119,7 +154,47 @@ async function sendWhatsAppMessage(number, message, mentionNumber) {
     payload.mentions = [mentionJid]
   }
 
-  await sock.sendMessage(jid, payload)
+  // Simulate a human typing instead of blasting the message instantly —
+  // cold-sends to unfamiliar numbers are far more likely to get silently
+  // dropped by WhatsApp's spam heuristics without this.
+  if (!jid.includes('@g.us')) {
+    await sock.presenceSubscribe(jid).catch(() => {})
+    await wait(300)
+    await sock.sendPresenceUpdate('composing', jid).catch(() => {})
+    await wait(1200 + Math.random() * 1500)
+    await sock.sendPresenceUpdate('paused', jid).catch(() => {})
+    await wait(200)
+  }
+
+  const sent = await sock.sendMessage(jid, payload)
+  const msgId = sent?.key?.id
+
+  // Wait up to 8s for WhatsApp's server to actually acknowledge the message
+  // (status >= 2). If it never does, WhatsApp likely dropped it — retry
+  // once, since a second attempt a few seconds later often goes through.
+  if (msgId) {
+    const status = await new Promise((resolve) => {
+      pendingSends[msgId] = { resolve }
+      setTimeout(() => {
+        if (pendingSends[msgId]) {
+          delete pendingSends[msgId]
+          resolve(null) // timed out — no ack seen
+        }
+      }, 8000)
+    })
+
+    if (status === null && !isRetry) {
+      console.log(`No delivery ack for message to ${jid}, retrying once...`)
+      await wait(2000)
+      return sendOnce(number, message, mentionNumber, true)
+    }
+    if (status === null) {
+      console.log(`Still no delivery ack for ${jid} after retry — WhatsApp may be silently blocking this number.`)
+    }
+  }
+
+  // Small gap before the next queued message goes out.
+  await wait(800 + Math.random() * 700)
 }
 
 function cleanPhone(phone) {
