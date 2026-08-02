@@ -79,7 +79,21 @@ async function startWhatsApp() {
 // number format: country code + number, no + or spaces. e.g. "917255049328"
 async function sendWhatsAppMessage(number, message) {
   if (!isReady) throw new Error('WhatsApp is not connected yet.')
-  const jid = number.includes('@') ? number : `${number}@s.whatsapp.net`
+
+  let jid = number.includes('@') ? number : `${number}@s.whatsapp.net`
+
+  // For raw phone numbers, ask WhatsApp to resolve the actual ID first —
+  // sending straight to "<number>@s.whatsapp.net" without this can
+  // silently fail to deliver for some accounts.
+  if (!number.includes('@')) {
+    const results = await sock.onWhatsApp(number)
+    const match = results && results[0]
+    if (!match || !match.exists) {
+      throw new Error(`${number} does not appear to be a valid WhatsApp number`)
+    }
+    jid = match.jid
+  }
+
   await sock.sendMessage(jid, { text: message })
 }
 
