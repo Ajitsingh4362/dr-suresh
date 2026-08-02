@@ -140,7 +140,13 @@ async function resolveJid(number) {
   if (!match || !match.exists) {
     throw new Error(`${number} does not appear to be a valid WhatsApp number`)
   }
-  return match.jid
+  // Known Baileys bug (WhiskeySockets/Baileys #1950, #1539, #43830 and others):
+  // sending to the @lid-form JID that onWhatsApp() often returns can silently
+  // fail to deliver — sendMessage resolves fine, no error, but the message
+  // never arrives. Sending to the plain phone-number JID is what's actually
+  // reliable, so we only use onWhatsApp() here to confirm the number exists,
+  // and always send to the classic "<number>@s.whatsapp.net" form.
+  return `${number}@s.whatsapp.net`
 }
 
 async function sendOnce(number, message, mentionNumber, isRetry = false) {
