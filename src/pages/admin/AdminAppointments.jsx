@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 
 const TABS = ['all', 'pending', 'confirmed', 'cancelled']
-const WHATSAPP_API = 'https://dr-suresh-whatsapp.onrender.com'
+const WHATSAPP_API = 'http://localhost:3001'
 
 function cleanPhone(phone) {
   let p = (phone || '').replace(/[^\d]/g, '')

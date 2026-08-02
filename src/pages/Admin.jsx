@@ -17,7 +17,7 @@ import AdminFAQ from './admin/AdminFAQ'
 import AdminWhatsApp from './admin/AdminWhatsApp'
 
 // Same Render-hosted Baileys service used by the WhatsApp admin tab
-const WHATSAPP_API = 'https://dr-suresh-whatsapp.onrender.com'
+const WHATSAPP_API = 'http://localhost:3001'
 
 function AdminHeader() {
   const [pending, setPending] = useState([])
