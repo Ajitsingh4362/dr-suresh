@@ -32,6 +32,7 @@ const PORT = process.env.PORT || 3001
 let sock = null
 let isReady = false
 let currentQrDataUrl = null // base64 PNG data URL of the latest QR
+const contactsCache = {} // jid -> { id, name, notify }
 
 // Same public Supabase project the website uses (anon key — already public in the frontend)
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://scihrslohphuakyczrkv.supabase.co'
@@ -73,6 +74,22 @@ async function startWhatsApp() {
   })
 
   sock.ev.on('creds.update', saveCreds)
+
+  // Build up a contacts cache as WhatsApp syncs them to us
+  sock.ev.on('contacts.upsert', (contacts) => {
+    for (const c of contacts) {
+      if (c.id && c.id.endsWith('@s.whatsapp.net')) {
+        contactsCache[c.id] = { id: c.id, name: c.name || c.notify || null, notify: c.notify || null }
+      }
+    }
+  })
+  sock.ev.on('contacts.update', (updates) => {
+    for (const c of updates) {
+      if (c.id && c.id.endsWith('@s.whatsapp.net')) {
+        contactsCache[c.id] = { ...(contactsCache[c.id] || {}), id: c.id, name: c.name || c.notify || contactsCache[c.id]?.name || null }
+      }
+    }
+  })
 }
 
 // ─── Helper: send a message ─────────────────────────────
@@ -297,6 +314,14 @@ app.get('/groups', async (req, res) => {
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message })
   }
+})
+
+app.get('/contacts', (req, res) => {
+  if (!isReady) return res.status(400).json({ ok: false, error: 'WhatsApp is not connected yet.' })
+  const list = Object.values(contactsCache)
+    .map(c => ({ ...c, number: c.id.replace('@s.whatsapp.net', '') }))
+    .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+  res.json({ ok: true, count: list.length, contacts: list })
 })
 
 app.post('/check-followups', async (req, res) => {
