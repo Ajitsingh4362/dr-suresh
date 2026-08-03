@@ -238,14 +238,30 @@ export default function AdminPatientProfile() {
       patientId = data.id
       navigate(`/admin/patients/${patientId}`, { replace: true })
 
-      // Welcome message — best-effort, doesn't block saving if it fails
+      // Welcome message
       if (patient.phone) {
         const welcomeMsg = `Hi ${patient.name}, welcome to Usha Multi Speciality Dental Clinic! Your patient record has been created. We look forward to taking care of your dental health. \ud83e\uddf7`
+        const phoneToSend = cleanPhone(patient.phone)
         fetch(`${WHATSAPP_API}/notify`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ number: cleanPhone(patient.phone), message: welcomeMsg }),
-        }).catch(err => console.error('Welcome WhatsApp message failed:', err))
+          body: JSON.stringify({ number: phoneToSend, message: welcomeMsg }),
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (!data.ok) {
+              console.error('Welcome WhatsApp message failed:', data.error)
+              alert('Patient saved, but the welcome WhatsApp message failed:\n\n' + data.error)
+            } else {
+              console.log('Welcome WhatsApp message sent to', phoneToSend)
+            }
+          })
+          .catch(err => {
+            console.error('Welcome WhatsApp message request failed:', err)
+            alert('Patient saved, but the welcome WhatsApp request itself failed:\n\n' + err.message)
+          })
+      } else {
+        console.warn('No phone number on new patient — welcome message skipped.')
       }
     } else {
       const { error } = await supabase.from('patients').update({ ...patient, age: patient.age ? parseInt(patient.age) : null, date_of_birth: patient.date_of_birth || null }).eq('id', id)
