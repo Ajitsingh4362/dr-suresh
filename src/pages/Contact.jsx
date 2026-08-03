@@ -6,7 +6,7 @@ const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID'
 const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID'
 const EMAILJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY'
 const WHATSAPP = '918987367274'
-const WHATSAPP_API = 'http://localhost:3001'
+const WHATSAPP_API = 'https://dr-suresh-whatsapp.onrender.com'
 
 function cleanPhone(phone) {
   let p = (phone || '').replace(/[^\d]/g, '')

@@ -8,7 +8,7 @@ const TABS = ['Overview', 'Medical History', 'Consultations', 'Billing', 'Notes'
 const TAGS = ['Root Canal', 'Orthodontics', 'Implant', 'Cosmetic', 'Pediatric', 'VIP', 'Follow-up Due']
 const AVATAR_COLORS = ['#b9914f', '#1e6f6a', '#4a3d8f', '#8f3d3d', '#3d6b8f', '#6b8f3d', '#8f6b3d']
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
-const WHATSAPP_API = 'http://localhost:3001'
+const WHATSAPP_API = 'https://dr-suresh-whatsapp.onrender.com'
 
 function cleanPhone(phone) {
   let p = (phone || '').replace(/[^\d]/g, '')
