@@ -132,7 +132,6 @@ export default function AdminPatientProfile() {
 
   // Quick Appointment Fee (Overview tab)
   const [appointmentFee, setAppointmentFee] = useState('')
-  const [savingFee, setSavingFee] = useState(false)
 
   // Template picker
   const [showTemplatePicker, setShowTemplatePicker] = useState(false)
@@ -282,6 +281,28 @@ export default function AdminPatientProfile() {
       if (data) setMedicalId(data.id)
     }
 
+    // Appointment fee (optional) — creates a paid invoice, feeds Billing + Analytics
+    const feeAmt = parseFloat(appointmentFee)
+    if (feeAmt > 0) {
+      const invoiceNumber = 'UMDC-INV-' + Date.now().toString().slice(-8)
+      const { error: feeErr } = await supabase.from('patient_invoices').insert({
+        patient_id: patientId,
+        invoice_number: invoiceNumber,
+        date: new Date().toISOString().split('T')[0],
+        items: [{ description: 'Appointment Fee', amount: feeAmt }],
+        total_amount: feeAmt,
+        paid_amount: feeAmt,
+        status: 'paid',
+        notes: null,
+      })
+      if (feeErr) {
+        alert('Patient saved, but the appointment fee could not be recorded:\n\n' + feeErr.message)
+      } else {
+        setAppointmentFee('')
+        fetchAll()
+      }
+    }
+
     setSaving(false)
     setMsg('Saved ✓')
     setTimeout(() => setMsg(''), 2000)
@@ -324,29 +345,6 @@ export default function AdminPatientProfile() {
   }
   function invoiceItemsTotal(items) {
     return (items || []).reduce((sum, it) => sum + (parseFloat(it.amount) || 0), 0)
-  }
-
-  async function recordAppointmentFee() {
-    const amt = parseFloat(appointmentFee)
-    if (!amt || amt <= 0) return
-    setSavingFee(true)
-
-    const invoiceNumber = 'UMDC-INV-' + Date.now().toString().slice(-8)
-    const payload = {
-      patient_id: id,
-      invoice_number: invoiceNumber,
-      date: new Date().toISOString().split('T')[0],
-      items: [{ description: 'Appointment Fee', amount: amt }],
-      total_amount: amt,
-      paid_amount: amt, // assumed collected on the spot by the front desk
-      status: 'paid',
-      notes: null,
-    }
-    const { error } = await supabase.from('patient_invoices').insert(payload)
-    setSavingFee(false)
-    if (error) { alert('Could not record fee: ' + error.message); return }
-    setAppointmentFee('')
-    fetchAll() // refresh invoices list so Billing tab reflects it immediately
   }
 
   async function addInvoice() {
@@ -623,27 +621,15 @@ export default function AdminPatientProfile() {
             </div>
           </div>
 
-          {!isNew && (
-            <div style={{ borderTop: '1px solid rgba(15,39,68,0.08)', paddingTop: '16px', marginTop: '16px' }}>
-              <p style={{ fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 600, marginBottom: '12px' }}>Appointment Fees</p>
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
-                <div style={{ flex: '1', minWidth: '160px' }}>
-                  <Field label="Amount (₹)" value={appointmentFee} onChange={setAppointmentFee} type="number" />
-                </div>
-                <button
-                  className="admin-btn-primary admin-btn-sm"
-                  onClick={recordAppointmentFee}
-                  disabled={!appointmentFee || savingFee}
-                  style={{ marginBottom: '4px' }}
-                >
-                  {savingFee ? 'Recording...' : 'Record Fee'}
-                </button>
-              </div>
-              <p style={{ fontSize: '10.5px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', marginTop: '6px' }}>
-                Creates a paid invoice for this amount — shows up in Billing and counts toward Analytics revenue.
-              </p>
+          <div style={{ borderTop: '1px solid rgba(15,39,68,0.08)', paddingTop: '16px', marginTop: '16px' }}>
+            <p style={{ fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 600, marginBottom: '12px' }}>Appointment Fees</p>
+            <div style={{ maxWidth: '260px' }}>
+              <Field label="Amount (₹)" value={appointmentFee} onChange={setAppointmentFee} type="number" />
             </div>
-          )}
+            <p style={{ fontSize: '10.5px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', marginTop: '6px' }}>
+              Saved automatically with the patient below — shows up in Billing and counts toward Analytics revenue.
+            </p>
+          </div>
         </div>
       )}
 
