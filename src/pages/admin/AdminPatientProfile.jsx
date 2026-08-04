@@ -130,6 +130,10 @@ export default function AdminPatientProfile() {
   })
   const [newInvoice, setNewInvoice] = useState(blankInvoice())
 
+  // Quick Appointment Fee (Overview tab)
+  const [appointmentFee, setAppointmentFee] = useState('')
+  const [savingFee, setSavingFee] = useState(false)
+
   // Template picker
   const [showTemplatePicker, setShowTemplatePicker] = useState(false)
   const [templates, setTemplates] = useState([])
@@ -322,6 +326,29 @@ export default function AdminPatientProfile() {
     return (items || []).reduce((sum, it) => sum + (parseFloat(it.amount) || 0), 0)
   }
 
+  async function recordAppointmentFee() {
+    const amt = parseFloat(appointmentFee)
+    if (!amt || amt <= 0) return
+    setSavingFee(true)
+
+    const invoiceNumber = 'UMDC-INV-' + Date.now().toString().slice(-8)
+    const payload = {
+      patient_id: id,
+      invoice_number: invoiceNumber,
+      date: new Date().toISOString().split('T')[0],
+      items: [{ description: 'Appointment Fee', amount: amt }],
+      total_amount: amt,
+      paid_amount: amt, // assumed collected on the spot by the front desk
+      status: 'paid',
+      notes: null,
+    }
+    const { error } = await supabase.from('patient_invoices').insert(payload)
+    setSavingFee(false)
+    if (error) { alert('Could not record fee: ' + error.message); return }
+    setAppointmentFee('')
+    fetchAll() // refresh invoices list so Billing tab reflects it immediately
+  }
+
   async function addInvoice() {
     const items = (newInvoice.items || []).filter(it => it.description && it.amount !== '')
     if (items.length === 0) { alert('Add at least one item with description and amount.'); return }
@@ -349,7 +376,7 @@ export default function AdminPatientProfile() {
 
   async function recordPayment(inv) {
     const due = Number(inv.total_amount) - Number(inv.paid_amount)
-    const amt = prompt(`Record payment for ${inv.invoice_number}\nBalance due: \u20B9${due}`, due)
+    const amt = prompt(`Record payment for ${inv.invoice_number}\nBalance due: ₹${due}`, due)
     if (amt === null) return
     const paidNow = parseFloat(amt)
     if (isNaN(paidNow) || paidNow <= 0) return
@@ -595,6 +622,28 @@ export default function AdminPatientProfile() {
               <Field label="Contact Phone" value={patient.emergency_contact_phone} onChange={v => setP('emergency_contact_phone', v)} />
             </div>
           </div>
+
+          {!isNew && (
+            <div style={{ borderTop: '1px solid rgba(15,39,68,0.08)', paddingTop: '16px', marginTop: '16px' }}>
+              <p style={{ fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 600, marginBottom: '12px' }}>Appointment Fees</p>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+                <div style={{ flex: '1', minWidth: '160px' }}>
+                  <Field label="Amount (₹)" value={appointmentFee} onChange={setAppointmentFee} type="number" />
+                </div>
+                <button
+                  className="admin-btn-primary admin-btn-sm"
+                  onClick={recordAppointmentFee}
+                  disabled={!appointmentFee || savingFee}
+                  style={{ marginBottom: '4px' }}
+                >
+                  {savingFee ? 'Recording...' : 'Record Fee'}
+                </button>
+              </div>
+              <p style={{ fontSize: '10.5px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', marginTop: '6px' }}>
+                Creates a paid invoice for this amount — shows up in Billing and counts toward Analytics revenue.
+              </p>
+            </div>
+          )}
         </div>
       )}
 
