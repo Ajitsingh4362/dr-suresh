@@ -15,6 +15,7 @@ import AdminTestimonials from './admin/AdminTestimonials'
 import AdminPrescriptionTemplates from './admin/AdminPrescriptionTemplates'
 import AdminFAQ from './admin/AdminFAQ'
 import AdminWhatsApp from './admin/AdminWhatsApp'
+import AdminDevices, { recordSession, checkRevoked } from './admin/AdminDevices'
 
 // Same Render-hosted Baileys service used by the WhatsApp admin tab
 const WHATSAPP_API = 'https://dr-suresh-whatsapp.onrender.com'
@@ -314,18 +315,28 @@ export default function Admin() {
     return () => subscription.unsubscribe()
   }, [])
 
+  // Every 15s, check if this device's session was remotely logged out.
+  useEffect(() => {
+    if (!authed) return
+    const interval = setInterval(() => { checkRevoked() }, 15000)
+    return () => clearInterval(interval)
+  }, [authed])
+
   async function login() {
     setLoggingIn(true)
     setError('')
     const { error } = await supabase.auth.signInWithPassword({ email, password: pw })
     if (error) {
       setError('Incorrect email or password')
+    } else {
+      recordSession()
     }
     setLoggingIn(false)
   }
 
   async function logout() {
     await supabase.auth.signOut()
+    localStorage.removeItem('admin_session_id')
     setPw('')
   }
 
@@ -377,6 +388,7 @@ export default function Admin() {
     { to: '/admin/settings', label: 'Popup Settings', icon: '⚙️' },
     { to: '/admin/notes', label: 'My Notes', icon: '🗒️' },
     { to: '/admin/whatsapp', label: 'WhatsApp', icon: '💬' },
+    { to: '/admin/devices', label: 'Devices', icon: '🖥️' },
   ]
 
   return (
@@ -420,6 +432,7 @@ export default function Admin() {
           <Route path="settings" element={<AdminSettings />} />
           <Route path="notes" element={<AdminNotes />} />
           <Route path="whatsapp" element={<AdminWhatsApp />} />
+          <Route path="devices" element={<AdminDevices />} />
         </Routes>
       </main>
     </div>
