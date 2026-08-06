@@ -125,28 +125,26 @@ export default function AdminDevices() {
               background: 'var(--navy-800, #10233d)', border: s.id === currentSessionId ? '1px solid var(--gold, #c7a66a)' : '1px solid rgba(255,255,255,0.08)',
             }}>
               <div>
-                <p style={{ margin: 0, fontWeight: 600, fontSize: '15px' }}>
+                <p style={{ margin: 0, fontWeight: 600, fontSize: '15px', color: 'var(--ivory, #FAF8F4)' }}>
                   {s.device_name || 'Unknown device'}
                   {s.id === currentSessionId && (
                     <span style={{ marginLeft: '10px', fontSize: '11px', color: 'var(--gold, #c7a66a)', fontWeight: 600 }}>THIS DEVICE</span>
                   )}
                 </p>
-                <p style={{ margin: '4px 0 0', fontSize: '13px', opacity: 0.65 }}>
+                <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'var(--gold-pale, #f0ddb5)', opacity: 0.85 }}>
                   📍 {[s.city, s.region, s.country].filter(Boolean).join(', ') || 'Unknown location'}
                   {s.ip ? ` · ${s.ip}` : ''}
                 </p>
-                <p style={{ margin: '4px 0 0', fontSize: '12px', opacity: 0.5 }}>
+                <p style={{ margin: '4px 0 0', fontSize: '12px', color: 'var(--gold-pale, #f0ddb5)', opacity: 0.6 }}>
                   Logged in {timeAgo(s.created_at)} · Last active {timeAgo(s.last_seen_at)}
                 </p>
               </div>
-              {s.id !== currentSessionId && (
-                <button onClick={() => revoke(s.id)} className="admin-btn-danger" style={{
-                  padding: '8px 16px', fontSize: '13px', borderRadius: '6px', border: 'none',
-                  background: '#b3332e', color: '#fff', cursor: 'pointer', fontWeight: 600,
-                }}>
-                  Logout
-                </button>
-              )}
+              <button onClick={() => revoke(s.id)} className="admin-btn-danger" style={{
+                padding: '8px 16px', fontSize: '13px', borderRadius: '6px', border: 'none',
+                background: '#b3332e', color: '#fff', cursor: 'pointer', fontWeight: 600,
+              }}>
+                Logout
+              </button>
             </div>
           ))}
         </div>
