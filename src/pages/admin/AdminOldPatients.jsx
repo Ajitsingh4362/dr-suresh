@@ -61,6 +61,26 @@ export default function AdminOldPatients() {
     fetchPatients()
   }
 
+  function exportCSV() {
+    const rows = filtered.length ? filtered : patients
+    if (!rows.length) { alert('No patients to export'); return }
+    const headers = ['Name', 'Address', 'Age', 'Phone', 'Added On']
+    const csvRows = rows.map(p => [
+      p.name, p.address || '', p.age || '', p.phone,
+      new Date(p.created_at).toLocaleDateString('en-IN'),
+    ])
+    const csv = [headers, ...csvRows]
+      .map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
+      .join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `old_patients_${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   const filtered = patients.filter(p => {
     const q = search.toLowerCase()
     return !q || p.name.toLowerCase().includes(q) || (p.phone || '').includes(search) || (p.address || '').toLowerCase().includes(q)
@@ -70,7 +90,10 @@ export default function AdminOldPatients() {
     <div className="admin-panel">
       <div className="admin-panel-header">
         <h1>Old Patients</h1>
-        <button className="admin-btn-primary" onClick={openAdd}>+ Add Old Patient</button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button className="admin-btn-outline" onClick={exportCSV}>⬇️ Export CSV</button>
+          <button className="admin-btn-primary" onClick={openAdd}>+ Add Old Patient</button>
+        </div>
       </div>
 
       <input
