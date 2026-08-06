@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 
 export default function CallFloat() {
   const [hovered, setHovered] = useState(false)
-  const phone = '918987367274'
+  const phone = '917004056094'
   return (
     <a href={`tel:+${phone}`}
       onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
@@ -10,7 +10,7 @@ export default function CallFloat() {
       aria-label="Call the clinic">
       {hovered && (
         <span style={{ background: 'var(--navy-800)', color: 'var(--gold-pale)', fontSize: '12px', fontFamily: 'var(--font-body)', padding: '6px 14px', borderRadius: '2px', whiteSpace: 'nowrap', border: '1px solid rgba(199,166,106,0.3)', boxShadow: 'var(--shadow-md)' }}>
-          Call +91 89873 67274
+          Call +91 70040 56094
         </span>
       )}
       <div style={{

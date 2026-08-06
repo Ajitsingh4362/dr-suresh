@@ -1,4 +1,4 @@
-export default function MarqueeStrip({ text = 'Usha Multi Speciality Dental Clinic — Book Your Appointment Today — Call +91 89873 67274' }) {
+export default function MarqueeStrip({ text = 'Usha Multi Speciality Dental Clinic — Book Your Appointment Today — Call +91 70040 56094' }) {
   const group = (
     <>
       {new Array(4).fill(0).map((_, i) => (

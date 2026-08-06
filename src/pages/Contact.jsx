@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase'
 const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID'
 const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID'
 const EMAILJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY'
-const WHATSAPP = '918987367274'
+const WHATSAPP = '917004056094'
 const WHATSAPP_API = 'https://dr-suresh-whatsapp.onrender.com'
 
 function cleanPhone(phone) {
@@ -177,8 +177,8 @@ export default function Contact() {
 
               {[
                 { icon: '📍', title: 'Clinic Address', desc: 'Near Bhawdepur Chowk, Shiv Mandir,\nMata Vaishno Mandir Road, Bhavdepur,\nSitamarhi – 843302, Bihar' },
-                { icon: '📞', title: 'Phone & WhatsApp', desc: '+91 89873 67274' },
-                { icon: '✉️', title: 'Email', desc: 'info@ushamultispecialitydentalclinic.com' },
+                { icon: '📞', title: 'Phone & WhatsApp', desc: '+91 70040 56094' },
+                { icon: '✉️', title: 'Email', desc: 'ushadentalclinic@gmail.com' },
               ].map((item, i) => (
                 <div key={i} style={{ display: 'flex', gap: '16px', padding: '20px 0', borderBottom: '1px solid rgba(15,39,68,0.08)', alignItems: 'flex-start' }}>
                   <div style={{ width: '44px', height: '44px', background: 'var(--navy-800)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0, borderRadius: '2px' }}>{item.icon}</div>

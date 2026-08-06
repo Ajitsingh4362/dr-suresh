@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 
 export default function WhatsAppFloat() {
   const [hovered, setHovered] = useState(false)
-  const phone = '918987367274'
+  const phone = '917004056094'
   const msg = encodeURIComponent("Hello, I'd like to book an appointment at Usha Multi Speciality Dental Clinic.")
   return (
     <a href={`https://wa.me/${phone}?text=${msg}`} target="_blank" rel="noopener noreferrer"

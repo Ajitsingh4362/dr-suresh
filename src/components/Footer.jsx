@@ -18,7 +18,7 @@ export default function Footer() {
               Complete dental care in Sitamarhi — painless procedures, modern technology, care for the whole family.
             </p>
             <div style={{ marginTop: '20px', display: 'flex', gap: '12px' }}>
-              <a href="https://wa.me/918987367274" target="_blank" rel="noopener noreferrer"
+              <a href="https://wa.me/917004056094" target="_blank" rel="noopener noreferrer"
                 style={{ width: '36px', height: '36px', borderRadius: '2px', background: 'rgba(199,166,106,0.1)', border: '1px solid rgba(199,166,106,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'var(--transition)' }}
                 onMouseEnter={e => e.currentTarget.style.background = 'rgba(199,166,106,0.25)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'rgba(199,166,106,0.1)'}>
@@ -68,8 +68,8 @@ export default function Footer() {
             <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--gold)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '18px' }}>Contact</div>
             {[
               { icon: '📍', text: 'Near Bhawdepur Chowk, Shiv Mandir,\nMata Vaishno Mandir Road, Bhavdepur,\nSitamarhi – 843302, Bihar' },
-              { icon: '📞', text: '+91 89873 67274' },
-              { icon: '✉️', text: 'info@ushamultispecialitydentalclinic.com' },
+              { icon: '📞', text: '+91 70040 56094' },
+              { icon: '✉️', text: 'ushadentalclinic@gmail.com' },
             ].map((item, i) => (
               <div key={i} style={{ display: 'flex', gap: '10px', marginBottom: '14px', alignItems: 'flex-start' }}>
                 <span style={{ fontSize: '14px', flexShrink: 0, marginTop: '1px' }}>{item.icon}</span>
