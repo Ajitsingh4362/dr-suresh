@@ -71,7 +71,7 @@ export default function TermsConditions() {
             <p>
               Usha Multi Speciality Dental Clinic<br />
               Near Bhawdepur Chowk, Shiv Mandir, Mata Vaishno Mandir Road, Bhavdepur, Sitamarhi - 843302, Bihar<br />
-              Phone/WhatsApp: +91 70040 56094
+              Phone/WhatsApp: +91 89873 67274
             </p>
           </Section>
         </div>

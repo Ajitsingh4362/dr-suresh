@@ -32,7 +32,7 @@ export default function RefundPolicy() {
           </Section>
 
           <Section title="2. Appointment Cancellations">
-            <p>You may cancel or reschedule an appointment by contacting us on WhatsApp or phone at +91 70040 56094, at least a few hours before your scheduled time, so that the slot can be offered to another patient. Repeated no-shows without prior notice may affect future appointment priority.</p>
+            <p>You may cancel or reschedule an appointment by contacting us on WhatsApp or phone at +91 89873 67274, at least a few hours before your scheduled time, so that the slot can be offered to another patient. Repeated no-shows without prior notice may affect future appointment priority.</p>
           </Section>
 
           <Section title="3. Refunds on Advance Payments">
@@ -49,7 +49,7 @@ export default function RefundPolicy() {
           </Section>
 
           <Section title="5. How to Request a Refund">
-            <p>To request a refund, please contact us on WhatsApp or phone at +91 70040 56094, or visit the clinic directly, with your payment reference/invoice number. Our team will review your request and confirm the outcome.</p>
+            <p>To request a refund, please contact us on WhatsApp or phone at +91 89873 67274, or visit the clinic directly, with your payment reference/invoice number. Our team will review your request and confirm the outcome.</p>
           </Section>
 
           <Section title="6. Refund Processing Time">
@@ -60,7 +60,7 @@ export default function RefundPolicy() {
             <p>
               Usha Multi Speciality Dental Clinic<br />
               Near Bhawdepur Chowk, Shiv Mandir, Mata Vaishno Mandir Road, Bhavdepur, Sitamarhi - 843302, Bihar<br />
-              Phone/WhatsApp: +91 70040 56094
+              Phone/WhatsApp: +91 89873 67274
             </p>
           </Section>
         </div>

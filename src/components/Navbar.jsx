@@ -40,7 +40,7 @@ export default function Navbar() {
                   letterSpacing: '1px', fontFamily: 'var(--font-body)', fontWeight: 600,
                   padding: '0 28px',
                 }}>
-                  ✦ Usha Multi Speciality Dental Clinic — Book Your Appointment Today — Call +91 70040 56094
+                  ✦ Usha Multi Speciality Dental Clinic — Book Your Appointment Today — Call +91 89873 67274
                 </span>
               ))}
             </div>
