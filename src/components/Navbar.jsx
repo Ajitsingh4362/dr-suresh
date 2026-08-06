@@ -122,7 +122,7 @@ export default function Navbar() {
       <div style={{
         position: 'fixed', inset: 0, background: 'var(--navy-900)',
         zIndex: 999, display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center', gap: '28px',
+        alignItems: 'center', justifyContent: 'center', gap: '16px',
         transition: 'opacity 0.3s, visibility 0.3s',
         opacity: menuOpen ? 1 : 0, visibility: menuOpen ? 'visible' : 'hidden',
       }}>
@@ -138,7 +138,7 @@ export default function Navbar() {
         {links.map(link => (
           <NavLink key={link.to} to={link.to} end={link.to === '/'}
             style={({ isActive }) => ({
-              fontFamily: 'var(--font-display)', fontSize: '32px', fontWeight: 600,
+              fontFamily: 'var(--font-display)', fontSize: '24px', fontWeight: 600,
               color: isActive ? 'var(--gold)' : 'rgba(255,255,255,0.8)',
               letterSpacing: '1px',
             })}>
