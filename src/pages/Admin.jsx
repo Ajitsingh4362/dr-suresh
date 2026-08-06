@@ -8,6 +8,7 @@ import AdminAppointments from './admin/AdminAppointments'
 import AdminSettings from './admin/AdminSettings'
 import AdminNotes from './admin/AdminNotes'
 import AdminPatients from './admin/AdminPatients'
+import AdminOldPatients from './admin/AdminOldPatients'
 import AdminPatientProfile from './admin/AdminPatientProfile'
 import AdminAnalytics from './admin/AdminAnalytics'
 import AdminCalendar from './admin/AdminCalendar'
@@ -379,6 +380,7 @@ export default function Admin() {
     { to: '/admin/calendar', label: 'Calendar', icon: '📅' },
     { to: '/admin/patients', label: 'Patients', icon: '👥' },
     { to: '/admin/patients/new', label: 'Add Patient', icon: '➕' },
+    { to: '/admin/old-patients', label: 'Old Patients', icon: '🗂️' },
     { to: '/admin/appointments', label: 'Appointments', icon: '📋' },
     { to: '/admin/templates', label: 'Rx Templates', icon: '💊' },
     { to: '/admin/faq', label: 'FAQ Manager', icon: '❓' },
@@ -422,6 +424,7 @@ export default function Admin() {
           <Route path="calendar" element={<AdminCalendar />} />
           <Route path="patients" element={<AdminPatients />} />
           <Route path="patients/:id" element={<AdminPatientProfile />} />
+          <Route path="old-patients" element={<AdminOldPatients />} />
           <Route path="posts" element={<AdminBlogList />} />
           <Route path="posts/:id" element={<AdminBlogEditor />} />
           <Route path="gallery" element={<AdminGallery />} />
