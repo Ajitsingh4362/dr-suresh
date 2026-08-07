@@ -18,6 +18,8 @@
 //   POST /notify           -> { "number": "917255049328", "message": "..." }               [public, rate-limited]
 //   POST /logout           -> disconnects WhatsApp                                         [admin session required]
 //   POST /check-followups  -> manually trigger the follow-up reminder check (for testing)   [admin session required]
+//   POST /check-birthdays  -> manually trigger the birthday-wish check (for testing)         [admin session required]
+//   POST /check-festivals  -> manually trigger today's festival-wish check (for testing)      [admin session required]
 //
 // "admin session required" = the caller must send an Authorization: Bearer <token> header
 // with a currently-valid Supabase auth token (the same token the admin panel already holds
@@ -349,6 +351,138 @@ async function checkAppointmentRemindersAndNotify() {
   return { checked: appts.length, sent: sentCount }
 }
 
+// ─── Automatic birthday wishes ────────────────────────────
+async function checkBirthdaysAndNotify() {
+  console.log('Running birthday check...')
+  if (!isReady) {
+    console.log('  Skipped — WhatsApp not connected.')
+    return { checked: 0, sent: 0, skipped: 'not_connected' }
+  }
+
+  const today = new Date()
+  const mm = String(today.getMonth() + 1).padStart(2, '0')
+  const dd = String(today.getDate()).padStart(2, '0')
+
+  const { data: patients, error } = await supabase
+    .from('patients')
+    .select('id, name, phone, date_of_birth')
+    .not('date_of_birth', 'is', null)
+
+  if (error) {
+    console.error('  Error fetching patients:', error.message)
+    return { checked: 0, sent: 0, error: error.message }
+  }
+
+  // Match month+day only — the year in date_of_birth is irrelevant here.
+  const birthdays = (patients || []).filter(p => {
+    const d = new Date(p.date_of_birth)
+    return String(d.getMonth() + 1).padStart(2, '0') === mm && String(d.getDate()).padStart(2, '0') === dd
+  })
+
+  if (birthdays.length === 0) {
+    console.log('  No birthdays today.')
+    return { checked: 0, sent: 0 }
+  }
+
+  let sentCount = 0
+  for (const patient of birthdays) {
+    if (!patient.phone) continue
+    const msg = `Hi ${patient.name}, wishing you a very Happy Birthday from all of us at Usha Multi Speciality Dental Clinic! 🎂 May you have a wonderful year ahead filled with health and happy smiles. 🦷${WHATSAPP_FOOTER}`
+    try {
+      await sendWhatsAppMessage(cleanPhone(patient.phone), msg)
+      sentCount++
+      console.log(`  Sent birthday wish to ${patient.name} (${patient.phone})`)
+      await new Promise(r => setTimeout(r, 2000))
+    } catch (err) {
+      console.error(`  Failed to send to ${patient.name}:`, err.message)
+    }
+  }
+
+  console.log(`Birthday check done. ${sentCount}/${birthdays.length} wishes sent.`)
+  return { checked: birthdays.length, sent: sentCount }
+}
+
+// ─── Automatic festival wishes ─────────────────────────────
+// IMPORTANT — most Indian festivals (Diwali, Holi, Eid, Raksha Bandhan, Chhath,
+// etc.) follow the lunar/lunisolar calendar, so their Gregorian date changes
+// every year. Entries below with a `year` are only valid for that exact year
+// and will simply stop matching once the year passes — nothing wrong will be
+// sent, but the wish for that festival will stop going out until someone adds
+// next year's date. Entries WITHOUT a `year` (New Year, Republic Day,
+// Independence Day, Makar Sankranti, Christmas) repeat safely every year.
+// Dates below were checked in August 2026 against public panchang/calendar
+// sources. When extending this list for a new year, verify dates against a
+// current Hindu panchang / Islamic calendar site rather than guessing.
+const FESTIVALS = [
+  { month: 1, day: 1, name: 'New Year', message: (n) => `Hi ${n}, Usha Multi Speciality Dental Clinic wishes you a very Happy New Year! 🎉 May this year bring you good health and happy smiles.` },
+  { month: 1, day: 14, name: 'Makar Sankranti', message: (n) => `Hi ${n}, wishing you and your family a very Happy Makar Sankranti! 🪁 From all of us at Usha Multi Speciality Dental Clinic.` },
+  { month: 1, day: 26, name: 'Republic Day', message: (n) => `Hi ${n}, wishing you a very Happy Republic Day! 🇮🇳 From all of us at Usha Multi Speciality Dental Clinic.` },
+  { month: 8, day: 15, name: 'Independence Day', message: (n) => `Hi ${n}, wishing you a very Happy Independence Day! 🇮🇳 From all of us at Usha Multi Speciality Dental Clinic.` },
+  { month: 12, day: 25, name: 'Christmas', message: (n) => `Hi ${n}, wishing you and your family a very Merry Christmas! 🎄 From all of us at Usha Multi Speciality Dental Clinic.` },
+
+  // 2026-specific (lunar/lunisolar) — will need next year's dates added for 2027
+  { year: 2026, month: 8, day: 26, name: 'Eid-e-Milad', message: (n) => `Hi ${n}, wishing you and your family a blessed Eid-e-Milad! 🌙 From all of us at Usha Multi Speciality Dental Clinic.` },
+  { year: 2026, month: 8, day: 28, name: 'Raksha Bandhan', message: (n) => `Hi ${n}, wishing you and your family a very Happy Raksha Bandhan! 🎀 From all of us at Usha Multi Speciality Dental Clinic.` },
+  { year: 2026, month: 9, day: 4, name: 'Janmashtami', message: (n) => `Hi ${n}, wishing you and your family a very Happy Janmashtami! 🦚 From all of us at Usha Multi Speciality Dental Clinic.` },
+  { year: 2026, month: 9, day: 14, name: 'Ganesh Chaturthi', message: (n) => `Hi ${n}, wishing you and your family a very Happy Ganesh Chaturthi! 🐘 From all of us at Usha Multi Speciality Dental Clinic.` },
+  { year: 2026, month: 10, day: 20, name: 'Dussehra', message: (n) => `Hi ${n}, wishing you and your family a very Happy Dussehra! 🏹 From all of us at Usha Multi Speciality Dental Clinic.` },
+  { year: 2026, month: 11, day: 8, name: 'Diwali', message: (n) => `Hi ${n}, wishing you and your family a very Happy Diwali! ✨🪔 May this festival of lights bring joy, prosperity, and good health to your home. From all of us at Usha Multi Speciality Dental Clinic.` },
+  { year: 2026, month: 11, day: 15, name: 'Chhath Puja', message: (n) => `Hi ${n}, wishing you and your family a blessed Chhath Puja! 🙏 May Chhathi Maiya bless your family with health and happiness. From all of us at Usha Multi Speciality Dental Clinic.` },
+
+  // 2027 — predicted/approximate for the Islamic-calendar ones; Holi date is solid
+  { year: 2027, month: 3, day: 22, name: 'Holi', message: (n) => `Hi ${n}, wishing you and your family a very Happy Holi! 🌈 From all of us at Usha Multi Speciality Dental Clinic.` },
+]
+
+async function checkFestivalsAndNotify() {
+  console.log('Running festival check...')
+  if (!isReady) {
+    console.log('  Skipped — WhatsApp not connected.')
+    return { checked: 0, sent: 0, skipped: 'not_connected' }
+  }
+
+  const today = new Date()
+  const y = today.getFullYear(), m = today.getMonth() + 1, d = today.getDate()
+  const festival = FESTIVALS.find(f => f.month === m && f.day === d && (f.year === undefined || f.year === y))
+
+  if (!festival) {
+    console.log('  No festival today.')
+    return { checked: 0, sent: 0 }
+  }
+  console.log(`  Today is ${festival.name} — sending wishes.`)
+
+  // Only active patients, to keep the list smaller and more relevant.
+  const { data: patients, error } = await supabase
+    .from('patients')
+    .select('id, name, phone')
+    .eq('status', 'active')
+    .not('phone', 'is', null)
+
+  if (error) {
+    console.error('  Error fetching patients:', error.message)
+    return { checked: 0, sent: 0, error: error.message }
+  }
+
+  let sentCount = 0
+  for (const patient of patients || []) {
+    if (!patient.phone) continue
+    const msg = festival.message(patient.name) + WHATSAPP_FOOTER
+    try {
+      await sendWhatsAppMessage(cleanPhone(patient.phone), msg)
+      sentCount++
+      // Extra-slow pace for this one, on purpose — sending the same message
+      // to potentially hundreds of numbers in one day looks a lot more like
+      // spam to WhatsApp than the usual one-off sends elsewhere in this file,
+      // so this trades speed for staying well clear of that pattern.
+      await new Promise(r => setTimeout(r, 5000 + Math.random() * 4000))
+    } catch (err) {
+      console.error(`  Failed to send to ${patient.name}:`, err.message)
+    }
+  }
+
+  console.log(`Festival check done (${festival.name}). ${sentCount}/${(patients || []).length} wishes sent.`)
+  return { checked: (patients || []).length, sent: sentCount, festival: festival.name }
+}
+
 // Runs every day at 9:00 AM India time
 cron.schedule('0 9 * * *', () => {
   checkAppointmentRemindersAndNotify()
@@ -357,6 +491,17 @@ cron.schedule('0 9 * * *', () => {
 // Runs every day at 9:05 AM India time (a few minutes after, to avoid overlap)
 cron.schedule('5 9 * * *', () => {
   checkFollowUpsAndNotify()
+}, { timezone: 'Asia/Kolkata' })
+
+// Runs every day at 9:10 AM India time
+cron.schedule('10 9 * * *', () => {
+  checkBirthdaysAndNotify()
+}, { timezone: 'Asia/Kolkata' })
+
+// Runs every day at 9:15 AM India time — last, since it can send to many
+// patients and takes the longest to finish.
+cron.schedule('15 9 * * *', () => {
+  checkFestivalsAndNotify()
 }, { timezone: 'Asia/Kolkata' })
 
 // ─── Small HTTP server your app / admin panel can call ────
@@ -472,6 +617,24 @@ app.post('/check-followups', requireAdminAuth, async (req, res) => {
 app.post('/check-appointment-reminders', requireAdminAuth, async (req, res) => {
   try {
     const result = await checkAppointmentRemindersAndNotify()
+    res.json({ ok: true, ...result })
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message })
+  }
+})
+
+app.post('/check-birthdays', requireAdminAuth, async (req, res) => {
+  try {
+    const result = await checkBirthdaysAndNotify()
+    res.json({ ok: true, ...result })
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message })
+  }
+})
+
+app.post('/check-festivals', requireAdminAuth, async (req, res) => {
+  try {
+    const result = await checkFestivalsAndNotify()
     res.json({ ok: true, ...result })
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message })
