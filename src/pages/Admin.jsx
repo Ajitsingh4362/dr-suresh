@@ -420,10 +420,10 @@ export default function Admin() {
       </button>
 
       <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
-        <div className="admin-sidebar-brand">
+        <Link to="/admin" className="admin-sidebar-brand" onClick={() => setSidebarOpen(false)}>
           <img src="/usha-dental-logo.png" alt="Usha Multi Speciality Dental Clinic" className="admin-sidebar-logo-img" />
           <p className="admin-sidebar-logo">Usha Multi Speciality Dental Clinic</p>
-        </div>
+        </Link>
         <nav className="admin-nav">
           {navGroups.map(group => (
             <div className="admin-nav-group" key={group.label}>
