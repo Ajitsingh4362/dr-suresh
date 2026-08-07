@@ -13,17 +13,24 @@
 //      scan again unless you log out or delete that folder.
 //
 // Endpoints (default port 3001):
-//   GET  /status          -> { connected: true/false }
-//   GET  /qr               -> { qr: "data:image/png;base64,..." } or { qr: null } once connected
-//   POST /notify           -> { "number": "917255049328", "message": "..." }
-//   POST /logout           -> disconnects WhatsApp
-//   POST /check-followups  -> manually trigger the follow-up reminder check (for testing)
+//   GET  /status          -> { connected: true/false }                                    [public]
+//   GET  /qr               -> { qr: "data:image/png;base64,..." } or { qr: null }          [admin session required]
+//   POST /notify           -> { "number": "917255049328", "message": "..." }               [public, rate-limited]
+//   POST /logout           -> disconnects WhatsApp                                         [admin session required]
+//   POST /check-followups  -> manually trigger the follow-up reminder check (for testing)   [admin session required]
+//
+// "admin session required" = the caller must send an Authorization: Bearer <token> header
+// with a currently-valid Supabase auth token (the same token the admin panel already holds
+// after logging in). /notify stays public on purpose — the public booking form on the
+// website calls it directly (before anyone has logged in) to send the "we got your request"
+// confirmation message — so it's protected by a rate limit instead of a login check.
 
 const makeWASocket = require('@whiskeysockets/baileys').default
 const { useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = require('@whiskeysockets/baileys')
 const QRCode = require('qrcode')
 const express = require('express')
 const cors = require('cors')
+const rateLimit = require('express-rate-limit')
 const pino = require('pino')
 const cron = require('node-cron')
 const { createClient } = require('@supabase/supabase-js')
@@ -354,15 +361,44 @@ const app = express()
 app.use(cors()) // allows the admin panel (different origin) to call this
 app.use(express.json())
 
+// Anyone who finds this server's URL could otherwise call /qr, /logout,
+// /db-contacts, etc. directly (this repo is public on GitHub, so the list
+// of endpoints is not a secret). This checks that the caller is sending a
+// currently-valid Supabase login session — the same one the admin panel
+// already has after logging in — before allowing those sensitive actions.
+async function requireAdminAuth(req, res, next) {
+  const authHeader = req.headers.authorization || ''
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null
+  if (!token) return res.status(401).json({ ok: false, error: 'Missing admin session token.' })
+  try {
+    const { data, error } = await supabase.auth.getUser(token)
+    if (error || !data?.user) return res.status(401).json({ ok: false, error: 'Invalid or expired admin session — please refresh the admin panel and log in again.' })
+    next()
+  } catch (err) {
+    res.status(401).json({ ok: false, error: 'Could not verify admin session.' })
+  }
+}
+
+// /notify has to stay reachable without login (the public booking form uses
+// it), so it gets a generous rate limit instead — enough headroom for real
+// bookings and admin actions, but not for someone scripting a spam flood.
+const notifyLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 12,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { ok: false, error: 'Too many requests — please wait a minute and try again.' },
+})
+
 app.get('/status', (req, res) => {
   res.json({ connected: isReady })
 })
 
-app.get('/qr', (req, res) => {
+app.get('/qr', requireAdminAuth, (req, res) => {
   res.json({ qr: currentQrDataUrl, connected: isReady })
 })
 
-app.post('/logout', async (req, res) => {
+app.post('/logout', requireAdminAuth, async (req, res) => {
   try {
     if (sock) await sock.logout()
     isReady = false
@@ -373,7 +409,7 @@ app.post('/logout', async (req, res) => {
   }
 })
 
-app.post('/notify', async (req, res) => {
+app.post('/notify', notifyLimiter, async (req, res) => {
   const { number, message, mentionNumber } = req.body
   if (!number || !message) {
     return res.status(400).json({ ok: false, error: 'number and message are required' })
@@ -386,7 +422,7 @@ app.post('/notify', async (req, res) => {
   }
 })
 
-app.get('/groups', async (req, res) => {
+app.get('/groups', requireAdminAuth, async (req, res) => {
   if (!isReady) return res.status(400).json({ ok: false, error: 'WhatsApp is not connected yet.' })
   try {
     const groups = await sock.groupFetchAllParticipating()
@@ -397,7 +433,7 @@ app.get('/groups', async (req, res) => {
   }
 })
 
-app.get('/contacts', (req, res) => {
+app.get('/contacts', requireAdminAuth, (req, res) => {
   if (!isReady) return res.status(400).json({ ok: false, error: 'WhatsApp is not connected yet.' })
   const list = Object.values(contactsCache)
     .map(c => ({ ...c, number: c.id.replace('@s.whatsapp.net', '') }))
@@ -405,7 +441,7 @@ app.get('/contacts', (req, res) => {
   res.json({ ok: true, count: list.length, contacts: list })
 })
 
-app.get('/db-contacts', async (req, res) => {
+app.get('/db-contacts', requireAdminAuth, async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('patients')
@@ -421,7 +457,7 @@ app.get('/db-contacts', async (req, res) => {
   }
 })
 
-app.post('/check-followups', async (req, res) => {
+app.post('/check-followups', requireAdminAuth, async (req, res) => {
   try {
     const result = await checkFollowUpsAndNotify()
     res.json({ ok: true, ...result })
@@ -430,7 +466,7 @@ app.post('/check-followups', async (req, res) => {
   }
 })
 
-app.post('/check-appointment-reminders', async (req, res) => {
+app.post('/check-appointment-reminders', requireAdminAuth, async (req, res) => {
   try {
     const result = await checkAppointmentRemindersAndNotify()
     res.json({ ok: true, ...result })

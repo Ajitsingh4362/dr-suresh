@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { supabase } from '../../lib/supabase'
 
 // The Baileys notifier must be running and reachable at this address —
 // either on this same computer (localhost) or on a small always-on
@@ -7,6 +8,14 @@ import { useState, useEffect, useRef } from 'react'
 // Free tier spins down after inactivity, so the very first request after
 // idle time can take 20-40 seconds to wake up — that's normal, not a bug.
 const NOTIFIER_URL = 'https://dr-suresh-whatsapp.onrender.com'
+
+// /qr and /logout now require proof that this is a logged-in admin, not just
+// anyone who found the server's URL — this reads the token from the admin's
+// current Supabase login session (the same one already used to view this page).
+async function authHeaders() {
+  const { data } = await supabase.auth.getSession()
+  return { Authorization: `Bearer ${data?.session?.access_token || ''}` }
+}
 
 export default function AdminWhatsApp() {
   const [connected, setConnected] = useState(false)
@@ -46,7 +55,7 @@ export default function AdminWhatsApp() {
 
   async function pollQr() {
     try {
-      const res = await fetch(`${NOTIFIER_URL}/qr`)
+      const res = await fetch(`${NOTIFIER_URL}/qr`, { headers: await authHeaders() })
       const data = await res.json()
       setServerReachable(true)
       setConnected(data.connected)
@@ -66,7 +75,7 @@ export default function AdminWhatsApp() {
     if (!confirm('Disconnect WhatsApp? You will need to scan the QR again to reconnect.')) return
     setLoggingOut(true)
     try {
-      await fetch(`${NOTIFIER_URL}/logout`, { method: 'POST' })
+      await fetch(`${NOTIFIER_URL}/logout`, { method: 'POST', headers: await authHeaders() })
     } catch (e) { /* ignore */ }
     setLoggingOut(false)
     setQr(null)
