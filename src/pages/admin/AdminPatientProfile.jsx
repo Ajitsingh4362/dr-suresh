@@ -10,6 +10,102 @@ const AVATAR_COLORS = ['#b9914f', '#1e6f6a', '#4a3d8f', '#8f3d3d', '#3d6b8f', '#
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
 const WHATSAPP_API = 'https://dr-suresh-whatsapp.onrender.com'
 
+// ─── Medicine Builder (quick-tap Rx, no free typing needed) ───
+const DENTAL_MEDICINES = [
+  'Amoxicillin', 'Amoxicillin + Clavulanate (Augmentin)', 'Metronidazole', 'Azithromycin', 'Clindamycin',
+  'Ibuprofen', 'Diclofenac', 'Aceclofenac + Paracetamol', 'Paracetamol', 'Ketorolac',
+  'Chlorhexidine Mouthwash', 'Betadine Mouthwash', 'Hydrogen Peroxide Rinse',
+  'Pantoprazole', 'Vitamin C Tablet', 'Calcium + Vitamin D3', 'Sensodent-K Toothpaste',
+  'Clove Oil (Topical)', 'Lignocaine Gel (Topical)', 'Tranexamic Acid',
+]
+const QUICK_DOSAGES = ['250mg', '500mg', '625mg', '650mg', '1 tab', '5ml', '10ml']
+const QUICK_FREQUENCIES = [
+  { label: 'OD', value: 'Once daily' },
+  { label: '1-0-1 (BD)', value: 'Twice daily (1-0-1)' },
+  { label: '1-1-1 (TDS)', value: 'Thrice daily (1-1-1)' },
+  { label: '4x/day', value: '4 times daily' },
+  { label: 'SOS', value: 'SOS (as needed)' },
+  { label: 'HS (Bedtime)', value: 'Bedtime only' },
+]
+const QUICK_TIMINGS = ['After food', 'Before food', 'Anytime']
+const QUICK_DURATIONS = ['3 days', '5 days', '7 days', '10 days', '15 days']
+
+function emptyMed() {
+  return { name: '', dosage: '500mg', frequency: 'Twice daily (1-0-1)', timing: 'After food', duration: '5 days' }
+}
+
+function medsToPrescriptionText(meds) {
+  return meds
+    .filter(m => m.name && m.name.trim())
+    .map(m => `${m.name} ${m.dosage} — ${m.frequency}, ${m.timing}, ${m.duration}`)
+    .join('\n')
+}
+
+function ChipGroup({ options, value, onSelect }) {
+  return (
+    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+      {options.map(opt => {
+        const label = typeof opt === 'string' ? opt : opt.label
+        const val = typeof opt === 'string' ? opt : opt.value
+        const active = value === val
+        return (
+          <button
+            key={label}
+            type="button"
+            onClick={() => onSelect(val)}
+            style={{
+              padding: '7px 14px', borderRadius: '100px', border: '1px solid',
+              borderColor: active ? 'var(--navy-800)' : 'rgba(15,39,68,0.15)',
+              background: active ? 'var(--navy-800)' : 'var(--white)',
+              color: active ? 'var(--gold-pale)' : 'var(--text-muted)',
+              fontSize: '12px', fontFamily: 'var(--font-body)', fontWeight: 600,
+              cursor: 'pointer', transition: 'all 0.15s', whiteSpace: 'nowrap',
+            }}
+          >
+            {label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+function MedicineChipRow({ med, idx, onChange, onDelete, isOnly }) {
+  const s = (key, val) => onChange(idx, { ...med, [key]: val })
+  return (
+    <div style={{ background: 'var(--ivory)', border: '1px solid rgba(15,39,68,0.1)', borderRadius: '4px', padding: '14px 16px', marginBottom: '10px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+        <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '11px', fontWeight: 700, fontFamily: 'var(--font-display)', flexShrink: 0 }}>{idx + 1}</div>
+        <input
+          list="dental-medicine-list"
+          value={med.name}
+          onChange={e => s('name', e.target.value)}
+          placeholder="Type or pick medicine name..."
+          style={{ flex: 1, padding: '9px 12px', border: '1px solid rgba(15,39,68,0.12)', borderRadius: '2px', fontSize: '0.92rem', fontFamily: 'var(--font-body)', fontWeight: 600, outline: 'none', color: 'var(--navy-800)' }}
+        />
+        {!isOnly && <button type="button" onClick={() => onDelete(idx)} style={{ background: 'none', border: 'none', color: '#c0392b', cursor: 'pointer', fontSize: '18px', padding: '0 4px', flexShrink: 0 }}>×</button>}
+      </div>
+
+      <div style={{ marginBottom: '10px' }}>
+        <label style={{ fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 600, display: 'block', marginBottom: '5px' }}>Dosage</label>
+        <ChipGroup options={QUICK_DOSAGES} value={med.dosage} onSelect={v => s('dosage', v)} />
+      </div>
+      <div style={{ marginBottom: '10px' }}>
+        <label style={{ fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 600, display: 'block', marginBottom: '5px' }}>Frequency</label>
+        <ChipGroup options={QUICK_FREQUENCIES} value={med.frequency} onSelect={v => s('frequency', v)} />
+      </div>
+      <div style={{ marginBottom: '10px' }}>
+        <label style={{ fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 600, display: 'block', marginBottom: '5px' }}>Timing</label>
+        <ChipGroup options={QUICK_TIMINGS} value={med.timing} onSelect={v => s('timing', v)} />
+      </div>
+      <div>
+        <label style={{ fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 600, display: 'block', marginBottom: '5px' }}>Duration</label>
+        <ChipGroup options={QUICK_DURATIONS} value={med.duration} onSelect={v => s('duration', v)} />
+      </div>
+    </div>
+  )
+}
+
 function cleanPhone(phone) {
   let p = (phone || '').replace(/[^\d]/g, '')
   if (p.length === 10) p = '91' + p
@@ -115,7 +211,16 @@ export default function AdminPatientProfile() {
   // Consultations
   const [consultations, setConsultations] = useState([])
   const [showConsultForm, setShowConsultForm] = useState(false)
-  const [newConsult, setNewConsult] = useState({ date: new Date().toISOString().split('T')[0], chief_complaint: '', observations: '', prescription: '', follow_up_date: '', follow_up_notes: '', consultation_type: 'in-person' })
+  const [newConsult, setNewConsult] = useState({ date: new Date().toISOString().split('T')[0], chief_complaint: '', observations: '', prescription: '', follow_up_date: '', follow_up_notes: '', consultation_type: 'in-person', medicines: [emptyMed()] })
+  function updateNewConsultMed(idx, med) {
+    setNewConsult(c => ({ ...c, medicines: c.medicines.map((m, i) => i === idx ? med : m) }))
+  }
+  function addNewConsultMed() {
+    setNewConsult(c => ({ ...c, medicines: [...c.medicines, emptyMed()] }))
+  }
+  function removeNewConsultMed(idx) {
+    setNewConsult(c => c.medicines.length === 1 ? c : ({ ...c, medicines: c.medicines.filter((_, i) => i !== idx) }))
+  }
 
   // Billing
   const [invoices, setInvoices] = useState([])
@@ -155,6 +260,7 @@ export default function AdminPatientProfile() {
     setNewConsult(prev => ({
       ...prev,
       prescription: prescription,
+      medicines: meds.length ? meds.map(m => ({ name: m.name, dosage: m.dosage, frequency: m.frequency, timing: m.timing, duration: m.duration })) : prev.medicines,
       follow_up_notes: t.follow_up_duration ? `Follow-up recommended in ${t.follow_up_duration}` : prev.follow_up_notes,
       observations: notes || prev.observations,
     }))
@@ -306,8 +412,11 @@ export default function AdminPatientProfile() {
 
   async function addConsultation() {
     if (!newConsult.chief_complaint) return
+    const { medicines, ...rest } = newConsult
+    const builtPrescription = medsToPrescriptionText(medicines || [])
     const payload = {
-      ...newConsult,
+      ...rest,
+      prescription: builtPrescription || rest.prescription,
       patient_id: id,
       date: newConsult.date || new Date().toISOString().split('T')[0],
       follow_up_date: newConsult.follow_up_date || null,
@@ -317,7 +426,7 @@ export default function AdminPatientProfile() {
       alert('Could not save consultation: ' + error.message)
       return
     }
-    setNewConsult({ date: new Date().toISOString().split('T')[0], chief_complaint: '', observations: '', prescription: '', follow_up_date: '', follow_up_notes: '', consultation_type: 'in-person' })
+    setNewConsult({ date: new Date().toISOString().split('T')[0], chief_complaint: '', observations: '', prescription: '', follow_up_date: '', follow_up_notes: '', consultation_type: 'in-person', medicines: [emptyMed()] })
     setShowConsultForm(false)
     fetchAll()
   }
@@ -571,7 +680,7 @@ export default function AdminPatientProfile() {
             <input value={patient.name} onChange={e => setP('name', e.target.value)} placeholder="Patient Full Name" style={{ background: 'transparent', border: 'none', outline: 'none', fontFamily: 'var(--font-display)', fontSize: '1.6rem', fontWeight: 600, color: 'var(--gold-pale)', width: '100%', marginBottom: '8px' }} />
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               {TAGS.map(tag => (
-                <span key={tag} onClick={() => !isNew && toggleTag(tag)} style={{ fontSize: '10px', padding: '3px 10px', borderRadius: '100px', cursor: isNew ? 'default' : 'pointer', fontFamily: 'var(--font-body)', fontWeight: 600, letterSpacing: '0.5px', background: (patient.tags || []).includes(tag) ? 'rgba(199,166,106,0.25)' : 'rgba(255,255,255,0.06)', color: (patient.tags || []).includes(tag) ? 'var(--gold-pale)' : 'rgba(255,255,255,0.4)', border: (patient.tags || []).includes(tag) ? '1px solid rgba(199,166,106,0.4)' : '1px solid rgba(255,255,255,0.1)', transition: 'all 0.2s' }}>
+                <span key={tag} onClick={() => toggleTag(tag)} style={{ fontSize: '10px', padding: '3px 10px', borderRadius: '100px', cursor: 'pointer', fontFamily: 'var(--font-body)', fontWeight: 600, letterSpacing: '0.5px', background: (patient.tags || []).includes(tag) ? 'rgba(199,166,106,0.25)' : 'rgba(255,255,255,0.06)', color: (patient.tags || []).includes(tag) ? 'var(--gold-pale)' : 'rgba(255,255,255,0.4)', border: (patient.tags || []).includes(tag) ? '1px solid rgba(199,166,106,0.4)' : '1px solid rgba(255,255,255,0.1)', transition: 'all 0.2s' }}>
                   {tag}
                 </span>
               ))}
@@ -737,14 +846,26 @@ export default function AdminPatientProfile() {
               </div>
               <Field label="Chief Complaint" value={newConsult.chief_complaint} onChange={v => setNewConsult(c => ({ ...c, chief_complaint: v }))} multiline />
               <Field label="Observations / Findings" value={newConsult.observations} onChange={v => setNewConsult(c => ({ ...c, observations: v }))} multiline />
-              <Field label="Prescription / Treatment Plan" value={newConsult.prescription} onChange={v => setNewConsult(c => ({ ...c, prescription: v }))} multiline />
+
+              <div style={{ marginBottom: '16px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <label style={{ fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 600 }}>💊 Prescription — tap to build, no typing needed</label>
+                </div>
+                {newConsult.medicines.map((med, idx) => (
+                  <MedicineChipRow key={idx} med={med} idx={idx} onChange={updateNewConsultMed} onDelete={removeNewConsultMed} isOnly={newConsult.medicines.length === 1} />
+                ))}
+                <button type="button" className="admin-btn-outline admin-btn-sm" onClick={addNewConsultMed}>+ Add Another Medicine</button>
+                <datalist id="dental-medicine-list">
+                  {DENTAL_MEDICINES.map(m => <option key={m} value={m} />)}
+                </datalist>
+              </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <Field label="Follow-up Date" value={newConsult.follow_up_date} onChange={v => setNewConsult(c => ({ ...c, follow_up_date: v }))} type="date" />
                 <Field label="Follow-up Notes" value={newConsult.follow_up_notes} onChange={v => setNewConsult(c => ({ ...c, follow_up_notes: v }))} />
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button className="admin-btn-primary admin-btn-sm" onClick={addConsultation}>Save Consultation</button>
-                <button className="admin-btn-outline admin-btn-sm" onClick={() => setShowConsultForm(false)}>Cancel</button>
+                <button className="admin-btn-outline admin-btn-sm" onClick={() => { setShowConsultForm(false); setNewConsult({ date: new Date().toISOString().split('T')[0], chief_complaint: '', observations: '', prescription: '', follow_up_date: '', follow_up_notes: '', consultation_type: 'in-person', medicines: [emptyMed()] }) }}>Cancel</button>
               </div>
             </div>
           )}
