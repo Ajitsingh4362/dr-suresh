@@ -147,14 +147,10 @@ export default function AdminPatientProfile() {
   async function applyTemplate(t) {
     const meds = Array.isArray(t.medicines) ? t.medicines : JSON.parse(t.medicines || '[]')
     const prescription = meds.map(m =>
-      `${m.name} ${m.potency} — ${m.dose}, ${m.frequency}, ${m.duration}${m.notes ? ` (${m.notes})` : ''}`
+      `${m.name} ${m.dosage} — ${m.frequency}, ${m.timing}, ${m.duration}${m.notes ? ` (${m.notes})` : ''}`
     ).join('\n')
 
-    const notes = [
-      t.instructions ? `Instructions: ${t.instructions}` : '',
-      t.diet_guidelines ? `Diet: ${t.diet_guidelines}` : '',
-      t.lifestyle_notes ? `Lifestyle: ${t.lifestyle_notes}` : '',
-    ].filter(Boolean).join('\n\n')
+    const notes = t.instructions ? `Instructions: ${t.instructions}` : ''
 
     setNewConsult(prev => ({
       ...prev,
@@ -722,7 +718,7 @@ export default function AdminPatientProfile() {
                           ))}
                         </div>
                         <p style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', margin: 0 }}>
-                          💊 {meds.map(m => `${m.name} ${m.potency}`).join(' · ')}
+                          💊 {meds.map(m => `${m.name} ${m.dosage}`).join(' · ')}
                           {t.follow_up_duration ? ` · 📅 ${t.follow_up_duration}` : ''}
                         </p>
                       </div>

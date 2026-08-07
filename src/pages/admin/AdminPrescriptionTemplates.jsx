@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 
-const CATEGORIES = ['Homeopathy', 'Psychotherapy', 'Lifestyle', 'Nutrition', 'Integrative', 'Other']
-const POTENCIES = ['Q (Mother Tincture)', '3C', '6C', '12C', '30C', '200C', '1M', '10M', '50M', 'CM', 'LM1', 'LM2', 'LM3', 'Tablet', 'Drops', 'Other']
-const FREQUENCIES = ['Once daily', 'Twice daily', 'Three times daily', 'Four times daily', 'Once weekly', 'Twice weekly', 'Bedtime', 'Morning only', 'As needed (acute)', 'Every 15 mins (acute)', 'Other']
-const FOLLOW_UPS = ['1 week', '2 weeks', '3 weeks', '4 weeks', '6 weeks', '8 weeks', '3 months', '6 months']
+const CATEGORIES = ['Antibiotic', 'Painkiller', 'Mouthwash/Antiseptic', 'Post-Extraction', 'Post-RCT', 'Pediatric', 'General']
+const DOSAGES = ['250mg', '500mg', '650mg', '1 tab', '1 cap', '5ml', '10ml', 'Other']
+const FREQUENCIES = ['Once daily', 'Twice daily (1-0-1)', 'Thrice daily (1-1-1)', '4 times daily', 'SOS (as needed)', 'Bedtime only']
+const TIMINGS = ['After food', 'Before food', 'Anytime']
+const FOLLOW_UPS = ['3 days', '1 week', '2 weeks', '4 weeks', '3 months', '6 months']
 const COMMON_TAGS = ['Root Canal', 'Cavity', 'Gum Disease', 'Tooth Pain', 'Orthodontics', 'Implant', 'Cosmetic', 'Whitening', 'Pediatric', 'Emergency', 'Extraction', 'Sensitivity', 'Wisdom Tooth', 'Bad Breath', 'Bleeding Gums', 'Bruxism', 'Post-Surgery', 'Denture', 'Braces', 'Follow-up']
 
-const EMPTY_MED = { name: '', potency: '30C', dose: '2 pills', frequency: 'Twice daily', duration: '4 weeks', notes: '' }
-const EMPTY_TEMPLATE = { name: '', category: 'Homeopathy', condition_tags: [], medicines: [{ ...EMPTY_MED }], instructions: '', diet_guidelines: '', lifestyle_notes: '', follow_up_duration: '4 weeks' }
+const EMPTY_MED = { name: '', dosage: '500mg', frequency: 'Thrice daily (1-1-1)', timing: 'After food', duration: '5 days', notes: '' }
+const EMPTY_TEMPLATE = { name: '', category: 'General', condition_tags: [], medicines: [{ ...EMPTY_MED }], instructions: '', follow_up_duration: '1 week' }
 
 function MedicineRow({ med, idx, onChange, onDelete, isOnly }) {
   const s = (key, val) => onChange(idx, { ...med, [key]: val })
@@ -19,16 +20,12 @@ function MedicineRow({ med, idx, onChange, onDelete, isOnly }) {
         <input value={med.name} onChange={e => s('name', e.target.value)} placeholder="Medicine name (e.g. Pulsatilla)" style={{ flex: 1, padding: '8px 12px', border: '1px solid rgba(15,39,68,0.12)', borderRadius: '2px', fontSize: '0.92rem', fontFamily: 'var(--font-body)', fontWeight: 600, outline: 'none', color: 'var(--navy-800)' }} />
         {!isOnly && <button onClick={() => onDelete(idx)} style={{ background: 'none', border: 'none', color: '#c0392b', cursor: 'pointer', fontSize: '18px', padding: '0 4px', flexShrink: 0 }}>×</button>}
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '8px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: '8px' }}>
         <div>
-          <label style={{ fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 600, display: 'block', marginBottom: '4px' }}>Potency</label>
-          <select value={med.potency} onChange={e => s('potency', e.target.value)} style={{ width: '100%', padding: '7px 8px', border: '1px solid rgba(15,39,68,0.12)', borderRadius: '2px', fontSize: '0.8rem', fontFamily: 'var(--font-body)', outline: 'none' }}>
-            {POTENCIES.map(p => <option key={p}>{p}</option>)}
+          <label style={{ fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 600, display: 'block', marginBottom: '4px' }}>Dosage</label>
+          <select value={med.dosage} onChange={e => s('dosage', e.target.value)} style={{ width: '100%', padding: '7px 8px', border: '1px solid rgba(15,39,68,0.12)', borderRadius: '2px', fontSize: '0.8rem', fontFamily: 'var(--font-body)', outline: 'none' }}>
+            {DOSAGES.map(d => <option key={d}>{d}</option>)}
           </select>
-        </div>
-        <div>
-          <label style={{ fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 600, display: 'block', marginBottom: '4px' }}>Dose</label>
-          <input value={med.dose} onChange={e => s('dose', e.target.value)} placeholder="e.g. 2 pills" style={{ width: '100%', padding: '7px 8px', border: '1px solid rgba(15,39,68,0.12)', borderRadius: '2px', fontSize: '0.8rem', fontFamily: 'var(--font-body)', outline: 'none' }} />
         </div>
         <div>
           <label style={{ fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 600, display: 'block', marginBottom: '4px' }}>Frequency</label>
@@ -37,8 +34,14 @@ function MedicineRow({ med, idx, onChange, onDelete, isOnly }) {
           </select>
         </div>
         <div>
+          <label style={{ fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 600, display: 'block', marginBottom: '4px' }}>Timing</label>
+          <select value={med.timing} onChange={e => s('timing', e.target.value)} style={{ width: '100%', padding: '7px 8px', border: '1px solid rgba(15,39,68,0.12)', borderRadius: '2px', fontSize: '0.8rem', fontFamily: 'var(--font-body)', outline: 'none' }}>
+            {TIMINGS.map(t => <option key={t}>{t}</option>)}
+          </select>
+        </div>
+        <div>
           <label style={{ fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 600, display: 'block', marginBottom: '4px' }}>Duration</label>
-          <input value={med.duration} onChange={e => s('duration', e.target.value)} placeholder="e.g. 4 weeks" style={{ width: '100%', padding: '7px 8px', border: '1px solid rgba(15,39,68,0.12)', borderRadius: '2px', fontSize: '0.8rem', fontFamily: 'var(--font-body)', outline: 'none' }} />
+          <input value={med.duration} onChange={e => s('duration', e.target.value)} placeholder="e.g. 5 days" style={{ width: '100%', padding: '7px 8px', border: '1px solid rgba(15,39,68,0.12)', borderRadius: '2px', fontSize: '0.8rem', fontFamily: 'var(--font-body)', outline: 'none' }} />
         </div>
       </div>
       <div style={{ marginTop: '8px' }}>
@@ -185,17 +188,11 @@ export default function AdminPrescriptionTemplates() {
         </div>
       </div>
 
-      {/* Instructions, Diet, Lifestyle */}
-      {[
-        ['📋 General Instructions', 'instructions', 'e.g. Take medicines 30 mins before food. Avoid coffee, camphor, strong perfumes...'],
-        ['🥗 Diet Guidelines', 'diet_guidelines', 'e.g. No dairy for 2 weeks. Include leafy greens. Avoid sugar...'],
-        ['🧘 Lifestyle Notes', 'lifestyle_notes', 'e.g. 30 mins walk daily. Avoid stress. Sleep by 10pm...'],
-      ].map(([label, key, placeholder]) => (
-        <div key={key} style={{ marginBottom: '16px' }}>
-          <label style={{ fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 600, display: 'block', marginBottom: '6px' }}>{label}</label>
-          <textarea value={form[key] || ''} onChange={e => setF(key, e.target.value)} placeholder={placeholder} rows={3} style={{ width: '100%', padding: '10px 12px', border: '1px solid rgba(15,39,68,0.12)', borderRadius: '2px', fontSize: '0.88rem', fontFamily: 'var(--font-body)', outline: 'none', resize: 'vertical', lineHeight: 1.6 }} />
-        </div>
-      ))}
+      {/* Instructions */}
+      <div style={{ marginBottom: '16px' }}>
+        <label style={{ fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 600, display: 'block', marginBottom: '6px' }}>📋 Instructions for Patient</label>
+        <textarea value={form.instructions || ''} onChange={e => setF('instructions', e.target.value)} placeholder="e.g. Avoid hard/hot/cold food for 24 hrs. Rinse gently with warm salt water. Complete full course of antibiotics..." rows={3} style={{ width: '100%', padding: '10px 12px', border: '1px solid rgba(15,39,68,0.12)', borderRadius: '2px', fontSize: '0.88rem', fontFamily: 'var(--font-body)', outline: 'none', resize: 'vertical', lineHeight: 1.6 }} />
+      </div>
 
       {/* Follow-up */}
       <div style={{ marginBottom: '24px' }}>
@@ -289,7 +286,7 @@ export default function AdminPrescriptionTemplates() {
                   {meds.slice(0, 3).map((m, i) => (
                     <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '5px' }}>
                       <div style={{ width: '18px', height: '18px', borderRadius: '50%', background: 'var(--gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '9px', fontWeight: 700, fontFamily: 'var(--font-display)', flexShrink: 0 }}>{i + 1}</div>
-                      <p style={{ fontSize: '12px', color: 'var(--navy-800)', fontFamily: 'var(--font-body)', fontWeight: 600, margin: 0 }}>{m.name} <span style={{ color: 'var(--gold-deep)', fontWeight: 400 }}>{m.potency}</span></p>
+                      <p style={{ fontSize: '12px', color: 'var(--navy-800)', fontFamily: 'var(--font-body)', fontWeight: 600, margin: 0 }}>{m.name} <span style={{ color: 'var(--gold-deep)', fontWeight: 400 }}>{m.dosage}</span></p>
                       <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', marginLeft: 'auto', whiteSpace: 'nowrap' }}>{m.frequency}</span>
                     </div>
                   ))}
