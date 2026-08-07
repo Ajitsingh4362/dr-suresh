@@ -211,7 +211,7 @@ export default function AdminPatientProfile() {
   // Consultations
   const [consultations, setConsultations] = useState([])
   const [showConsultForm, setShowConsultForm] = useState(false)
-  const [newConsult, setNewConsult] = useState({ date: new Date().toISOString().split('T')[0], chief_complaint: '', observations: '', prescription: '', follow_up_date: '', follow_up_notes: '', consultation_type: 'in-person', medicines: [emptyMed()] })
+  const [newConsult, setNewConsult] = useState({ date: new Date().toISOString().split('T')[0], chief_complaint: '', observations: '', prescription: '', follow_up_date: '', follow_up_notes: '', consultation_type: 'in-person', medicines: [emptyMed()], sendWhatsApp: true })
   function updateNewConsultMed(idx, med) {
     setNewConsult(c => ({ ...c, medicines: c.medicines.map((m, i) => i === idx ? med : m) }))
   }
@@ -410,9 +410,34 @@ export default function AdminPatientProfile() {
     setTimeout(() => setMsg(''), 2000)
   }
 
+  async function sendWhatsApp(number, message) {
+    try {
+      const res = await fetch(`${WHATSAPP_API}/notify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ number, message }),
+      })
+      const data = await res.json()
+      if (!data.ok) console.error('WhatsApp message failed:', data.error)
+      return data.ok
+    } catch (err) {
+      console.error('WhatsApp request failed:', err)
+      return false
+    }
+  }
+
+  function buildPrescriptionWhatsAppMessage(consult, prescriptionText) {
+    const lines = [`Hi ${patient.name}, here is your prescription from Usha Multi Speciality Dental Clinic 🦷`]
+    if (consult.chief_complaint) lines.push(`\n📝 Reason: ${consult.chief_complaint}`)
+    lines.push(`\n💊 Prescription:\n${prescriptionText}`)
+    if (consult.follow_up_date) lines.push(`\n📅 Follow-up: ${fmtDate(consult.follow_up_date)}${consult.follow_up_notes ? ` — ${consult.follow_up_notes}` : ''}`)
+    lines.push(`\nPlease follow the dosage exactly as prescribed. Call us if you have any questions. Take care! 🙏`)
+    return lines.join('\n')
+  }
+
   async function addConsultation() {
     if (!newConsult.chief_complaint) return
-    const { medicines, ...rest } = newConsult
+    const { medicines, sendWhatsApp: shouldSendWhatsApp, ...rest } = newConsult
     const builtPrescription = medsToPrescriptionText(medicines || [])
     const payload = {
       ...rest,
@@ -426,7 +451,18 @@ export default function AdminPatientProfile() {
       alert('Could not save consultation: ' + error.message)
       return
     }
-    setNewConsult({ date: new Date().toISOString().split('T')[0], chief_complaint: '', observations: '', prescription: '', follow_up_date: '', follow_up_notes: '', consultation_type: 'in-person', medicines: [emptyMed()] })
+
+    // Auto-send the prescription on WhatsApp the moment medicines are added
+    const finalPrescription = builtPrescription || rest.prescription
+    if (shouldSendWhatsApp && finalPrescription && patient.phone) {
+      const phoneToSend = cleanPhone(patient.phone)
+      const msgText = buildPrescriptionWhatsAppMessage(payload, finalPrescription)
+      sendWhatsApp(phoneToSend, msgText).then(ok => {
+        if (!ok) alert('Consultation saved, but the WhatsApp prescription message could not be sent. You can resend it manually from WhatsApp.')
+      })
+    }
+
+    setNewConsult({ date: new Date().toISOString().split('T')[0], chief_complaint: '', observations: '', prescription: '', follow_up_date: '', follow_up_notes: '', consultation_type: 'in-person', medicines: [emptyMed()], sendWhatsApp: true })
     setShowConsultForm(false)
     fetchAll()
   }
@@ -848,8 +884,12 @@ export default function AdminPatientProfile() {
               <Field label="Observations / Findings" value={newConsult.observations} onChange={v => setNewConsult(c => ({ ...c, observations: v }))} multiline />
 
               <div style={{ marginBottom: '16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
                   <label style={{ fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 600 }}>💊 Prescription — tap to build, no typing needed</label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={newConsult.sendWhatsApp} onChange={e => setNewConsult(c => ({ ...c, sendWhatsApp: e.target.checked }))} />
+                    📲 Auto-send to patient on WhatsApp
+                  </label>
                 </div>
                 {newConsult.medicines.map((med, idx) => (
                   <MedicineChipRow key={idx} med={med} idx={idx} onChange={updateNewConsultMed} onDelete={removeNewConsultMed} isOnly={newConsult.medicines.length === 1} />
@@ -865,7 +905,7 @@ export default function AdminPatientProfile() {
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button className="admin-btn-primary admin-btn-sm" onClick={addConsultation}>Save Consultation</button>
-                <button className="admin-btn-outline admin-btn-sm" onClick={() => { setShowConsultForm(false); setNewConsult({ date: new Date().toISOString().split('T')[0], chief_complaint: '', observations: '', prescription: '', follow_up_date: '', follow_up_notes: '', consultation_type: 'in-person', medicines: [emptyMed()] }) }}>Cancel</button>
+                <button className="admin-btn-outline admin-btn-sm" onClick={() => { setShowConsultForm(false); setNewConsult({ date: new Date().toISOString().split('T')[0], chief_complaint: '', observations: '', prescription: '', follow_up_date: '', follow_up_notes: '', consultation_type: 'in-person', medicines: [emptyMed()], sendWhatsApp: true }) }}>Cancel</button>
               </div>
             </div>
           )}
