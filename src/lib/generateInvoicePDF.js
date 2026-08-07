@@ -134,7 +134,7 @@ export async function generateInvoicePDF({ patient, invoice, autoPrint = false }
   dl(margin, H - 22, W - margin, H - 22, GOLD, 0.5)
   wt('Book your appointment:', margin, H - 16, GREY, 'normal', 7)
   doc.setTextColor(...TEAL); sf('bold', 7)
-  doc.textWithLink('ushamultispecialitydentalclinic.com', margin + 39, H - 16, { url: 'https://ushamultispecialitydentalclinic.com' })
+  doc.textWithLink('www.ushadental.com', margin + 39, H - 16, { url: 'https://www.ushadental.com' })
   wt('Usha Multi Speciality Dental Clinic  \u00B7  Dr. Suresh Kumar', margin, H - 10, NAVY, 'bold', 7.5)
   wt('Near Bhawdepur Chowk, Shiv Mandir, Mata Vaishno Mandir Road, Bhavdepur, Sitamarhi - 843302, Bihar  \u00B7  Confidential, for medical use only.', margin, H - 5.5, GREY, 'normal', 5.8)
 
