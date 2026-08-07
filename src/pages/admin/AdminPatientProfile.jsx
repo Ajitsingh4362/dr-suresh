@@ -232,6 +232,7 @@ export default function AdminPatientProfile() {
     paid_amount: '',
     status: 'unpaid',
     notes: '',
+    sendWhatsApp: true,
   })
   const [newInvoice, setNewInvoice] = useState(blankInvoice())
 
@@ -488,6 +489,24 @@ export default function AdminPatientProfile() {
     return (items || []).reduce((sum, it) => sum + (parseFloat(it.amount) || 0), 0)
   }
 
+  function buildInvoiceWhatsAppMessage(inv) {
+    const due = Math.max(inv.total_amount - inv.paid_amount, 0)
+    const lines = [`Hi ${patient.name}, here is your invoice from Usha Multi Speciality Dental Clinic 🦷`]
+    lines.push(`\n🧾 Invoice: ${inv.invoice_number}`)
+    lines.push(`📅 Date: ${fmtDate(inv.date)}`)
+    lines.push(`\nItems:`)
+    inv.items.forEach(it => lines.push(`• ${it.description} — ₹${Number(it.amount).toLocaleString('en-IN')}`))
+    lines.push(`\nTotal: ₹${inv.total_amount.toLocaleString('en-IN')}`)
+    lines.push(`Paid: ₹${inv.paid_amount.toLocaleString('en-IN')}`)
+    if (due > 0) {
+      lines.push(`Due: ₹${due.toLocaleString('en-IN')}`)
+      lines.push(`\nYou can pay the balance at your convenience or during your next visit. 🙏`)
+    } else {
+      lines.push(`\nThank you for your payment! 🙏`)
+    }
+    return lines.join('\n')
+  }
+
   async function addInvoice() {
     const items = (newInvoice.items || []).filter(it => it.description && it.amount !== '')
     if (items.length === 0) { alert('Add at least one item with description and amount.'); return }
@@ -495,11 +514,12 @@ export default function AdminPatientProfile() {
     const paid = parseFloat(newInvoice.paid_amount) || 0
     const status = paid <= 0 ? 'unpaid' : (paid >= total ? 'paid' : 'partial')
     const invoiceNumber = 'UMDC-INV-' + Date.now().toString().slice(-8)
+    const invoiceDate = newInvoice.date || new Date().toISOString().split('T')[0]
 
     const payload = {
       patient_id: id,
       invoice_number: invoiceNumber,
-      date: newInvoice.date || new Date().toISOString().split('T')[0],
+      date: invoiceDate,
       items,
       total_amount: total,
       paid_amount: paid,
@@ -508,6 +528,16 @@ export default function AdminPatientProfile() {
     }
     const { error } = await supabase.from('patient_invoices').insert(payload)
     if (error) { alert('Could not save invoice: ' + error.message); return }
+
+    // Auto-send the invoice on WhatsApp the moment it's saved
+    if (newInvoice.sendWhatsApp && patient.phone) {
+      const phoneToSend = cleanPhone(patient.phone)
+      const msgText = buildInvoiceWhatsAppMessage({ invoice_number: invoiceNumber, date: invoiceDate, items, total_amount: total, paid_amount: paid })
+      sendWhatsApp(phoneToSend, msgText).then(ok => {
+        if (!ok) alert('Invoice saved, but the WhatsApp message could not be sent. You can share the PDF manually from the invoice card.')
+      })
+    }
+
     setNewInvoice(blankInvoice())
     setShowInvoiceForm(false)
     fetchAll()
@@ -997,6 +1027,11 @@ export default function AdminPatientProfile() {
                 <Field label="Paid Now (optional)" value={newInvoice.paid_amount} onChange={v => setNewInvoice(inv => ({ ...inv, paid_amount: v }))} type="number" />
               </div>
               <Field label="Notes" value={newInvoice.notes} onChange={v => setNewInvoice(inv => ({ ...inv, notes: v }))} multiline />
+
+              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', cursor: 'pointer', marginBottom: '12px' }}>
+                <input type="checkbox" checked={newInvoice.sendWhatsApp} onChange={e => setNewInvoice(inv => ({ ...inv, sendWhatsApp: e.target.checked }))} />
+                📲 Auto-send this invoice to patient on WhatsApp
+              </label>
 
               <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
                 <button className="admin-btn-primary admin-btn-sm" onClick={addInvoice}>Save Invoice</button>
