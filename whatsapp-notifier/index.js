@@ -27,11 +27,9 @@ const cors = require('cors')
 const pino = require('pino')
 const cron = require('node-cron')
 const { createClient } = require('@supabase/supabase-js')
-const { useSupabaseAuthState } = require('./supabaseAuthState')
 
 const PORT = process.env.PORT || 3001
 let sock = null
-let clearAuthState = null // set once useSupabaseAuthState() resolves
 let isReady = false
 let currentQrDataUrl = null // base64 PNG data URL of the latest QR
 const contactsCache = {} // jid -> { id, name, notify }
@@ -50,10 +48,7 @@ const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABA
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 async function startWhatsApp() {
-  // Session is persisted in Supabase (not local disk) so it survives
-  // Render free-tier restarts after the service spins down from inactivity.
-  const { state, saveCreds, clearAll } = await useSupabaseAuthState(supabase)
-  clearAuthState = clearAll
+  const { state, saveCreds } = await useMultiFileAuthState('./auth')
   const { version } = await fetchLatestBaileysVersion()
   console.log('Using WhatsApp Web version:', version.join('.'))
 
@@ -369,8 +364,7 @@ app.get('/qr', (req, res) => {
 
 app.post('/logout', async (req, res) => {
   try {
-    if (sock) await sock.logout().catch(() => {}) // ignore if already disconnected
-    if (clearAuthState) await clearAuthState()
+    if (sock) await sock.logout()
     isReady = false
     currentQrDataUrl = null
     res.json({ ok: true })
