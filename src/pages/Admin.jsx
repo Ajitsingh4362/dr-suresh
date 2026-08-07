@@ -375,22 +375,42 @@ export default function Admin() {
     )
   }
 
-  const navItems = [
-    { to: '/admin/analytics', label: 'Analytics', icon: '📈' },
-    { to: '/admin/calendar', label: 'Calendar', icon: '📅' },
-    { to: '/admin/patients', label: 'Patients', icon: '👥' },
-    { to: '/admin/patients/new', label: 'Add Patient', icon: '➕' },
-    { to: '/admin/old-patients', label: 'Old Patients', icon: '🗂️' },
-    { to: '/admin/appointments', label: 'Appointments', icon: '📋' },
-    { to: '/admin/templates', label: 'Rx Templates', icon: '💊' },
-    { to: '/admin/faq', label: 'FAQ Manager', icon: '❓' },
-    { to: '/admin/testimonials', label: 'Testimonials', icon: '⭐' },
-    { to: '/admin/posts', label: 'Blog Posts', icon: '📝' },
-    { to: '/admin/gallery', label: 'Gallery', icon: '🖼️' },
-    { to: '/admin/settings', label: 'Popup Settings', icon: '⚙️' },
-    { to: '/admin/notes', label: 'My Notes', icon: '🗒️' },
-    { to: '/admin/whatsapp', label: 'WhatsApp', icon: '💬' },
-    { to: '/admin/devices', label: 'Devices', icon: '🖥️' },
+  const navGroups = [
+    {
+      label: 'Overview',
+      items: [
+        { to: '/admin/analytics', label: 'Analytics', icon: '📈' },
+        { to: '/admin/calendar', label: 'Calendar', icon: '📅' },
+      ],
+    },
+    {
+      label: 'Patient Care',
+      items: [
+        { to: '/admin/patients', label: 'Patients', icon: '👥', end: true },
+        { to: '/admin/patients/new', label: 'Add Patient', icon: '➕' },
+        { to: '/admin/old-patients', label: 'Old Patients', icon: '🗂️' },
+        { to: '/admin/appointments', label: 'Appointments', icon: '📋' },
+        { to: '/admin/templates', label: 'Rx Templates', icon: '💊' },
+      ],
+    },
+    {
+      label: 'Website',
+      items: [
+        { to: '/admin/testimonials', label: 'Testimonials', icon: '⭐' },
+        { to: '/admin/posts', label: 'Blog Posts', icon: '📝' },
+        { to: '/admin/gallery', label: 'Gallery', icon: '🖼️' },
+        { to: '/admin/faq', label: 'FAQ Manager', icon: '❓' },
+      ],
+    },
+    {
+      label: 'Settings',
+      items: [
+        { to: '/admin/settings', label: 'Popup Settings', icon: '⚙️' },
+        { to: '/admin/notes', label: 'My Notes', icon: '🗒️' },
+        { to: '/admin/whatsapp', label: 'WhatsApp', icon: '💬' },
+        { to: '/admin/devices', label: 'Devices', icon: '🖥️' },
+      ],
+    },
   ]
 
   return (
@@ -405,14 +425,19 @@ export default function Admin() {
           <p className="admin-sidebar-logo">Usha Multi Speciality Dental Clinic</p>
         </div>
         <nav className="admin-nav">
-          {navItems.map(item => (
-            <NavLink key={item.to} to={item.to} className={({ isActive }) => `admin-nav-link ${isActive ? 'active' : ''}`} onClick={() => setSidebarOpen(false)}>
-              <span className="admin-nav-icon">{item.icon}</span> {item.label}
-            </NavLink>
+          {navGroups.map(group => (
+            <div className="admin-nav-group" key={group.label}>
+              <p className="admin-nav-group-label"><span className="admin-nav-group-tick" />{group.label}</p>
+              {group.items.map(item => (
+                <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `admin-nav-link ${isActive ? 'active' : ''}`} onClick={() => setSidebarOpen(false)}>
+                  <span className="admin-nav-icon">{item.icon}</span> {item.label}
+                </NavLink>
+              ))}
+            </div>
           ))}
         </nav>
         <div className="admin-sidebar-footer">
-          <button className="admin-nav-link" onClick={logout}>🚪 Logout</button>
+          <button className="admin-nav-link admin-nav-logout" onClick={logout}>🚪 Logout</button>
         </div>
       </aside>
 
