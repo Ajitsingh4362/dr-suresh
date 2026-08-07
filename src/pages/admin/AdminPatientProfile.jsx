@@ -9,6 +9,10 @@ const TAGS = ['Root Canal', 'Orthodontics', 'Implant', 'Cosmetic', 'Pediatric', 
 const AVATAR_COLORS = ['#b9914f', '#1e6f6a', '#4a3d8f', '#8f3d3d', '#3d6b8f', '#6b8f3d', '#8f6b3d']
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
 const WHATSAPP_API = 'https://dr-suresh-whatsapp.onrender.com'
+// Appended to every automatic WhatsApp message sent from this app. WhatsApp
+// renders *text* wrapped in single asterisks as bold, and still auto-links
+// the URL inside it.
+const WHATSAPP_FOOTER = '\n\n*Book your appointment on www.ushadental.com*'
 
 // ─── Medicine Builder (quick-tap Rx, no free typing needed) ───
 const DENTAL_MEDICINES = [
@@ -421,7 +425,7 @@ export default function AdminPatientProfile() {
 
       // Welcome message
       if (patient.phone) {
-        const welcomeMsg = `Hi ${patient.name}, welcome to Usha Multi Speciality Dental Clinic! Your patient record has been created. We look forward to taking care of your dental health. \ud83e\uddf7`
+        const welcomeMsg = `Hi ${patient.name}, welcome to Usha Multi Speciality Dental Clinic! Your patient record has been created. We look forward to taking care of your dental health. \ud83e\uddf7${WHATSAPP_FOOTER}`
         const phoneToSend = cleanPhone(patient.phone)
         fetch(`${WHATSAPP_API}/notify`, {
           method: 'POST',
@@ -515,7 +519,7 @@ export default function AdminPatientProfile() {
     lines.push(`\n💊 Prescription:\n${prescriptionText}`)
     if (consult.follow_up_date) lines.push(`\n📅 Follow-up: ${fmtDate(consult.follow_up_date)}${consult.follow_up_notes ? ` — ${consult.follow_up_notes}` : ''}`)
     lines.push(`\nPlease follow the dosage exactly as prescribed. Call us if you have any questions. Take care! 🙏`)
-    return lines.join('\n')
+    return lines.join('\n') + WHATSAPP_FOOTER
   }
 
   async function addConsultation() {
@@ -586,7 +590,7 @@ export default function AdminPatientProfile() {
     } else {
       lines.push(`\nThank you for your payment! 🙏`)
     }
-    return lines.join('\n')
+    return lines.join('\n') + WHATSAPP_FOOTER
   }
 
   async function addInvoice() {

@@ -7,6 +7,7 @@ const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID'
 const EMAILJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY'
 const WHATSAPP = '918987367274'
 const WHATSAPP_API = 'https://dr-suresh-whatsapp.onrender.com'
+const WHATSAPP_FOOTER = '\n\n*Book your appointment on www.ushadental.com*'
 
 function cleanPhone(phone) {
   let p = (phone || '').replace(/[^\d]/g, '')
@@ -112,7 +113,7 @@ export default function Contact() {
 
     // Patient ko turant ek WhatsApp confirmation-of-request bhejo (best-effort)
     if (form.phone) {
-      const welcomeMsg = `Hi ${form.name}, thank you for reaching out to Usha Multi Speciality Dental Clinic! We've received your appointment request${form.program ? ` for ${form.program}` : ''}. Our team will review it and you'll get another WhatsApp message here as soon as it's confirmed. \ud83e\uddf7`
+      const welcomeMsg = `Hi ${form.name}, thank you for reaching out to Usha Multi Speciality Dental Clinic! We've received your appointment request${form.program ? ` for ${form.program}` : ''}. Our team will review it and you'll get another WhatsApp message here as soon as it's confirmed. \ud83e\uddf7${WHATSAPP_FOOTER}`
       fetch(`${WHATSAPP_API}/notify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

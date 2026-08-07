@@ -36,6 +36,9 @@ const cron = require('node-cron')
 const { createClient } = require('@supabase/supabase-js')
 
 const PORT = process.env.PORT || 3001
+// Appended to the two automatic cron-sent reminders below — matches the
+// same footer the admin panel adds to every message it sends directly.
+const WHATSAPP_FOOTER = '\n\n*Book your appointment on www.ushadental.com*'
 let sock = null
 let isReady = false
 let currentQrDataUrl = null // base64 PNG data URL of the latest QR
@@ -278,7 +281,7 @@ async function checkFollowUpsAndNotify() {
     else if (daysAway === 1) line = `This is a reminder that your follow-up with Dr. Suresh Kumar is tomorrow, ${dateStr}.`
     else line = `This is a reminder that your follow-up with Dr. Suresh Kumar is scheduled on ${dateStr}.`
 
-    const msg = `Hi ${patient.name}, this is Usha Multi Speciality Dental Clinic. ${line} Please let us know if this works for you, or if you'd like to reschedule.`
+    const msg = `Hi ${patient.name}, this is Usha Multi Speciality Dental Clinic. ${line} Please let us know if this works for you, or if you'd like to reschedule.${WHATSAPP_FOOTER}`
 
     try {
       await sendWhatsAppMessage(cleanPhone(patient.phone), msg)
@@ -330,7 +333,7 @@ async function checkAppointmentRemindersAndNotify() {
   for (const appt of appts) {
     if (!appt.phone) continue
     const timeStr = appt.preferred_time ? ` at ${appt.preferred_time}` : ''
-    const msg = `Hi ${appt.name}, this is a reminder from Usha Multi Speciality Dental Clinic \u2014 your appointment with Dr. Suresh Kumar for ${appt.service || 'your consultation'} is tomorrow${timeStr}. See you soon!`
+    const msg = `Hi ${appt.name}, this is a reminder from Usha Multi Speciality Dental Clinic \u2014 your appointment with Dr. Suresh Kumar for ${appt.service || 'your consultation'} is tomorrow${timeStr}. See you soon!${WHATSAPP_FOOTER}`
 
     try {
       await sendWhatsAppMessage(cleanPhone(appt.phone), msg)

@@ -20,6 +20,7 @@ import AdminDevices, { recordSession, checkRevoked } from './admin/AdminDevices'
 
 // Same Render-hosted Baileys service used by the WhatsApp admin tab
 const WHATSAPP_API = 'https://dr-suresh-whatsapp.onrender.com'
+const WHATSAPP_FOOTER = '\n\n*Book your appointment on www.ushadental.com*'
 
 function AdminHeader() {
   const [pending, setPending] = useState([])
@@ -112,7 +113,7 @@ function AdminHeader() {
     else if (daysAway === 1) line = `This is a reminder that your follow-up with Dr. Suresh Kumar is tomorrow, ${dateStr}.`
     else line = `This is a reminder that your follow-up with Dr. Suresh Kumar is scheduled on ${dateStr}.`
 
-    const msg = encodeURIComponent(`Hi ${f.patients.name}, this is Usha Multi Speciality Dental Clinic. ${line} Please let us know if this works for you, or if you'd like to reschedule. 🦷`)
+    const msg = encodeURIComponent(`Hi ${f.patients.name}, this is Usha Multi Speciality Dental Clinic. ${line} Please let us know if this works for you, or if you'd like to reschedule. 🦷${WHATSAPP_FOOTER}`)
     window.open(`https://wa.me/${cleanPhone(f.patients.phone)}?text=${msg}`, '_blank')
     // Remove from today's list, but it comes back tomorrow if the follow-up date hasn't passed yet
     setFollowUps(prev => prev.filter(x => x.id !== f.id))
@@ -130,7 +131,7 @@ function AdminHeader() {
       const phone = cleanPhone(appt.phone)
       if (!phone || phone.length < 12) throw new Error('Invalid phone number: "' + appt.phone + '"')
 
-      const msg = `Hi ${appt.name}, your appointment with Dr. Suresh Kumar has been confirmed${appt.preferred_date ? ` for ${new Date(appt.preferred_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long' })}` : ''}${appt.preferred_time ? ` at ${appt.preferred_time}` : ''}. Looking forward to seeing you! \ud83c\udf3f`
+      const msg = `Hi ${appt.name}, your appointment with Dr. Suresh Kumar has been confirmed${appt.preferred_date ? ` for ${new Date(appt.preferred_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long' })}` : ''}${appt.preferred_time ? ` at ${appt.preferred_time}` : ''}. Looking forward to seeing you! \ud83c\udf3f${WHATSAPP_FOOTER}`
 
       const res = await fetch(`${WHATSAPP_API}/notify`, {
         method: 'POST',

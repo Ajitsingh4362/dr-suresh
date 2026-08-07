@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase'
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 const TIME_SLOTS = ['9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM']
+const WHATSAPP_FOOTER = '\n\n*Book your appointment on www.ushadental.com*'
 
 const STATUS_COLORS = {
   confirmed: { bg: 'rgba(30,111,106,0.15)', border: '#1e6f6a', text: '#1e6f6a', dot: '#1e6f6a' },
@@ -119,7 +120,7 @@ export default function AdminCalendar() {
       const appt = appts.find(a => a.id === id)
       if (appt) {
         const phone = (appt.phone || '').replace(/[^\d]/g, '')
-        const msg = encodeURIComponent(`Hi ${appt.name}, your appointment with Dr. Suresh Kumar has been confirmed${appt.preferred_date ? ` for ${new Date(appt.preferred_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long' })}` : ''}${appt.preferred_time ? ` at ${appt.preferred_time}` : ''}. Looking forward to seeing you! 🌿`)
+        const msg = encodeURIComponent(`Hi ${appt.name}, your appointment with Dr. Suresh Kumar has been confirmed${appt.preferred_date ? ` for ${new Date(appt.preferred_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long' })}` : ''}${appt.preferred_time ? ` at ${appt.preferred_time}` : ''}. Looking forward to seeing you! 🌿${WHATSAPP_FOOTER}`)
         window.open(`https://wa.me/${phone}?text=${msg}`, '_blank')
       }
     }
