@@ -388,10 +388,11 @@ export default function AdminPatientProfile() {
     const feeAmt = parseFloat(appointmentFee)
     if (feeAmt > 0) {
       const invoiceNumber = 'UMDC-INV-' + Date.now().toString().slice(-8)
+      const feeDate = new Date().toISOString().split('T')[0]
       const { error: feeErr } = await supabase.from('patient_invoices').insert({
         patient_id: patientId,
         invoice_number: invoiceNumber,
-        date: new Date().toISOString().split('T')[0],
+        date: feeDate,
         items: [{ description: 'Appointment Fee', amount: feeAmt }],
         total_amount: feeAmt,
         paid_amount: feeAmt,
@@ -401,6 +402,12 @@ export default function AdminPatientProfile() {
       if (feeErr) {
         alert('Patient saved, but the appointment fee could not be recorded:\n\n' + feeErr.message)
       } else {
+        if (patient.phone) {
+          const msgText = buildInvoiceWhatsAppMessage({ invoice_number: invoiceNumber, date: feeDate, items: [{ description: 'Appointment Fee', amount: feeAmt }], total_amount: feeAmt, paid_amount: feeAmt })
+          sendWhatsApp(cleanPhone(patient.phone), msgText).then(ok => {
+            if (!ok) alert('Appointment fee saved, but the WhatsApp receipt could not be sent.')
+          })
+        }
         setAppointmentFee('')
         fetchAll()
       }
