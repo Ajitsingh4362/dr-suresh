@@ -142,7 +142,7 @@ export default function AdminPatients() {
 
               {/* Date */}
               <p style={{ fontSize: '11px', color: 'var(--text-light)', fontFamily: 'var(--font-body)', whiteSpace: 'nowrap' }}>
-                Since {new Date(p.created_at).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })}
+                Since {new Date(p.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
               </p>
 
               {/* Actions */}
