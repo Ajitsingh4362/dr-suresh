@@ -30,6 +30,69 @@ const QUICK_FREQUENCIES = [
 const QUICK_TIMINGS = ['After food', 'Before food', 'Anytime']
 const QUICK_DURATIONS = ['3 days', '5 days', '7 days', '10 days', '15 days']
 
+// ─── Quick-fill for Chief Complaint / Observations (tap instead of type) ───
+const CONDITION_TEMPLATES = {
+  'Root Canal': {
+    complaint: 'Severe, throbbing tooth pain, worse at night; sensitivity to hot and cold.',
+    observations: 'Deep caries extending to pulp; tooth tender on percussion. X-ray advised.',
+  },
+  Orthodontics: {
+    complaint: 'Crooked / crowded teeth; concerned about bite alignment.',
+    observations: 'Malocclusion noted; crowding in upper/lower arch. Orthodontic assessment recommended.',
+  },
+  Implant: {
+    complaint: 'Missing tooth; wants a permanent replacement option.',
+    observations: 'Edentulous space noted; bone support to be confirmed via X-ray/CBCT before implant planning.',
+  },
+  Cosmetic: {
+    complaint: 'Unhappy with tooth colour/shape; wants a brighter, more even smile.',
+    observations: 'Mild discolouration/staining noted; discussed whitening and veneer/bonding options.',
+  },
+  Pediatric: {
+    complaint: 'Child complains of tooth pain; parent concerned about cavity in milk tooth.',
+    observations: 'Carious lesion noted in deciduous tooth; child cooperative during examination.',
+  },
+}
+const COMPLAINT_PHRASES = ['Tooth pain', 'Sensitivity to hot/cold', 'Swelling in gums', 'Bleeding gums', 'Bad breath', 'Broken tooth', 'Loose tooth', 'Pain while chewing']
+const OBSERVATION_PHRASES = ['Visible cavity', 'Gum inflammation', 'Plaque/tartar buildup', 'Tooth mobility', 'X-ray advised', 'Referred for extraction', 'Healing well', 'No abnormality detected']
+
+function appendPhrase(existing, phrase) {
+  const trimmed = (existing || '').trim()
+  if (!trimmed) return phrase
+  return /[.,]$/.test(trimmed) ? `${trimmed} ${phrase}` : `${trimmed}, ${phrase}`
+}
+
+// Small tap-to-insert chip row — visually distinct from ChipGroup since these
+// don't have a persistent "selected" state, just a one-off insert action.
+function InsertChipRow({ options, onPick, tone = 'muted', highlightSet }) {
+  const isBold = tone === 'bold'
+  return (
+    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '8px', marginBottom: '14px' }}>
+      {options.map(opt => {
+        const isHighlighted = highlightSet && highlightSet.includes(opt)
+        return (
+          <button
+            key={opt}
+            type="button"
+            onClick={() => onPick(opt)}
+            title={isHighlighted ? 'This patient is tagged with this condition' : undefined}
+            style={{
+              padding: isBold ? '7px 14px' : '5px 12px', borderRadius: '100px',
+              border: isHighlighted ? '1px solid var(--gold)' : (isBold ? '1px solid rgba(199,166,106,0.4)' : '1px solid rgba(15,39,68,0.15)'),
+              background: isHighlighted ? 'var(--gold)' : (isBold ? 'rgba(199,166,106,0.12)' : 'var(--white)'),
+              color: isHighlighted ? '#fff' : (isBold ? 'var(--gold-deep)' : 'var(--text-muted)'),
+              fontSize: isBold ? '11.5px' : '11px', fontFamily: 'var(--font-body)',
+              fontWeight: isBold || isHighlighted ? 600 : 500, cursor: 'pointer', whiteSpace: 'nowrap',
+            }}
+          >
+            {isBold ? `🦷 ${opt}${isHighlighted ? ' ✓' : ''}` : `+ ${opt}`}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 function emptyMed() {
   return { name: '', dosage: '500mg', frequency: 'Twice daily (1-0-1)', timing: 'After food', duration: '5 days' }
 }
@@ -220,6 +283,18 @@ export default function AdminPatientProfile() {
   }
   function removeNewConsultMed(idx) {
     setNewConsult(c => c.medicines.length === 1 ? c : ({ ...c, medicines: c.medicines.filter((_, i) => i !== idx) }))
+  }
+  // Quick-fill Chief Complaint + Observations from a condition template — fills
+  // if empty, appends on a new line if the compounder already typed something,
+  // so a stray tap never wipes out real notes.
+  function applyConditionTemplate(condition) {
+    const t = CONDITION_TEMPLATES[condition]
+    if (!t) return
+    setNewConsult(c => ({
+      ...c,
+      chief_complaint: c.chief_complaint?.trim() ? `${c.chief_complaint}\n${t.complaint}` : t.complaint,
+      observations: c.observations?.trim() ? `${c.observations}\n${t.observations}` : t.observations,
+    }))
   }
 
   // Billing
@@ -922,8 +997,14 @@ export default function AdminPatientProfile() {
                 <Field label="Date" value={newConsult.date} onChange={v => setNewConsult(c => ({ ...c, date: v }))} type="date" />
                 <Field label="Type" value={newConsult.consultation_type} onChange={v => setNewConsult(c => ({ ...c, consultation_type: v }))} options={['in-person', 'video-call', 'phone-call', 'whatsapp']} />
               </div>
+              <div style={{ marginBottom: '4px' }}>
+                <label style={{ fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 600, display: 'block', marginBottom: '2px' }}>Quick Fill by Condition — fills both fields below</label>
+                <InsertChipRow options={Object.keys(CONDITION_TEMPLATES)} onPick={applyConditionTemplate} tone="bold" highlightSet={patient.tags || []} />
+              </div>
               <Field label="Chief Complaint" value={newConsult.chief_complaint} onChange={v => setNewConsult(c => ({ ...c, chief_complaint: v }))} multiline />
+              <InsertChipRow options={COMPLAINT_PHRASES} onPick={p => setNewConsult(c => ({ ...c, chief_complaint: appendPhrase(c.chief_complaint, p) }))} />
               <Field label="Observations / Findings" value={newConsult.observations} onChange={v => setNewConsult(c => ({ ...c, observations: v }))} multiline />
+              <InsertChipRow options={OBSERVATION_PHRASES} onPick={p => setNewConsult(c => ({ ...c, observations: appendPhrase(c.observations, p) }))} />
 
               <div style={{ marginBottom: '16px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
