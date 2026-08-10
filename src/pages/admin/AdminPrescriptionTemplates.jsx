@@ -206,7 +206,7 @@ export default function AdminPrescriptionTemplates() {
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '10px' }}>
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
         <button className="admin-btn-primary" onClick={save} disabled={saving} style={{ minWidth: '160px' }}>{saving ? 'Saving...' : editing === 'new' ? 'Create Template' : 'Save Changes'}</button>
         <button className="admin-btn-outline" onClick={closeForm}>Cancel</button>
       </div>
@@ -312,6 +312,12 @@ export default function AdminPrescriptionTemplates() {
           })}
         </div>
       )}
+
+      <style>{`
+        @media (max-width: 380px) {
+          .admin-panel [style*="repeat(auto-fill, minmax(320px"] { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   )
 }

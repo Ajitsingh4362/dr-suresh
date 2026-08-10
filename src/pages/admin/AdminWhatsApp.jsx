@@ -85,7 +85,7 @@ export default function AdminWhatsApp() {
   }
 
   return (
-    <div>
+    <div className="admin-panel">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '10px' }}>
         <div>
           <p style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', fontWeight: 600, color: 'var(--navy-800)', margin: 0 }}>WhatsApp Notifications</p>
@@ -107,7 +107,7 @@ export default function AdminWhatsApp() {
       )}
 
       {serverReachable && connected && (
-        <div style={{ background: '#eefaf3', border: '1px solid rgba(30,143,90,0.25)', borderRadius: '2px', padding: '28px', textAlign: 'center' }}>
+        <div className="admin-wa-card" style={{ background: '#eefaf3', border: '1px solid rgba(30,143,90,0.25)', borderRadius: '2px', padding: '28px', textAlign: 'center' }}>
           <div style={{ fontSize: '40px', marginBottom: '10px' }}>✅</div>
           <p style={{ fontWeight: 600, fontSize: '15px', color: '#1e8f5a', margin: '0 0 6px', fontFamily: 'var(--font-body)' }}>WhatsApp Connected</p>
           <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', margin: '0 0 18px', fontFamily: 'var(--font-body)' }}>
@@ -120,7 +120,7 @@ export default function AdminWhatsApp() {
       )}
 
       {serverReachable && !connected && checkedOnce && (
-        <div style={{ background: 'var(--ivory)', border: '1px solid rgba(15,39,68,0.08)', borderRadius: '2px', padding: '28px', textAlign: 'center' }}>
+        <div className="admin-wa-card" style={{ background: 'var(--ivory)', border: '1px solid rgba(15,39,68,0.08)', borderRadius: '2px', padding: '28px', textAlign: 'center' }}>
           {!qr && !generating && (
             <>
               <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '0 0 18px', fontFamily: 'var(--font-body)' }}>
@@ -141,7 +141,7 @@ export default function AdminWhatsApp() {
               <p style={{ fontWeight: 600, fontSize: '14px', color: 'var(--navy-800)', margin: '0 0 16px', fontFamily: 'var(--font-body)' }}>
                 Scan with WhatsApp — Settings → Linked Devices → Link a Device
               </p>
-              <img src={qr} alt="WhatsApp QR code" style={{ width: '260px', height: '260px', border: '8px solid white', borderRadius: '4px', boxShadow: '0 4px 16px rgba(15,39,68,0.12)' }} />
+              <img src={qr} alt="WhatsApp QR code" style={{ width: '260px', maxWidth: '100%', height: 'auto', border: '8px solid white', borderRadius: '4px', boxShadow: '0 4px 16px rgba(15,39,68,0.12)' }} />
               <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '14px', fontFamily: 'var(--font-body)' }}>
                 QR refreshes automatically — keep this page open while scanning.
               </p>
@@ -149,6 +149,11 @@ export default function AdminWhatsApp() {
           )}
         </div>
       )}
+      <style>{`
+        @media (max-width: 420px) {
+          .admin-wa-card { padding: 18px !important; }
+        }
+      `}</style>
     </div>
   )
 }

@@ -212,7 +212,7 @@ export default function AdminTestimonials() {
           </div>
 
           {/* Toggles */}
-          <div style={{ display: 'flex', gap: '20px', marginTop: '16px' }}>
+          <div style={{ display: 'flex', gap: '20px', marginTop: '16px', flexWrap: 'wrap' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', fontFamily: 'var(--font-body)', color: 'var(--navy-800)' }}>
               <input type="checkbox" checked={form.visible} onChange={e => setF('visible', e.target.checked)} />
               Visible on website
@@ -225,7 +225,7 @@ export default function AdminTestimonials() {
 
           {msg && <p style={{ color: '#c0392b', fontSize: '12px', fontFamily: 'var(--font-body)', marginTop: '10px' }}>{msg}</p>}
 
-          <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+          <div style={{ display: 'flex', gap: '10px', marginTop: '20px', flexWrap: 'wrap' }}>
             <button className="admin-btn-primary" onClick={save} disabled={saving}>{saving ? 'Saving...' : editing === 'new' ? 'Add Testimonial' : 'Save Changes'}</button>
             <button className="admin-btn-outline" onClick={closeForm}>Cancel</button>
           </div>
@@ -238,7 +238,7 @@ export default function AdminTestimonials() {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {all.map((t, i) => (
-            <div key={t.id} style={{ background: 'var(--white)', border: `1px solid ${t.featured ? 'rgba(199,166,106,0.3)' : 'rgba(15,39,68,0.08)'}`, borderRadius: '2px', padding: '16px 20px', display: 'flex', gap: '16px', alignItems: 'flex-start', opacity: t.visible ? 1 : 0.55 }}>
+            <div key={t.id} className="admin-testi-row" style={{ background: 'var(--white)', border: `1px solid ${t.featured ? 'rgba(199,166,106,0.3)' : 'rgba(15,39,68,0.08)'}`, borderRadius: '2px', padding: '16px 20px', display: 'flex', gap: '16px', alignItems: 'flex-start', opacity: t.visible ? 1 : 0.55 }}>
               {/* Avatar */}
               <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: t.avatar_color, overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {t.photo_url ? <img src={t.photo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ color: '#fff', fontWeight: 700, fontSize: '14px', fontFamily: 'var(--font-display)' }}>{initials(t.name)}</span>}
@@ -272,6 +272,13 @@ export default function AdminTestimonials() {
           ))}
         </div>
       )}
+
+      <style>{`
+        @media (max-width: 480px) {
+          .admin-testi-row { flex-wrap: wrap; }
+          .admin-testi-row > div:last-child { flex-direction: row !important; flex-wrap: wrap; width: 100%; }
+        }
+      `}</style>
     </div>
   )
 }

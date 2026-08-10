@@ -153,8 +153,8 @@ function AdminHeader() {
   return (
     <>
       {/* Header bar */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '12px', marginBottom: '28px', paddingBottom: '16px', borderBottom: '1px solid rgba(15,39,68,0.08)' }}>
-        <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', marginRight: 'auto' }}>
+      <div className="admin-topbar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '12px', marginBottom: '28px', paddingBottom: '16px', borderBottom: '1px solid rgba(15,39,68,0.08)', flexWrap: 'wrap' }}>
+        <span className="admin-topbar-date" style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', marginRight: 'auto' }}>
           {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
         </span>
 
@@ -276,7 +276,7 @@ function AdminHeader() {
 
       {/* Toast popup */}
       {showToast && (
-        <div style={{ position: 'fixed', bottom: '24px', right: '24px', background: 'var(--navy-800)', border: '1px solid rgba(199,166,106,0.3)', borderRadius: '4px', padding: '16px 20px', zIndex: 9999, boxShadow: '0 8px 32px rgba(7,15,28,0.35)', maxWidth: '320px', animation: 'popIn 0.3s ease' }}>
+        <div className="admin-toast-popup" style={{ position: 'fixed', bottom: '24px', right: '24px', background: 'var(--navy-800)', border: '1px solid rgba(199,166,106,0.3)', borderRadius: '4px', padding: '16px 20px', zIndex: 9999, boxShadow: '0 8px 32px rgba(7,15,28,0.35)', maxWidth: '320px', animation: 'popIn 0.3s ease' }}>
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'var(--gold)', borderRadius: '4px 4px 0 0' }} />
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
             <span style={{ fontSize: '22px', flexShrink: 0 }}>🌿</span>
@@ -305,6 +305,9 @@ export default function Admin() {
   const [loggingIn, setLoggingIn] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [checked, setChecked] = useState(false)
+  const [installPrompt, setInstallPrompt] = useState(null)
+  const [isStandalone, setIsStandalone] = useState(false)
+  const [showIosHelp, setShowIosHelp] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -316,6 +319,32 @@ export default function Admin() {
     })
     return () => subscription.unsubscribe()
   }, [])
+
+  // PWA install: Android/Chrome apna prompt deta hai (beforeinstallprompt),
+  // iOS pe koi prompt nahi aata, isliye wahan manual instructions dikhayenge.
+  useEffect(() => {
+    const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true
+    setIsStandalone(standalone)
+
+    const onBeforeInstall = (e) => {
+      e.preventDefault()
+      setInstallPrompt(e)
+    }
+    window.addEventListener('beforeinstallprompt', onBeforeInstall)
+    return () => window.removeEventListener('beforeinstallprompt', onBeforeInstall)
+  }, [])
+
+  const isIos = /iphone|ipad|ipod/i.test(window.navigator.userAgent)
+
+  async function installApp() {
+    if (installPrompt) {
+      installPrompt.prompt()
+      await installPrompt.userChoice
+      setInstallPrompt(null)
+    } else if (isIos) {
+      setShowIosHelp(true)
+    }
+  }
 
   // Every 15s, check if this device's session was remotely logged out.
   useEffect(() => {
@@ -438,9 +467,26 @@ export default function Admin() {
           ))}
         </nav>
         <div className="admin-sidebar-footer">
+          {!isStandalone && (installPrompt || isIos) && (
+            <button className="admin-nav-link admin-nav-install" onClick={installApp}>📲 Install App</button>
+          )}
           <button className="admin-nav-link admin-nav-logout" onClick={logout}>🚪 Logout</button>
         </div>
       </aside>
+
+      {showIosHelp && (
+        <div className="admin-ios-help-backdrop" onClick={() => setShowIosHelp(false)}>
+          <div className="admin-ios-help-box" onClick={e => e.stopPropagation()}>
+            <p className="admin-ios-help-title">📲 Install this app on iPhone</p>
+            <ol className="admin-ios-help-steps">
+              <li>Safari ke bottom bar mein <strong>Share</strong> icon (□↑) par tap karein</li>
+              <li>Neeche scroll karke <strong>"Add to Home Screen"</strong> par tap karein</li>
+              <li><strong>"Add"</strong> par tap karein — icon home screen pe aa jayega</li>
+            </ol>
+            <button className="admin-btn-primary" onClick={() => setShowIosHelp(false)}>Got it</button>
+          </div>
+        </div>
+      )}
 
       <main className="admin-main">
         <AdminHeader />

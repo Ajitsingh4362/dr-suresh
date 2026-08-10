@@ -106,25 +106,25 @@ export default function AdminDevices() {
   }
 
   return (
-    <div className="admin-page">
-      <div className="admin-page-header">
+    <div className="admin-panel">
+      <div className="admin-panel-header" style={{ display: 'block' }}>
         <h1>🖥️ Logged-in Devices</h1>
-        <p className="admin-page-sub">See where your admin account is logged in, and log out any device remotely.</p>
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', margin: '6px 0 0' }}>See where your admin account is logged in, and log out any device remotely.</p>
       </div>
 
       {loading ? (
-        <p style={{ opacity: 0.6 }}>Loading...</p>
+        <p className="admin-empty">Loading...</p>
       ) : sessions.length === 0 ? (
-        <p style={{ opacity: 0.6 }}>No active sessions found.</p>
+        <p className="admin-empty">No active sessions found.</p>
       ) : (
-        <div className="admin-devices-list">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {sessions.map(s => (
             <div key={s.id} className="admin-device-card" style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              padding: '16px 20px', marginBottom: '12px', borderRadius: '8px',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '14px', flexWrap: 'wrap',
+              padding: '16px 20px', borderRadius: '8px',
               background: 'var(--navy-800, #10233d)', border: s.id === currentSessionId ? '1px solid var(--gold, #c7a66a)' : '1px solid rgba(255,255,255,0.08)',
             }}>
-              <div>
+              <div style={{ minWidth: '200px', flex: 1 }}>
                 <p style={{ margin: 0, fontWeight: 600, fontSize: '15px', color: 'var(--ivory, #FAF8F4)' }}>
                   {s.device_name || 'Unknown device'}
                   {s.id === currentSessionId && (
@@ -139,9 +139,9 @@ export default function AdminDevices() {
                   Logged in {timeAgo(s.created_at)} · Last active {timeAgo(s.last_seen_at)}
                 </p>
               </div>
-              <button onClick={() => revoke(s.id)} className="admin-btn-danger" style={{
-                padding: '8px 16px', fontSize: '13px', borderRadius: '6px', border: 'none',
-                background: '#b3332e', color: '#fff', cursor: 'pointer', fontWeight: 600,
+              <button onClick={() => revoke(s.id)} className="admin-device-logout-btn" style={{
+                padding: '9px 18px', fontSize: '13px', borderRadius: '6px', border: 'none',
+                background: '#b3332e', color: '#fff', cursor: 'pointer', fontWeight: 600, flexShrink: 0,
               }}>
                 Logout
               </button>
@@ -149,6 +149,12 @@ export default function AdminDevices() {
           ))}
         </div>
       )}
+
+      <style>{`
+        @media (max-width: 480px) {
+          .admin-device-logout-btn { width: 100%; padding: 12px !important; }
+        }
+      `}</style>
     </div>
   )
 }

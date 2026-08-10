@@ -26,14 +26,17 @@ export function useNotifications() {
     })
   }
 
-  // Real-time — new appointment aane pe notification
+  // SW register turant hoti hai (PWA installable rahe ye zaroori hai, notification
+  // permission ka wait nahi karte) — sirf ek dafa.
   useEffect(() => {
-    if (permission !== 'granted') return
-
-    // Register SW
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js').catch(() => {})
     }
+  }, [])
+
+  // Real-time — new appointment aane pe notification
+  useEffect(() => {
+    if (permission !== 'granted') return
 
     // Get initial count
     supabase.from('appointments').select('id', { count: 'exact' })

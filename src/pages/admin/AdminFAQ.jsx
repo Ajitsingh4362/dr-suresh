@@ -130,15 +130,17 @@ export default function AdminFAQ() {
             <textarea value={form.answer} onChange={e => setF('answer', e.target.value)} placeholder="Write a clear, helpful answer..." rows={4} style={{ width: '100%', padding: '10px 14px', border: '1px solid rgba(15,39,68,0.12)', borderRadius: '2px', fontSize: '0.88rem', fontFamily: 'var(--font-body)', outline: 'none', resize: 'vertical', lineHeight: 1.7 }} />
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', fontFamily: 'var(--font-body)', color: 'var(--navy-800)' }}>
               <input type="checkbox" checked={form.visible} onChange={e => setF('visible', e.target.checked)} />
               Visible on website
             </label>
             <div style={{ flex: 1 }} />
             {msg && <span style={{ fontSize: '12px', color: '#c0392b', fontFamily: 'var(--font-body)' }}>{msg}</span>}
-            <button className="admin-btn-outline admin-btn-sm" onClick={closeForm}>Cancel</button>
-            <button className="admin-btn-primary" onClick={save} disabled={saving}>{saving ? 'Saving...' : editing === 'new' ? 'Add FAQ' : 'Save'}</button>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button className="admin-btn-outline admin-btn-sm" onClick={closeForm}>Cancel</button>
+              <button className="admin-btn-primary" onClick={save} disabled={saving}>{saving ? 'Saving...' : editing === 'new' ? 'Add FAQ' : 'Save'}</button>
+            </div>
           </div>
         </div>
       )}
@@ -177,7 +179,7 @@ export default function AdminFAQ() {
               {expandedId === faq.id && (
                 <div style={{ padding: '0 16px 14px 32px', borderTop: '1px solid rgba(15,39,68,0.06)' }}>
                   <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', lineHeight: 1.8, margin: '12px 0 14px' }}>{faq.answer}</p>
-                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
                     <button onClick={() => moveUp(i)} disabled={i === 0} style={{ width: '28px', height: '28px', border: '1px solid rgba(15,39,68,0.12)', borderRadius: '2px', cursor: i === 0 ? 'default' : 'pointer', background: 'var(--white)', fontSize: '12px', opacity: i === 0 ? 0.3 : 1 }}>↑</button>
                     <button onClick={() => moveDown(i)} disabled={i === filtered.length - 1} style={{ width: '28px', height: '28px', border: '1px solid rgba(15,39,68,0.12)', borderRadius: '2px', cursor: i === filtered.length - 1 ? 'default' : 'pointer', background: 'var(--white)', fontSize: '12px', opacity: i === filtered.length - 1 ? 0.3 : 1 }}>↓</button>
                     <button onClick={() => toggle(faq.id, !faq.visible)} style={{ padding: '5px 12px', fontSize: '11px', border: '1px solid rgba(15,39,68,0.12)', borderRadius: '2px', cursor: 'pointer', background: 'var(--white)', fontFamily: 'var(--font-body)', color: 'var(--text-muted)' }}>{faq.visible ? '👁 Hide' : '👁 Show'}</button>

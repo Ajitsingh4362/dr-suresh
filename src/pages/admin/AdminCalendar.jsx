@@ -225,43 +225,46 @@ export default function AdminCalendar() {
         <>
           {/* ===== MONTH VIEW ===== */}
           {view === 'month' && (
-            <div style={{ background: 'var(--white)', border: '1px solid rgba(15,39,68,0.08)', borderRadius: '2px', overflow: 'hidden' }}>
-              {/* Day headers */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: '1px solid rgba(15,39,68,0.08)' }}>
-                {DAYS.map(d => (
-                  <div key={d} style={{ padding: '10px 8px', textAlign: 'center', fontSize: '10px', fontFamily: 'var(--font-body)', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-muted)', borderRight: '1px solid rgba(15,39,68,0.06)' }}>{d}</div>
-                ))}
-              </div>
+            <div className="admin-cal-scroll" style={{ background: 'var(--white)', border: '1px solid rgba(15,39,68,0.08)', borderRadius: '2px', overflow: 'auto' }}>
+              <div className="admin-cal-month-inner" style={{ minWidth: '640px' }}>
+                {/* Day headers */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: '1px solid rgba(15,39,68,0.08)' }}>
+                  {DAYS.map(d => (
+                    <div key={d} style={{ padding: '10px 8px', textAlign: 'center', fontSize: '10px', fontFamily: 'var(--font-body)', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-muted)', borderRight: '1px solid rgba(15,39,68,0.06)' }}>{d}</div>
+                  ))}
+                </div>
 
-              {/* Calendar grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
-                {getMonthDays().map((date, i) => {
-                  const dayAppts = getApptsForDay(date)
-                  const isToday = date && isSameDay(date, today)
-                  const isOtherMonth = !date
+                {/* Calendar grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
+                  {getMonthDays().map((date, i) => {
+                    const dayAppts = getApptsForDay(date)
+                    const isToday = date && isSameDay(date, today)
+                    const isOtherMonth = !date
 
-                  return (
-                    <div key={i} style={{ minHeight: '100px', padding: '8px', borderRight: '1px solid rgba(15,39,68,0.06)', borderBottom: '1px solid rgba(15,39,68,0.06)', background: isOtherMonth ? 'rgba(15,39,68,0.02)' : 'var(--white)', transition: 'background 0.15s' }}
-                      onMouseEnter={e => { if (!isOtherMonth) e.currentTarget.style.background = 'rgba(199,166,106,0.03)' }}
-                      onMouseLeave={e => { if (!isOtherMonth) e.currentTarget.style.background = 'var(--white)' }}>
+                    return (
+                      <div key={i} className="admin-cal-day-cell" style={{ minHeight: '100px', padding: '8px', borderRight: '1px solid rgba(15,39,68,0.06)', borderBottom: '1px solid rgba(15,39,68,0.06)', background: isOtherMonth ? 'rgba(15,39,68,0.02)' : 'var(--white)', transition: 'background 0.15s' }}
+                        onMouseEnter={e => { if (!isOtherMonth) e.currentTarget.style.background = 'rgba(199,166,106,0.03)' }}
+                        onMouseLeave={e => { if (!isOtherMonth) e.currentTarget.style.background = 'var(--white)' }}>
 
-                      {date && (
-                        <>
-                          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '4px' }}>
-                            <span style={{ width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontFamily: 'var(--font-body)', fontWeight: isToday ? 700 : 400, background: isToday ? 'var(--navy-800)' : 'transparent', color: isToday ? 'var(--gold-pale)' : 'var(--charcoal)' }}>
-                              {date.getDate()}
-                            </span>
-                          </div>
-                          {dayAppts.slice(0, 3).map(a => <ApptPill key={a.id} appt={a} onClick={setSelected} />)}
-                          {dayAppts.length > 3 && <span style={{ fontSize: '10px', color: 'var(--gold-deep)', fontFamily: 'var(--font-body)', fontWeight: 600 }}>+{dayAppts.length - 3} more</span>}
-                        </>
-                      )}
-                    </div>
-                  )
-                })}
+                        {date && (
+                          <>
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '4px' }}>
+                              <span style={{ width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontFamily: 'var(--font-body)', fontWeight: isToday ? 700 : 400, background: isToday ? 'var(--navy-800)' : 'transparent', color: isToday ? 'var(--gold-pale)' : 'var(--charcoal)' }}>
+                                {date.getDate()}
+                              </span>
+                            </div>
+                            {dayAppts.slice(0, 3).map(a => <ApptPill key={a.id} appt={a} onClick={setSelected} />)}
+                            {dayAppts.length > 3 && <span style={{ fontSize: '10px', color: 'var(--gold-deep)', fontFamily: 'var(--font-body)', fontWeight: 600 }}>+{dayAppts.length - 3} more</span>}
+                          </>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
               </div>
             </div>
           )}
+          <p className="admin-cal-swipe-hint">← swipe to see the full week →</p>
 
           {/* ===== WEEK VIEW ===== */}
           {view === 'week' && (
@@ -326,8 +329,11 @@ export default function AdminCalendar() {
       <ApptModal appt={selected} onClose={() => setSelected(null)} onStatusChange={updateStatus} />
 
       <style>{`
+        .admin-cal-scroll { -webkit-overflow-scrolling: touch; }
+        .admin-cal-swipe-hint { display: none; }
         @media (max-width: 700px) {
-          .admin-panel [style*="gridTemplateColumns: repeat(7"] { font-size: 9px !important; }
+          .admin-cal-swipe-hint { display: block; text-align: center; font-size: 10px; color: var(--text-light); font-family: var(--font-body); margin: 6px 0 0; }
+          .admin-cal-day-cell { min-height: 78px !important; }
         }
       `}</style>
     </div>

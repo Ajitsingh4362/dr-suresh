@@ -461,6 +461,24 @@
   border-top: 1px solid rgba(255,255,255,0.12); padding-top: 14px; margin-top: 14px;
 }
 .admin-nav-logout:hover { background: rgba(192,57,43,0.16); color: #ffb4a8; }
+.admin-nav-install { color: var(--gold-pale); }
+.admin-nav-install:hover { background: rgba(199,166,106,0.16); color: var(--gold-light); }
+
+@media (max-width: 420px) {
+  .admin-toast-popup { left: 12px; right: 12px; bottom: 16px; max-width: none !important; }
+}
+
+.admin-ios-help-backdrop {
+  position: fixed; inset: 0; background: rgba(5,12,23,0.6); z-index: 999;
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.admin-ios-help-box {
+  background: var(--white); border-radius: 10px; padding: 28px 24px; max-width: 340px; width: 100%;
+  box-shadow: var(--shadow-lg);
+}
+.admin-ios-help-title { font-family: var(--font-display); font-size: 1.15rem; font-weight: 600; color: var(--navy-800); margin: 0 0 14px; }
+.admin-ios-help-steps { margin: 0 0 20px; padding-left: 20px; color: var(--charcoal); font-size: 0.88rem; line-height: 1.6; font-family: var(--font-body); }
+.admin-ios-help-steps li { margin-bottom: 8px; }
 .admin-mobile-toggle {
   display: none; position: fixed; top: 16px; left: 16px; z-index: 300;
   background: var(--navy-900); color: var(--gold-pale); border: none;
@@ -474,6 +492,36 @@
   .admin-sidebar { position: fixed; left: -270px; top: 0; height: 100vh; z-index: 250; transition: left 0.25s ease; width: 240px; }
   .admin-sidebar.open { left: 0; box-shadow: var(--shadow-lg); }
   .admin-main { padding: 80px 18px 60px; margin-left: 0; }
+}
+
+/* ---- Mobile: admin panels use dozens of inline-style CSS grids for form
+   rows and stat cards. Rather than rewrite every page, stack the common
+   multi-column patterns to a single column so fields never get crushed. Rules
+   are ordered so the more specific (longer) pattern applies last and wins. */
+@media (max-width: 640px) {
+  .admin-panel-header h1 { font-size: 1.5rem; }
+  .admin-panel [style*="grid-template-columns: 2fr 1fr"],
+  .admin-panel [style*="grid-template-columns: 1fr 2fr"],
+  .admin-panel [style*="grid-template-columns: 1fr 1fr"],
+  .admin-panel [style*="grid-template-columns: 1fr 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+  /* 5-across medicine/dosage rows: 2 columns reads better than a tall single stack */
+  .admin-panel [style*="grid-template-columns: 1fr 1fr 1fr 1fr 1fr"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  .admin-panel [style*="repeat(3,1fr)"],
+  .admin-panel [style*="repeat(3, 1fr)"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .admin-panel [style*="grid-template-columns: 1fr 1fr 1fr 1fr 1fr"],
+  .admin-panel [style*="repeat(3,1fr)"],
+  .admin-panel [style*="repeat(3, 1fr)"] {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 .admin-panel { max-width: 980px; margin: 0 auto; width: 100%; }
