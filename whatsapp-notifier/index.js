@@ -90,8 +90,16 @@ async function startWhatsApp() {
       const statusCode = lastDisconnect?.error?.output?.statusCode
       const shouldReconnect = statusCode !== DisconnectReason.loggedOut
       console.log('Disconnect reason:', lastDisconnect?.error?.message || lastDisconnect?.error, '| statusCode:', statusCode)
-      console.log(shouldReconnect ? 'Reconnecting...' : 'Logged out — delete ./auth folder and restart to re-link.')
-      if (shouldReconnect) setTimeout(startWhatsApp, 3000)
+      if (shouldReconnect) {
+        console.log('Reconnecting...')
+        setTimeout(startWhatsApp, 3000)
+      } else {
+        // Logged out (or bad/stale saved session) — clear it and start fresh
+        // so a new QR is generated instead of getting stuck forever.
+        console.log('Logged out — clearing saved session and generating a fresh QR...')
+        if (clearAuthState) await clearAuthState().catch(() => {})
+        setTimeout(startWhatsApp, 3000)
+      }
     } else if (connection === 'open') {
       isReady = true
       currentQrDataUrl = null
