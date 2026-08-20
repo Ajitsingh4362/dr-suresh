@@ -227,6 +227,11 @@ export default function Home() {
       {showPopup && <ConsultationPopup onClose={() => setShowPopup(false)} />}
       <div ref={ref} style={{ overflowX: 'hidden' }}>
 
+      {/* TOP HERO — blank, full-width image only */}
+      <section style={{ background: 'var(--ivory)', overflow: 'hidden', lineHeight: 0 }}>
+        <img src="/clinic-banner.png" alt="Usha Multi Speciality Dental Clinic — Premium Care for Healthy Smiles" style={{ width: '100%', height: 'auto', display: 'block' }} />
+      </section>
+
       {/* HERO */}
       <section style={{
         background: 'linear-gradient(160deg, var(--ivory) 0%, #ffffff 55%, var(--teal-pale) 100%)',
