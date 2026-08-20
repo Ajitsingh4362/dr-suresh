@@ -55,10 +55,10 @@ export default function Navbar() {
       </div>
       <nav style={{
         position: 'fixed', top: '28px', left: 0, right: 0, zIndex: 1000,
-        background: scrolled ? 'rgba(255,255,255,0.97)' : 'rgba(255,255,255,0.75)',
+        background: scrolled ? 'rgba(44,89,67,0.97)' : 'rgba(63,122,92,0.88)',
         backdropFilter: 'blur(20px)',
-        borderBottom: scrolled ? '1px solid rgba(15,39,68,0.08)' : '1px solid rgba(199,166,106,0.18)',
-        boxShadow: scrolled ? '0 4px 20px rgba(15,39,68,0.06)' : 'none',
+        borderBottom: '1px solid rgba(199,166,106,0.3)',
+        boxShadow: scrolled ? '0 4px 20px rgba(15,39,68,0.12)' : 'none',
         padding: scrolled ? '10px 0' : '14px 0',
         transition: 'all 0.4s ease',
       }}>
@@ -85,10 +85,10 @@ export default function Navbar() {
                 style={({ isActive }) => ({
                   fontFamily: 'var(--font-body)',
                   fontSize: '11px', fontWeight: isActive ? 600 : 500,
-                  color: isActive ? 'var(--gold-deep)' : 'var(--navy-800)',
+                  color: isActive ? 'var(--gold-light)' : 'rgba(255,255,255,0.88)',
                   letterSpacing: '1.5px', textTransform: 'uppercase',
                   paddingBottom: '3px',
-                  borderBottom: isActive ? '1px solid var(--gold)' : '1px solid transparent',
+                  borderBottom: isActive ? '1px solid var(--gold-light)' : '1px solid transparent',
                   transition: 'all 0.25s',
                 })}>
                 {link.label}
