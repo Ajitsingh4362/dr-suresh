@@ -233,7 +233,7 @@ export default function Home() {
       </section>
 
       {/* HERO */}
-      <section style={{
+      <section className="main-hero-section" style={{
         background: 'linear-gradient(160deg, var(--ivory) 0%, #ffffff 55%, var(--teal-pale) 100%)',
         minHeight: '100vh', display: 'flex', alignItems: 'center',
         position: 'relative', overflow: 'hidden',
@@ -682,6 +682,11 @@ export default function Home() {
           .hero-visual-wrapper {
             max-width: 420px;
             margin: 0 auto;
+          }
+          .main-hero-section {
+            padding-top: 32px !important;
+            padding-bottom: 48px !important;
+            min-height: 0 !important;
           }
         }
         @media (max-width: 600px) {
