@@ -16,43 +16,43 @@ export default function About() {
   return (
     <div ref={ref} style={{ overflowX: 'hidden' }}>
       {/* Hero */}
-      <section style={{ background: 'linear-gradient(160deg, var(--ivory), var(--white) 60%, var(--teal-pale))', padding: '168px 0 90px', position: 'relative', overflow: 'hidden' }}>
+      <section style={{ background: 'linear-gradient(160deg, var(--medical-green-dark) 0%, var(--navy-800) 55%, var(--navy-900) 100%)', padding: '168px 0 90px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', inset: 0, backgroundImage: "url('/hero-pattern.svg')", backgroundSize: 'cover', backgroundPosition: 'center' }} className="hero-corner-pattern" />
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
           <div className="hero-grid" style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: '48px', alignItems: 'center' }}>
             <div>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
                 <div style={{ width: '32px', height: '1px', background: 'var(--gold)' }} />
-                <span style={{ fontSize: '11px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--gold-deep)', letterSpacing: '2.5px', textTransform: 'uppercase' }}>About</span>
+                <span style={{ fontSize: '11px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--white)', letterSpacing: '2.5px', textTransform: 'uppercase' }}>About</span>
               </div>
-              <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(34px, 5vw, 64px)', color: 'var(--navy-800)', fontWeight: 600, marginBottom: '20px' }}>
+              <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(34px, 5vw, 64px)', color: 'var(--white)', fontWeight: 600, marginBottom: '20px' }}>
                 Dr. Suresh Kumar & Dr. Preeti Rajguru
               </h1>
-              <p style={{ fontSize: '18px', color: 'var(--gold-deep)', fontFamily: 'var(--font-display)', fontStyle: 'italic', marginBottom: '16px' }}>
+              <p style={{ fontSize: '18px', color: 'var(--white)', fontFamily: 'var(--font-display)', fontStyle: 'italic', marginBottom: '16px' }}>
                 Gentle, Modern Dental Care for the Whole Family.
               </p>
-              <p style={{ fontSize: '15px', color: 'var(--text-muted)', maxWidth: '480px', lineHeight: '1.8', fontWeight: 300 }}>
+              <p style={{ fontSize: '15px', color: 'var(--white)', maxWidth: '480px', lineHeight: '1.8', fontWeight: 300 }}>
                 Dr. Suresh Kumar and Dr. Preeti Rajguru (MDS) lead Usha Multi Speciality Dental Clinic, Sitamarhi.
               </p>
             </div>
 
             {/* Duo-portrait visual — real clinic photos */}
             <div className="about-hero-visual" style={{ position: 'relative', height: '420px' }}>
-              <div style={{ position: 'absolute', top: '6%', right: '4%', width: '78%', height: '78%', background: 'radial-gradient(circle, rgba(199,166,106,0.20) 0%, transparent 70%)', filter: 'blur(22px)', pointerEvents: 'none', zIndex: 0 }} />
+              <div style={{ position: 'absolute', top: '6%', right: '4%', width: '78%', height: '78%', background: 'radial-gradient(circle, rgba(199,166,106,0.22) 0%, transparent 70%)', filter: 'blur(22px)', pointerEvents: 'none', zIndex: 0 }} />
               <div style={{ position: 'absolute', top: '55%', left: '2%', width: '90px', height: '90px', border: '1px solid rgba(199,166,106,0.4)', borderRadius: '50%', zIndex: 0 }} />
 
               <div style={{ position: 'absolute', top: 0, left: '4%', width: '60%', zIndex: 2 }}>
-                <div style={{ borderRadius: '10px', overflow: 'hidden', border: '4px solid var(--white)', boxShadow: '0 24px 44px -14px rgba(15,39,68,0.3)' }}>
+                <div style={{ borderRadius: '10px', overflow: 'hidden', border: '4px solid var(--white)', boxShadow: '0 24px 44px -14px rgba(0,0,0,0.45)' }}>
                   <img src="/dr-suresh-kumar.jpg" alt="Dr. Suresh Kumar" style={{ width: '100%', height: '340px', objectFit: 'cover', display: 'block' }} />
                 </div>
-                <div style={{ marginTop: '10px', textAlign: 'center', fontFamily: 'var(--font-display)', fontSize: '13px', color: 'var(--navy-800)', fontWeight: 600 }}>Dr. Suresh Kumar</div>
+                <div style={{ marginTop: '10px', textAlign: 'center', fontFamily: 'var(--font-display)', fontSize: '13px', color: 'var(--white)', fontWeight: 600 }}>Dr. Suresh Kumar</div>
               </div>
 
               <div style={{ position: 'absolute', bottom: 0, right: '0%', width: '54%', zIndex: 3 }}>
-                <div style={{ borderRadius: '10px', overflow: 'hidden', border: '4px solid var(--white)', boxShadow: '0 24px 44px -14px rgba(15,39,68,0.3)' }}>
+                <div style={{ borderRadius: '10px', overflow: 'hidden', border: '4px solid var(--white)', boxShadow: '0 24px 44px -14px rgba(0,0,0,0.45)' }}>
                   <img src="/dr-preeti-rajguru.jpg" alt="Dr. Preeti Rajguru" style={{ width: '100%', height: '300px', objectFit: 'cover', display: 'block' }} />
                 </div>
-                <div style={{ marginTop: '10px', textAlign: 'center', fontFamily: 'var(--font-display)', fontSize: '13px', color: 'var(--navy-800)', fontWeight: 600 }}>Dr. Preeti Rajguru</div>
+                <div style={{ marginTop: '10px', textAlign: 'center', fontFamily: 'var(--font-display)', fontSize: '13px', color: 'var(--white)', fontWeight: 600 }}>Dr. Preeti Rajguru</div>
               </div>
             </div>
           </div>
