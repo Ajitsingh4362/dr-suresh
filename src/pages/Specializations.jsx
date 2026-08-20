@@ -66,35 +66,35 @@ export default function Specializations() {
   return (
     <div ref={ref} style={{ overflowX: 'hidden' }}>
       {/* Hero */}
-      <section style={{ background: 'linear-gradient(160deg, var(--ivory), var(--white) 60%, var(--teal-pale))', padding: '168px 0 80px', position: 'relative', overflow: 'hidden' }}>
+      <section style={{ background: 'linear-gradient(160deg, var(--medical-green-dark) 0%, var(--navy-800) 55%, var(--navy-900) 100%)', padding: '168px 0 80px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', inset: 0, backgroundImage: "url('/hero-pattern.svg')", backgroundSize: 'cover', backgroundPosition: 'center' }} className="hero-corner-pattern" />
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
           <div className="hero-grid" style={{ display: 'grid', gridTemplateColumns: '1.25fr 0.75fr', gap: '40px', alignItems: 'center' }}>
             <div>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
                 <div style={{ width: '32px', height: '1px', background: 'var(--gold)' }} />
-                <span style={{ fontSize: '11px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--gold-deep)', letterSpacing: '2.5px', textTransform: 'uppercase' }}>Services</span>
+                <span style={{ fontSize: '11px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--white)', letterSpacing: '2.5px', textTransform: 'uppercase' }}>Services</span>
               </div>
-              <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(34px, 5vw, 58px)', color: 'var(--navy-800)', fontWeight: 600, marginBottom: '20px' }}>
+              <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(34px, 5vw, 58px)', color: 'var(--white)', fontWeight: 600, marginBottom: '20px' }}>
                 Complete Dental Care, Under One Roof
               </h1>
-              <p style={{ fontSize: '16px', color: 'var(--gold-deep)', fontFamily: 'var(--font-display)', fontStyle: 'italic', marginBottom: '20px' }}>
+              <p style={{ fontSize: '16px', color: 'var(--white)', fontFamily: 'var(--font-display)', fontStyle: 'italic', marginBottom: '20px' }}>
                 Multi-Speciality Dental Care in Sitamarhi
               </p>
-              <p style={{ fontSize: '14px', color: 'var(--text-muted)', maxWidth: '560px', lineHeight: '1.9', fontWeight: 300, fontFamily: 'var(--font-body)', marginBottom: '16px' }}>
+              <p style={{ fontSize: '14px', color: 'var(--white)', maxWidth: '560px', lineHeight: '1.9', fontWeight: 300, fontFamily: 'var(--font-body)', marginBottom: '16px' }}>
                 Usha Multi Speciality Dental Clinic offers a wide range of dental treatments — general dentistry, cosmetic dentistry, orthodontics, implantology, and pediatric dentistry — all under one roof.
               </p>
-              <p style={{ fontSize: '14px', color: 'var(--text-muted)', maxWidth: '560px', lineHeight: '1.9', fontWeight: 300, fontFamily: 'var(--font-body)' }}>
+              <p style={{ fontSize: '14px', color: 'var(--white)', maxWidth: '560px', lineHeight: '1.9', fontWeight: 300, fontFamily: 'var(--font-body)' }}>
                 The clinic is equipped with advanced technology and modern facilities to ensure precise diagnosis and effective, comfortable treatment for every patient.
               </p>
-              <p style={{ fontSize: '14px', color: 'var(--text-muted)', maxWidth: '560px', lineHeight: '1.9', fontWeight: 300, fontFamily: 'var(--font-body)', marginTop: '16px' }}>
+              <p style={{ fontSize: '14px', color: 'var(--white)', maxWidth: '560px', lineHeight: '1.9', fontWeight: 300, fontFamily: 'var(--font-body)', marginTop: '16px' }}>
                 Whether it's a routine check-up, a painful tooth, or a smile makeover you've been putting off — the goal is pain-free procedures and long-term oral health.
               </p>
             </div>
 
             {/* Service photo collage — real clinic photos */}
             <div className="specs-hero-visual" style={{ position: 'relative', height: '400px' }}>
-              <div style={{ position: 'absolute', top: '10%', left: '10%', width: '75%', height: '75%', background: 'radial-gradient(circle, rgba(11,92,80,0.14) 0%, transparent 70%)', filter: 'blur(20px)', pointerEvents: 'none' }} />
+              <div style={{ position: 'absolute', top: '10%', left: '10%', width: '75%', height: '75%', background: 'radial-gradient(circle, rgba(199,166,106,0.22) 0%, transparent 70%)', filter: 'blur(20px)', pointerEvents: 'none' }} />
               {[
                 { img: '/svc-rct.png', top: '0%', left: '6%', w: '46%', rot: '-3deg', z: 2 },
                 { img: '/svc-cosmetic.png', top: '4%', left: '52%', w: '44%', rot: '2deg', z: 1 },
