@@ -55,10 +55,10 @@ export default function Navbar() {
       </div>
       <nav style={{
         position: 'fixed', top: '28px', left: 0, right: 0, zIndex: 1000,
-        background: scrolled ? 'rgba(44,89,67,0.97)' : 'rgba(63,122,92,0.88)',
+        background: scrolled ? 'rgba(92,26,37,0.97)' : 'rgba(122,35,49,0.88)',
         backdropFilter: 'blur(20px)',
         borderBottom: '1px solid rgba(199,166,106,0.3)',
-        boxShadow: scrolled ? '0 4px 20px rgba(15,39,68,0.12)' : 'none',
+        boxShadow: scrolled ? '0 4px 20px rgba(92,26,37,0.18)' : 'none',
         padding: scrolled ? '10px 0' : '14px 0',
         transition: 'all 0.4s ease',
       }}>
