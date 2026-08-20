@@ -446,7 +446,7 @@ export default function Home() {
 
       {/* MEET THE DOCTORS — swipeable */}
       <section className="doctors-section" style={{
-        padding: '90px 0',
+        padding: '45px 0',
         background: 'var(--ivory)',
         backgroundImage: `
           radial-gradient(rgba(156,122,60,0.3) 1.5px, transparent 1.5px),
