@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Tilt3D from '../components/Tilt3D'
 import AutoSwipe from '../components/AutoSwipe'
+import Typewriter from '../components/Typewriter'
 import BlogPreview from '../components/BlogPreview'
 import ConsultationPopup from '../components/ConsultationPopup'
 import TestimonialsSection from '../components/TestimonialsSection'
@@ -226,11 +227,174 @@ export default function Home() {
       {showPopup && <ConsultationPopup onClose={() => setShowPopup(false)} />}
       <div ref={ref} style={{ overflowX: 'hidden' }}>
 
-      {/* HERO — blank, full-width image only */}
-      <section style={{ background: 'var(--ivory)', overflow: 'hidden', lineHeight: 0 }}>
-        <img src="/clinic-banner.png" alt="Usha Multi Speciality Dental Clinic — Premium Care for Healthy Smiles" style={{ width: '100%', height: 'auto', display: 'block' }} />
-      </section>
+      {/* HERO */}
+      <section style={{
+        background: 'linear-gradient(160deg, var(--ivory) 0%, #ffffff 55%, var(--teal-pale) 100%)',
+        minHeight: '100vh', display: 'flex', alignItems: 'center',
+        position: 'relative', overflow: 'hidden',
+        paddingTop: '128px', paddingBottom: '80px',
+      }}>
+        {/* Background decorative blobs */}
+        <div style={{ position: 'absolute', top: '-5%', right: '-8%', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(20,107,100,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: '-10%', left: '-5%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(199,166,106,0.10) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
+        {/* Top-right dot pattern */}
+        <div className="hero-corner-pattern" style={{
+          position: 'absolute', top: '24px', right: '24px', width: '350px', height: '350px',
+          backgroundImage: 'radial-gradient(rgba(156,122,60,0.5) 2px, transparent 2px)',
+          backgroundSize: '18px 18px',
+          maskImage: 'radial-gradient(circle at top right, black 40%, transparent 90%)',
+          WebkitMaskImage: 'radial-gradient(circle at top right, black 40%, transparent 90%)',
+          pointerEvents: 'none',
+        }} />
+        {/* Bottom-right dot pattern */}
+        <div className="hero-corner-pattern" style={{
+          position: 'absolute', bottom: '24px', right: '24px', width: '350px', height: '350px',
+          backgroundImage: 'radial-gradient(rgba(156,122,60,0.5) 2px, transparent 2px)',
+          backgroundSize: '18px 18px',
+          maskImage: 'radial-gradient(circle at bottom right, black 40%, transparent 90%)',
+          WebkitMaskImage: 'radial-gradient(circle at bottom right, black 40%, transparent 90%)',
+          pointerEvents: 'none',
+        }} />
+
+        <div className="container" style={{ width: '100%' }}>
+          {/* Two-column hero layout */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 480px',
+            gap: '60px',
+            alignItems: 'center',
+          }} className="hero-grid">
+
+            {/* LEFT — text content */}
+            <div style={{ paddingLeft: '0' }}>
+
+              {/* Doctor name box — top of hero */}
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: '16px',
+                marginTop: '28px', marginBottom: '32px',
+                background: 'var(--gold)',
+                border: '1px solid rgba(15,39,68,0.15)',
+                borderLeft: '3px solid var(--navy-800)',
+                borderRadius: '2px',
+                padding: '14px 22px',
+                width: '300px',
+                boxSizing: 'border-box',
+              }}>
+                <div style={{ width: '100%' }}>
+                  <div style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: '22px', fontWeight: 700,
+                    color: '#000000',
+                    letterSpacing: '0.5px',
+                    lineHeight: 1.2,
+                  }}>
+                    <Typewriter text="Dr. Suresh Kumar" speed={70} loop pauseAfter={5000} />
+                  </div>
+                  <div style={{
+                    fontSize: '10px', color: '#000000',
+                    letterSpacing: '2px', textTransform: 'uppercase',
+                    marginTop: '4px', fontFamily: 'var(--font-body)', fontWeight: 600,
+                  }}>
+                    <Typewriter text="Multi-Speciality Dental Care" speed={40} startDelay={1400} cursor={false} loop pauseAfter={5000} />
+                  </div>
+                  <div style={{
+                    fontFamily: 'var(--font-display)', fontSize: '15px', color: '#000000',
+                    fontWeight: 600, marginTop: '10px',
+                  }}>
+                    <Typewriter text="Dr. Preeti Rajguru" speed={70} startDelay={800} loop pauseAfter={5000} />
+                  </div>
+                  <div style={{
+                    fontSize: '10px', color: '#000000',
+                    letterSpacing: '2px', textTransform: 'uppercase',
+                    marginTop: '4px', fontFamily: 'var(--font-body)', fontWeight: 600,
+                  }}>
+                    <Typewriter text="MDS" speed={70} startDelay={2200} cursor={false} loop pauseAfter={5000} />
+                  </div>
+                </div>
+              </div>
+
+              <h1 style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 'clamp(36px, 4.5vw, 68px)',
+                fontWeight: 600, color: 'var(--navy-800)',
+                lineHeight: 1.1, marginBottom: '24px',
+              }}>
+                Gentle Care<br />for a{' '}
+                <span style={{ color: 'var(--maroon)', display: 'block' }}>
+                  Healthy, Confident<br />Smile
+                </span>
+              </h1>
+
+              <p style={{
+                fontSize: '15px', color: 'var(--text-muted)',
+                lineHeight: '1.85', maxWidth: '520px', marginBottom: '14px',
+                fontFamily: 'var(--font-body)', fontWeight: 300,
+              }}>
+                Complete dental care in Sitamarhi — from routine check-ups and fillings to
+                root canals, implants, and smile makeovers — delivered with a gentle, patient-first
+                approach.
+              </p>
+              <p style={{
+                fontSize: '13px', color: 'var(--text-light)',
+                lineHeight: '1.7', maxWidth: '480px', marginBottom: '36px',
+                fontFamily: 'var(--font-body)',
+              }}>
+                From children's first check-ups to advanced cosmetic and emergency care —
+                every treatment plan is built around your comfort.
+              </p>
+
+              <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginBottom: '48px' }}>
+                <Link to="/contact"><button className="btn-primary">Book an Appointment</button></Link>
+                <Link to="/specializations"><button className="btn-outline-dark">Our Services</button></Link>
+              </div>
+
+              {/* Stats */}
+              <div style={{
+                display: 'flex', gap: '44px', flexWrap: 'wrap',
+                paddingTop: '36px', borderTop: '1px solid rgba(199,166,106,0.3)',
+              }}>
+                {[
+                  { num: '2010', label: 'Established' },
+                  { num: 'RCT', label: 'Painless Root Canal' },
+                  { num: 'Braces', label: 'Orthodontics' },
+                  { num: 'Implants', label: 'Tooth Replacement' },
+                ].map((s, i) => (
+                  <div key={i}>
+                    <div style={{ fontFamily: 'var(--font-display)', fontSize: '40px', fontWeight: 700, color: 'var(--gold-deep)', lineHeight: 1 }}>{s.num}</div>
+                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '6px', letterSpacing: '1px', textTransform: 'uppercase', fontFamily: 'var(--font-body)' }}>{s.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* RIGHT — hero image */}
+            <div className="hero-visual-wrapper" style={{ position: 'relative' }}>
+              {/* Glow backdrop */}
+              <div style={{
+                position: 'absolute', top: '-30px', right: '-30px',
+                width: '90%', height: '90%',
+                background: 'radial-gradient(circle, rgba(199,166,106,0.18) 0%, transparent 70%)',
+                filter: 'blur(20px)', pointerEvents: 'none', zIndex: 0,
+              }} />
+              <div style={{
+                position: 'relative', zIndex: 1,
+                borderRadius: '14px', overflow: 'hidden',
+                border: '2px solid rgba(199,166,106,0.35)',
+                boxShadow: '0 30px 60px -20px rgba(0,0,0,0.5)',
+              }}>
+                <img src="/clinic-banner.png" alt="Usha Multi Speciality Dental Clinic — Premium Care for Healthy Smiles" style={{ width: '100%', height: 'auto', display: 'block' }} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Scroll indicator */}
+        <div style={{ position: 'absolute', bottom: '32px', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', animation: 'float 2.5s ease-in-out infinite' }}>
+          <div style={{ width: '1px', height: '40px', background: 'linear-gradient(180deg, var(--gold), transparent)' }} />
+          <span style={{ fontSize: '10px', color: 'var(--text-light)', letterSpacing: '2px', textTransform: 'uppercase' }}>Scroll</span>
+        </div>
+      </section>
 
       {/* TAGLINE STRIP */}
       <section style={{ background: 'var(--teal-pale)', padding: '20px 0', borderBottom: '1px solid rgba(199,166,106,0.15)' }}>
