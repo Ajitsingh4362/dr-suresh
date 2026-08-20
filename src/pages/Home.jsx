@@ -266,7 +266,7 @@ export default function Home() {
           {/* Two-column hero layout */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: '1fr 480px',
+            gridTemplateColumns: '1fr 540px',
             gap: '60px',
             alignItems: 'center',
           }} className="hero-grid">
@@ -387,8 +387,9 @@ export default function Home() {
                 borderRadius: '14px', overflow: 'hidden',
                 border: '2px solid rgba(199,166,106,0.35)',
                 boxShadow: '0 30px 60px -20px rgba(0,0,0,0.5)',
+                aspectRatio: '1 / 1',
               }}>
-                <img src="/clinic-banner.png" alt="Usha Multi Speciality Dental Clinic — Premium Care for Healthy Smiles" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                <img src="/dental-consultation.jpg" alt="Usha Multi Speciality Dental Clinic — patient consultation" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
               </div>
             </div>
           </div>
