@@ -16,23 +16,52 @@ export default function About() {
   return (
     <div ref={ref} style={{ overflowX: 'hidden' }}>
       {/* Hero */}
-      <section style={{ background: 'linear-gradient(160deg, var(--navy-900), var(--navy-800))', padding: '168px 0 80px', position: 'relative', overflow: 'hidden' }}>
+      <section style={{ background: 'linear-gradient(160deg, var(--ivory), var(--white) 60%, var(--teal-pale))', padding: '168px 0 90px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', inset: 0, backgroundImage: "url('/hero-pattern.svg')", backgroundSize: 'cover', backgroundPosition: 'center' }} className="hero-corner-pattern" />
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
-            <div style={{ width: '32px', height: '1px', background: 'var(--gold)' }} />
-            <span style={{ fontSize: '11px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--gold)', letterSpacing: '2.5px', textTransform: 'uppercase' }}>About</span>
+          <div className="hero-grid" style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: '48px', alignItems: 'center' }}>
+            <div>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
+                <div style={{ width: '32px', height: '1px', background: 'var(--gold)' }} />
+                <span style={{ fontSize: '11px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--gold-deep)', letterSpacing: '2.5px', textTransform: 'uppercase' }}>About</span>
+              </div>
+              <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(34px, 5vw, 64px)', color: 'var(--navy-800)', fontWeight: 600, marginBottom: '20px' }}>
+                Dr. Suresh Kumar & Dr. Preeti Rajguru
+              </h1>
+              <p style={{ fontSize: '18px', color: 'var(--gold-deep)', fontFamily: 'var(--font-display)', fontStyle: 'italic', marginBottom: '16px' }}>
+                Gentle, Modern Dental Care for the Whole Family.
+              </p>
+              <p style={{ fontSize: '15px', color: 'var(--text-muted)', maxWidth: '480px', lineHeight: '1.8', fontWeight: 300 }}>
+                Dr. Suresh Kumar and Dr. Preeti Rajguru (MDS) lead Usha Multi Speciality Dental Clinic, Sitamarhi.
+              </p>
+            </div>
+
+            {/* Duo-portrait visual — real clinic photos */}
+            <div className="about-hero-visual" style={{ position: 'relative', height: '420px' }}>
+              <div style={{ position: 'absolute', top: '6%', right: '4%', width: '78%', height: '78%', background: 'radial-gradient(circle, rgba(199,166,106,0.20) 0%, transparent 70%)', filter: 'blur(22px)', pointerEvents: 'none', zIndex: 0 }} />
+              <div style={{ position: 'absolute', top: '55%', left: '2%', width: '90px', height: '90px', border: '1px solid rgba(199,166,106,0.4)', borderRadius: '50%', zIndex: 0 }} />
+
+              <div style={{ position: 'absolute', top: 0, left: '4%', width: '60%', zIndex: 2 }}>
+                <div style={{ borderRadius: '10px', overflow: 'hidden', border: '4px solid var(--white)', boxShadow: '0 24px 44px -14px rgba(15,39,68,0.3)' }}>
+                  <img src="/dr-suresh-kumar.jpg" alt="Dr. Suresh Kumar" style={{ width: '100%', height: '340px', objectFit: 'cover', display: 'block' }} />
+                </div>
+                <div style={{ marginTop: '10px', textAlign: 'center', fontFamily: 'var(--font-display)', fontSize: '13px', color: 'var(--navy-800)', fontWeight: 600 }}>Dr. Suresh Kumar</div>
+              </div>
+
+              <div style={{ position: 'absolute', bottom: 0, right: '0%', width: '54%', zIndex: 3 }}>
+                <div style={{ borderRadius: '10px', overflow: 'hidden', border: '4px solid var(--white)', boxShadow: '0 24px 44px -14px rgba(15,39,68,0.3)' }}>
+                  <img src="/dr-preeti-rajguru.jpg" alt="Dr. Preeti Rajguru" style={{ width: '100%', height: '300px', objectFit: 'cover', display: 'block' }} />
+                </div>
+                <div style={{ marginTop: '10px', textAlign: 'center', fontFamily: 'var(--font-display)', fontSize: '13px', color: 'var(--navy-800)', fontWeight: 600 }}>Dr. Preeti Rajguru</div>
+              </div>
+            </div>
           </div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(38px, 5vw, 68px)', color: 'var(--white)', fontWeight: 600, marginBottom: '20px' }}>
-            Dr. Suresh Kumar & Dr. Preeti Rajguru
-          </h1>
-          <p style={{ fontSize: '18px', color: 'var(--gold)', fontFamily: 'var(--font-display)', fontStyle: 'italic', marginBottom: '16px' }}>
-            Gentle, Modern Dental Care for the Whole Family.
-          </p>
-          <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.55)', maxWidth: '580px', lineHeight: '1.8', fontWeight: 300 }}>
-            Dr. Suresh Kumar and Dr. Preeti Rajguru (MDS) lead Usha Multi Speciality Dental Clinic, Sitamarhi.
-          </p>
         </div>
+        <style>{`
+          @media (max-width: 900px) {
+            .about-hero-visual { display: none; }
+          }
+        `}</style>
       </section>
 
       {/* Meet Our Doctors */}
@@ -68,15 +97,15 @@ export default function About() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.6fr', gap: '72px', alignItems: 'start' }} className="two-col-grid">
 
             {/* Card */}
-            <div style={{ background: 'var(--navy-800)', borderRadius: '2px', padding: '40px', border: '1px solid rgba(199,166,106,0.15)', position: 'sticky', top: '100px' }}>
-              <div style={{ width: '100px', height: '100px', borderRadius: '50%', margin: '0 auto 20px', overflow: 'hidden', border: '2px solid rgba(199,166,106,0.3)' }}>
+            <div style={{ background: 'var(--white)', borderRadius: '4px', padding: '40px', border: '1px solid rgba(199,166,106,0.25)', boxShadow: 'var(--shadow-md)', position: 'sticky', top: '100px' }}>
+              <div style={{ width: '100px', height: '100px', borderRadius: '50%', margin: '0 auto 20px', overflow: 'hidden', border: '2px solid rgba(199,166,106,0.4)' }}>
                 <img src="/dr-suresh-kumar.jpg" alt="Dr. Suresh Kumar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
               <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: '22px', color: 'var(--gold-pale)', fontWeight: 600 }}>Dr. Suresh Kumar</div>
-                <div style={{ fontSize: '11px', color: 'var(--gold)', letterSpacing: '1.5px', textTransform: 'uppercase', marginTop: '6px' }}>Usha Multi Speciality Dental Clinic</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: '22px', color: 'var(--navy-800)', fontWeight: 600 }}>Dr. Suresh Kumar</div>
+                <div style={{ fontSize: '11px', color: 'var(--gold-deep)', letterSpacing: '1.5px', textTransform: 'uppercase', marginTop: '6px' }}>Usha Multi Speciality Dental Clinic</div>
               </div>
-              <div style={{ borderTop: '1px solid rgba(199,166,106,0.15)', paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ borderTop: '1px solid rgba(15,39,68,0.1)', paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 {[
                   { label: 'Qualification', value: 'Consultant Implantologist' },
                   { label: 'Established', value: '2010' },
@@ -85,8 +114,8 @@ export default function About() {
                   { label: 'Specialization', value: 'Multi-Speciality Dental Care' },
                 ].map((item, i) => (
                   <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1px' }}>{item.label}</span>
-                    <span style={{ fontSize: '13px', color: 'var(--gold-pale)', fontWeight: 500 }}>{item.value}</span>
+                    <span style={{ fontSize: '11px', color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '1px' }}>{item.label}</span>
+                    <span style={{ fontSize: '13px', color: 'var(--navy-800)', fontWeight: 500 }}>{item.value}</span>
                   </div>
                 ))}
               </div>
@@ -112,11 +141,11 @@ export default function About() {
                 Dr. Suresh Kumar is committed to painless, patient-friendly dentistry — using modern equipment and techniques so every visit is as comfortable as possible.
               </p>
 
-              <div style={{ background: 'var(--navy-800)', borderLeft: '3px solid var(--gold)', padding: '24px 28px', marginBottom: '36px' }}>
-                <p style={{ fontFamily: 'var(--font-display)', fontSize: '20px', color: 'var(--gold-pale)', fontStyle: 'italic', lineHeight: '1.6' }}>
+              <div style={{ background: 'var(--gold-pale)', borderLeft: '3px solid var(--gold)', padding: '24px 28px', marginBottom: '36px' }}>
+                <p style={{ fontFamily: 'var(--font-display)', fontSize: '20px', color: 'var(--navy-800)', fontStyle: 'italic', lineHeight: '1.6' }}>
                   "Our patients are our priority — we offer quality dental care with a focus on pain-free procedures and long-term oral health."
                 </p>
-                <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginTop: '12px', letterSpacing: '1px' }}>— DR. SURESH KUMAR</p>
+                <p style={{ fontSize: '12px', color: 'var(--gold-deep)', marginTop: '12px', letterSpacing: '1px' }}>— DR. SURESH KUMAR</p>
               </div>
 
               <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
@@ -141,7 +170,7 @@ export default function About() {
             {QUALS.map((q, i) => (
               <div key={i} style={{ display: 'flex', gap: '24px', marginBottom: '2px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
-                  <div style={{ width: '52px', height: '52px', borderRadius: '2px', background: 'var(--navy-800)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', border: '1px solid rgba(199,166,106,0.2)' }}>{q.icon}</div>
+                  <div style={{ width: '52px', height: '52px', borderRadius: '2px', background: 'var(--gold-pale)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', border: '1px solid rgba(199,166,106,0.35)' }}>{q.icon}</div>
                   {i < QUALS.length - 1 && <div style={{ width: '1px', flex: 1, background: 'rgba(15,39,68,0.1)', margin: '4px 0' }} />}
                 </div>
                 <div style={{ background: 'var(--ivory)', padding: '20px 24px', flex: 1, marginBottom: i < QUALS.length - 1 ? '4px' : 0, borderBottom: '2px solid transparent', transition: 'var(--transition)' }}
@@ -158,11 +187,11 @@ export default function About() {
       </section>
 
       {/* CTA */}
-      <section style={{ background: 'var(--navy-800)', padding: '80px 0', textAlign: 'center' }}>
+      <section style={{ background: 'var(--gold)', padding: '80px 0', textAlign: 'center' }}>
         <div className="container">
-          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px, 4vw, 46px)', color: 'var(--white)', marginBottom: '16px' }}>Ready to Begin Your Healing Journey?</h2>
-          <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.55)', marginBottom: '32px' }}>A personalised consultation is the first step toward lasting transformation.</p>
-          <Link to="/contact"><button className="btn-primary">Book a Consultation</button></Link>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px, 4vw, 46px)', color: 'var(--navy-800)', marginBottom: '16px' }}>Ready to Begin Your Healing Journey?</h2>
+          <p style={{ fontSize: '15px', color: 'rgba(15,39,68,0.7)', marginBottom: '32px' }}>A personalised consultation is the first step toward lasting transformation.</p>
+          <Link to="/contact"><button style={{ background: 'var(--navy-800)', color: 'var(--white)', border: 'none', padding: '14px 32px', borderRadius: '2px', fontSize: '13px', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer' }}>Book a Consultation</button></Link>
         </div>
       </section>
     </div>

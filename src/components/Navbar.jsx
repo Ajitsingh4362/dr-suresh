@@ -55,9 +55,10 @@ export default function Navbar() {
       </div>
       <nav style={{
         position: 'fixed', top: '28px', left: 0, right: 0, zIndex: 1000,
-        background: scrolled ? 'rgba(7,15,28,0.97)' : 'rgba(7,15,28,0.5)',
+        background: scrolled ? 'rgba(255,255,255,0.97)' : 'rgba(255,255,255,0.75)',
         backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(199,166,106,0.12)',
+        borderBottom: scrolled ? '1px solid rgba(15,39,68,0.08)' : '1px solid rgba(199,166,106,0.18)',
+        boxShadow: scrolled ? '0 4px 20px rgba(15,39,68,0.06)' : 'none',
         padding: scrolled ? '10px 0' : '14px 0',
         transition: 'all 0.4s ease',
       }}>
@@ -83,8 +84,8 @@ export default function Navbar() {
               <NavLink key={link.to} to={link.to} end={link.to === '/'}
                 style={({ isActive }) => ({
                   fontFamily: 'var(--font-body)',
-                  fontSize: '11px', fontWeight: isActive ? 600 : 400,
-                  color: isActive ? 'var(--gold)' : 'rgba(255,255,255,0.75)',
+                  fontSize: '11px', fontWeight: isActive ? 600 : 500,
+                  color: isActive ? 'var(--gold-deep)' : 'var(--navy-800)',
                   letterSpacing: '1.5px', textTransform: 'uppercase',
                   paddingBottom: '3px',
                   borderBottom: isActive ? '1px solid var(--gold)' : '1px solid transparent',
@@ -120,7 +121,7 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       <div style={{
-        position: 'fixed', inset: 0, background: 'var(--navy-900)',
+        position: 'fixed', inset: 0, background: 'var(--ivory)',
         zIndex: 999, display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center', gap: '16px',
         transition: 'opacity 0.3s, visibility 0.3s',
@@ -133,13 +134,13 @@ export default function Navbar() {
           style={{ height: '80px', width: 'auto', marginBottom: '8px' }}
         />
 
-        <div style={{ width: '40px', height: '1px', background: 'rgba(199,166,106,0.3)' }} />
+        <div style={{ width: '40px', height: '1px', background: 'rgba(199,166,106,0.4)' }} />
 
         {links.map(link => (
           <NavLink key={link.to} to={link.to} end={link.to === '/'}
             style={({ isActive }) => ({
               fontFamily: 'var(--font-display)', fontSize: '24px', fontWeight: 600,
-              color: isActive ? 'var(--gold)' : 'rgba(255,255,255,0.8)',
+              color: isActive ? 'var(--gold-deep)' : 'var(--navy-800)',
               letterSpacing: '1px',
             })}>
             {link.label}

@@ -6,7 +6,6 @@ import WhatsAppFloat from './components/WhatsAppFloat'
 import CallFloat from './components/CallFloat'
 import Home from './pages/Home'
 import About from './pages/About'
-import Programs from './pages/Programs'
 import Specializations from './pages/Specializations'
 import Contact from './pages/Contact'
 import Blog from './pages/Blog'
@@ -29,7 +28,6 @@ function Layout() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/programs" element={<Programs />} />
         <Route path="/specializations" element={<Specializations />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/blog" element={<Blog />} />

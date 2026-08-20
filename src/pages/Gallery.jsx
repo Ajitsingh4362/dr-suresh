@@ -30,13 +30,13 @@ export default function Gallery() {
         <div className="container page-hero-inner">
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
             <div style={{ width: '32px', height: '1px', background: 'var(--gold)' }} />
-            <span style={{ fontSize: '11px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--gold)', letterSpacing: '2.5px', textTransform: 'uppercase' }}>Gallery</span>
+            <span style={{ fontSize: '11px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--gold-deep)', letterSpacing: '2.5px', textTransform: 'uppercase' }}>Gallery</span>
           </div>
           <h1>Our Clinic & Patient Smiles</h1>
           <p style={{ maxWidth: '640px', lineHeight: '1.9' }}>
             A look inside Usha Multi Speciality Dental Clinic — our facility, equipment, treatments in progress, and the smiles we've helped restore.
           </p>
-          <p style={{ maxWidth: '600px', lineHeight: '1.9', marginTop: '16px', fontSize: '14px', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-body)', fontWeight: 300 }}>
+          <p style={{ maxWidth: '600px', lineHeight: '1.9', marginTop: '16px', fontSize: '14px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 300 }}>
             From routine check-ups to complete smile makeovers, every image reflects our commitment to comfortable, high-quality dental care.
           </p>
         </div>

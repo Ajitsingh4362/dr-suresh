@@ -10,7 +10,7 @@ const SPECS = [
     desc: 'When decay or infection reaches the inner pulp of a tooth, root canal treatment removes the damage and saves the natural tooth — done with modern, painless techniques.',
     points: ['Single-sitting RCT where possible', 'Advanced pain management', 'Digital diagnosis for precise treatment', 'Crown placement after treatment', 'Suitable for adults and teens', 'Long-term tooth preservation'],
     highlight: true,
-    color: 'var(--navy-800)',
+    color: 'var(--gold-pale)',
   },
   {
     icon: '✨',
@@ -20,7 +20,7 @@ const SPECS = [
     desc: 'From teeth whitening to veneers and bonding, cosmetic dentistry is about giving you a smile you feel confident showing off — without compromising on tooth health.',
     points: ['Professional teeth whitening', 'Veneers and dental bonding', 'Smile design consultations', 'Stain and discoloration correction', 'Chipped or uneven tooth correction', 'Natural-looking results'],
     highlight: true,
-    color: 'var(--teal)',
+    color: 'var(--teal-pale)',
   },
   {
     icon: '🦴',
@@ -66,29 +66,55 @@ export default function Specializations() {
   return (
     <div ref={ref} style={{ overflowX: 'hidden' }}>
       {/* Hero */}
-      <section style={{ background: 'linear-gradient(160deg, var(--navy-900), var(--navy-800))', padding: '168px 0 80px', position: 'relative', overflow: 'hidden' }}>
+      <section style={{ background: 'linear-gradient(160deg, var(--ivory), var(--white) 60%, var(--teal-pale))', padding: '168px 0 80px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', inset: 0, backgroundImage: "url('/hero-pattern.svg')", backgroundSize: 'cover', backgroundPosition: 'center' }} className="hero-corner-pattern" />
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
-            <div style={{ width: '32px', height: '1px', background: 'var(--gold)' }} />
-            <span style={{ fontSize: '11px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--gold)', letterSpacing: '2.5px', textTransform: 'uppercase' }}>Services</span>
+          <div className="hero-grid" style={{ display: 'grid', gridTemplateColumns: '1.25fr 0.75fr', gap: '40px', alignItems: 'center' }}>
+            <div>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
+                <div style={{ width: '32px', height: '1px', background: 'var(--gold)' }} />
+                <span style={{ fontSize: '11px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--gold-deep)', letterSpacing: '2.5px', textTransform: 'uppercase' }}>Services</span>
+              </div>
+              <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(34px, 5vw, 58px)', color: 'var(--navy-800)', fontWeight: 600, marginBottom: '20px' }}>
+                Complete Dental Care, Under One Roof
+              </h1>
+              <p style={{ fontSize: '16px', color: 'var(--gold-deep)', fontFamily: 'var(--font-display)', fontStyle: 'italic', marginBottom: '20px' }}>
+                Multi-Speciality Dental Care in Sitamarhi
+              </p>
+              <p style={{ fontSize: '14px', color: 'var(--text-muted)', maxWidth: '560px', lineHeight: '1.9', fontWeight: 300, fontFamily: 'var(--font-body)', marginBottom: '16px' }}>
+                Usha Multi Speciality Dental Clinic offers a wide range of dental treatments — general dentistry, cosmetic dentistry, orthodontics, implantology, and pediatric dentistry — all under one roof.
+              </p>
+              <p style={{ fontSize: '14px', color: 'var(--text-muted)', maxWidth: '560px', lineHeight: '1.9', fontWeight: 300, fontFamily: 'var(--font-body)' }}>
+                The clinic is equipped with advanced technology and modern facilities to ensure precise diagnosis and effective, comfortable treatment for every patient.
+              </p>
+              <p style={{ fontSize: '14px', color: 'var(--text-muted)', maxWidth: '560px', lineHeight: '1.9', fontWeight: 300, fontFamily: 'var(--font-body)', marginTop: '16px' }}>
+                Whether it's a routine check-up, a painful tooth, or a smile makeover you've been putting off — the goal is pain-free procedures and long-term oral health.
+              </p>
+            </div>
+
+            {/* Service photo collage — real clinic photos */}
+            <div className="specs-hero-visual" style={{ position: 'relative', height: '400px' }}>
+              <div style={{ position: 'absolute', top: '10%', left: '10%', width: '75%', height: '75%', background: 'radial-gradient(circle, rgba(11,92,80,0.14) 0%, transparent 70%)', filter: 'blur(20px)', pointerEvents: 'none' }} />
+              {[
+                { img: '/svc-rct.png', top: '0%', left: '6%', w: '46%', rot: '-3deg', z: 2 },
+                { img: '/svc-cosmetic.png', top: '4%', left: '52%', w: '44%', rot: '2deg', z: 1 },
+                { img: '/svc-implants.png', top: '52%', left: '0%', w: '42%', rot: '2deg', z: 1 },
+                { img: '/svc-ortho.png', top: '48%', left: '46%', w: '48%', rot: '-2deg', z: 3 },
+              ].map((it, i) => (
+                <div key={i} style={{ position: 'absolute', top: it.top, left: it.left, width: it.w, transform: `rotate(${it.rot})`, zIndex: it.z }}>
+                  <div style={{ borderRadius: '8px', overflow: 'hidden', border: '3px solid var(--white)', boxShadow: '0 16px 32px -10px rgba(15,39,68,0.28)' }}>
+                    <img src={it.img} alt="" style={{ width: '100%', height: '110px', objectFit: 'cover', display: 'block' }} />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(38px, 5vw, 64px)', color: 'var(--white)', fontWeight: 600, marginBottom: '20px' }}>
-            Complete Dental Care, Under One Roof
-          </h1>
-          <p style={{ fontSize: '16px', color: 'var(--gold)', fontFamily: 'var(--font-display)', fontStyle: 'italic', marginBottom: '20px' }}>
-            Multi-Speciality Dental Care in Sitamarhi
-          </p>
-          <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.55)', maxWidth: '620px', lineHeight: '1.9', fontWeight: 300, fontFamily: 'var(--font-body)', marginBottom: '16px' }}>
-            Usha Multi Speciality Dental Clinic offers a wide range of dental treatments — general dentistry, cosmetic dentistry, orthodontics, implantology, and pediatric dentistry — all under one roof.
-          </p>
-          <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.45)', maxWidth: '620px', lineHeight: '1.9', fontWeight: 300, fontFamily: 'var(--font-body)', marginBottom: '16px' }}>
-            The clinic is equipped with advanced technology and modern facilities to ensure precise diagnosis and effective, comfortable treatment for every patient.
-          </p>
-          <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.45)', maxWidth: '620px', lineHeight: '1.9', fontWeight: 300, fontFamily: 'var(--font-body)' }}>
-            Whether it's a routine check-up, a painful tooth, or a smile makeover you've been putting off — the goal is pain-free procedures and long-term oral health.
-          </p>
         </div>
+        <style>{`
+          @media (max-width: 900px) {
+            .specs-hero-visual { display: none; }
+          }
+        `}</style>
       </section>
 
       {/* Highlighted — Cancer + Mind Body */}
@@ -103,19 +129,19 @@ export default function Specializations() {
             {SPECS.filter(s => s.highlight).map((s, i) => (
               <div key={i} style={{ background: s.color, padding: '48px 40px', position: 'relative', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'var(--gold)' }} />
-                <div style={{ position: 'absolute', bottom: '-20px', right: '-20px', width: '120px', height: '120px', borderRadius: '50%', background: 'rgba(199,166,106,0.06)' }} />
+                <div style={{ position: 'absolute', bottom: '-20px', right: '-20px', width: '120px', height: '120px', borderRadius: '50%', background: 'rgba(199,166,106,0.1)' }} />
                 {s.image && (
-                  <img src={s.image} alt={s.title} style={{ width: '100%', height: '160px', objectFit: 'cover', borderRadius: '6px', marginBottom: '20px', border: '1px solid rgba(199,166,106,0.3)' }} />
+                  <img src={s.image} alt={s.title} style={{ width: '100%', height: '160px', objectFit: 'cover', borderRadius: '6px', marginBottom: '20px', border: '1px solid rgba(199,166,106,0.35)' }} />
                 )}
                 <div style={{ fontSize: '40px', marginBottom: '20px' }}>{s.icon}</div>
-                <div style={{ fontSize: '10px', color: 'var(--gold)', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '12px' }}>Core Specialty</div>
-                <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(22px, 2.5vw, 30px)', color: 'var(--white)', fontWeight: 600, marginBottom: '12px', lineHeight: 1.2 }}>{s.title}</h2>
-                <p style={{ fontSize: '13px', color: 'var(--gold)', fontStyle: 'italic', marginBottom: '16px', fontFamily: 'var(--font-display)' }}>{s.tagline}</p>
-                <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.65)', lineHeight: '1.85', marginBottom: '24px' }}>{s.desc}</p>
+                <div style={{ fontSize: '10px', color: 'var(--gold-deep)', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '12px' }}>Core Specialty</div>
+                <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(22px, 2.5vw, 30px)', color: 'var(--navy-800)', fontWeight: 600, marginBottom: '12px', lineHeight: 1.2 }}>{s.title}</h2>
+                <p style={{ fontSize: '13px', color: 'var(--gold-deep)', fontStyle: 'italic', marginBottom: '16px', fontFamily: 'var(--font-display)' }}>{s.tagline}</p>
+                <p style={{ fontSize: '14px', color: 'var(--charcoal)', lineHeight: '1.85', marginBottom: '24px' }}>{s.desc}</p>
                 <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {s.points.map((p, j) => (
-                    <li key={j} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '13px', color: 'rgba(255,255,255,0.7)' }}>
-                      <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: 'rgba(199,166,106,0.2)', border: '1px solid rgba(199,166,106,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '1px' }}>
+                    <li key={j} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '13px', color: 'var(--charcoal)' }}>
+                      <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: 'var(--white)', border: '1px solid rgba(199,166,106,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '1px' }}>
                         <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'var(--gold)' }} />
                       </div>
                       {p}
@@ -154,12 +180,12 @@ export default function Specializations() {
       </section>
 
       {/* WHY CLIENTS CHOOSE US */}
-      <section style={{ padding: '100px 0', background: 'var(--navy-900)' }}>
+      <section style={{ padding: '100px 0', background: 'linear-gradient(160deg, var(--white), var(--teal-pale))' }}>
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: '64px' }}>
             <span className="section-tag">Why Clients Choose Us</span>
             <div className="gold-line center" />
-            <h2 className="section-title light">Dental Care You Can Trust</h2>
+            <h2 className="section-title">Dental Care You Can Trust</h2>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '2px' }}>
             {[
@@ -173,11 +199,11 @@ export default function Specializations() {
               'Hygienic, Well-Equipped Clinic',
               'Trusted Care in Sitamarhi',
             ].map((w, i) => (
-              <div key={i} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(199,166,106,0.08)', padding: '24px 20px', display: 'flex', alignItems: 'flex-start', gap: '12px', transition: 'var(--transition)' }}
-                onMouseEnter={e => e.currentTarget.style.background = 'rgba(199,166,106,0.06)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}>
-                <span style={{ color: 'var(--gold)', fontSize: '16px', flexShrink: 0, marginTop: '2px' }}>✔</span>
-                <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.65)', lineHeight: '1.6', fontFamily: 'var(--font-body)' }}>{w}</span>
+              <div key={i} style={{ background: 'var(--white)', border: '1px solid rgba(199,166,106,0.2)', padding: '24px 20px', display: 'flex', alignItems: 'flex-start', gap: '12px', transition: 'var(--transition)' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'var(--gold-pale)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'var(--white)'}>
+                <span style={{ color: 'var(--gold-deep)', fontSize: '16px', flexShrink: 0, marginTop: '2px' }}>✔</span>
+                <span style={{ fontSize: '13px', color: 'var(--charcoal)', lineHeight: '1.6', fontFamily: 'var(--font-body)' }}>{w}</span>
               </div>
             ))}
           </div>

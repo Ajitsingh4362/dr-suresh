@@ -53,33 +53,33 @@ export default function TestimonialsSection() {
   const t = testimonials[active]
 
   return (
-    <section style={{ padding: '100px 0', background: 'linear-gradient(160deg, var(--navy-900), var(--navy-800))', position: 'relative', overflow: 'hidden' }}>
+    <section style={{ padding: '100px 0', background: 'linear-gradient(160deg, var(--ivory), var(--white))', position: 'relative', overflow: 'hidden' }}>
       {/* Background grid */}
-      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(199,166,106,0.04) 1px, transparent 1px)', backgroundSize: '32px 32px', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(15,39,68,0.035) 1px, transparent 1px)', backgroundSize: '32px 32px', pointerEvents: 'none' }} />
 
       {/* Gold accent */}
-      <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(199,166,106,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(199,166,106,0.10) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
       <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '64px' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
             <div style={{ width: '32px', height: '1px', background: 'var(--gold)' }} />
-            <span style={{ fontSize: '11px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--gold)', letterSpacing: '2.5px', textTransform: 'uppercase' }}>Patient Stories</span>
+            <span style={{ fontSize: '11px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--gold-deep)', letterSpacing: '2.5px', textTransform: 'uppercase' }}>Patient Stories</span>
             <div style={{ width: '32px', height: '1px', background: 'var(--gold)' }} />
           </div>
-          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px, 4vw, 44px)', color: 'var(--gold-pale)', fontWeight: 600, margin: '0 0 12px', letterSpacing: '0.02em' }}>Real Patients. Real Smiles.</h2>
-          <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-body)', fontWeight: 300 }}>Rated 4.9/5 by our patients in Sitamarhi.</p>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px, 4vw, 44px)', color: 'var(--navy-800)', fontWeight: 600, margin: '0 0 12px', letterSpacing: '0.02em' }}>Real Patients. Real Smiles.</h2>
+          <p style={{ fontSize: '14px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 300 }}>Rated 4.9/5 by our patients in Sitamarhi.</p>
         </div>
 
         {/* Main testimonial */}
         <div style={{ maxWidth: '760px', margin: '0 auto', textAlign: 'center' }}>
           {/* Quote marks */}
-          <div style={{ fontFamily: 'Georgia, serif', fontSize: '80px', color: 'rgba(199,166,106,0.2)', lineHeight: 0.8, marginBottom: '24px', userSelect: 'none' }}>"</div>
+          <div style={{ fontFamily: 'Georgia, serif', fontSize: '80px', color: 'rgba(199,166,106,0.35)', lineHeight: 0.8, marginBottom: '24px', userSelect: 'none' }}>"</div>
 
           {/* Review text */}
           <div style={{ opacity: animating ? 0 : 1, transform: animating ? 'translateY(8px)' : 'translateY(0)', transition: 'opacity 0.3s, transform 0.3s' }}>
-            <p style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(16px, 2.5vw, 22px)', color: 'rgba(255,255,255,0.85)', lineHeight: 1.75, fontWeight: 400, fontStyle: 'italic', marginBottom: '36px' }}>
+            <p style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(16px, 2.5vw, 22px)', color: 'var(--charcoal)', lineHeight: 1.75, fontWeight: 400, fontStyle: 'italic', marginBottom: '36px' }}>
               {t.review}
             </p>
 
@@ -93,8 +93,8 @@ export default function TestimonialsSection() {
               </div>
               <div style={{ textAlign: 'left' }}>
                 <StarRating value={t.rating} />
-                <p style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', fontWeight: 600, color: 'var(--gold-pale)', margin: '0 0 2px' }}>{t.name}</p>
-                <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-body)', margin: 0 }}>
+                <p style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', fontWeight: 600, color: 'var(--navy-800)', margin: '0 0 2px' }}>{t.name}</p>
+                <p style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', margin: 0 }}>
                   {t.program}{t.location ? ` · ${t.location}` : ''}
                 </p>
               </div>
@@ -106,7 +106,7 @@ export default function TestimonialsSection() {
         {testimonials.length > 1 && (
           <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '48px' }}>
             {testimonials.map((_, i) => (
-              <button key={i} onClick={() => goTo(i)} style={{ width: i === active ? '28px' : '8px', height: '8px', borderRadius: '100px', background: i === active ? 'var(--gold)' : 'rgba(199,166,106,0.25)', border: 'none', cursor: 'pointer', transition: 'all 0.3s ease', padding: 0 }} />
+              <button key={i} onClick={() => goTo(i)} style={{ width: i === active ? '28px' : '8px', height: '8px', borderRadius: '100px', background: i === active ? 'var(--gold)' : 'rgba(199,166,106,0.3)', border: 'none', cursor: 'pointer', transition: 'all 0.3s ease', padding: 0 }} />
             ))}
           </div>
         )}
@@ -115,21 +115,21 @@ export default function TestimonialsSection() {
         {testimonials.length > 1 && (
           <div style={{ marginTop: '64px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
             {testimonials.map((t2, i) => (
-              <div key={t2.id} onClick={() => goTo(i)} style={{ background: i === active ? 'rgba(199,166,106,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${i === active ? 'rgba(199,166,106,0.35)' : 'rgba(199,166,106,0.08)'}`, borderRadius: '2px', padding: '14px 16px', cursor: 'pointer', transition: 'all 0.25s' }}
-                onMouseEnter={e => { if (i !== active) e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
-                onMouseLeave={e => { if (i !== active) e.currentTarget.style.background = 'rgba(255,255,255,0.03)' }}>
+              <div key={t2.id} onClick={() => goTo(i)} style={{ background: i === active ? 'var(--gold-pale)' : 'var(--white)', border: `1px solid ${i === active ? 'rgba(199,166,106,0.5)' : 'rgba(15,39,68,0.08)'}`, borderRadius: '2px', padding: '14px 16px', cursor: 'pointer', transition: 'all 0.25s' }}
+                onMouseEnter={e => { if (i !== active) e.currentTarget.style.background = 'var(--ivory-dark)' }}
+                onMouseLeave={e => { if (i !== active) e.currentTarget.style.background = 'var(--white)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
                   <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: t2.avatar_color, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     {t2.photo_url ? <img src={t2.photo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ color: '#fff', fontSize: '11px', fontWeight: 700, fontFamily: 'var(--font-display)' }}>{initials(t2.name)}</span>}
                   </div>
                   <div>
-                    <p style={{ fontSize: '12px', fontWeight: 600, color: i === active ? 'var(--gold-pale)' : 'rgba(255,255,255,0.7)', fontFamily: 'var(--font-body)', margin: 0 }}>{t2.name}</p>
+                    <p style={{ fontSize: '12px', fontWeight: 600, color: i === active ? 'var(--navy-800)' : 'var(--charcoal)', fontFamily: 'var(--font-body)', margin: 0 }}>{t2.name}</p>
                     <div style={{ display: 'flex', gap: '2px' }}>
-                      {[1,2,3,4,5].map(s => <span key={s} style={{ fontSize: '9px', color: s <= t2.rating ? '#b9914f' : 'rgba(199,166,106,0.2)' }}>★</span>)}
+                      {[1,2,3,4,5].map(s => <span key={s} style={{ fontSize: '9px', color: s <= t2.rating ? '#b9914f' : 'rgba(199,166,106,0.25)' }}>★</span>)}
                     </div>
                   </div>
                 </div>
-                <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-body)', margin: 0, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', lineHeight: 1.5 }}>{t2.review}</p>
+                <p style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', margin: 0, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', lineHeight: 1.5 }}>{t2.review}</p>
               </div>
             ))}
           </div>

@@ -16,11 +16,11 @@ export default function RefundPolicy() {
   return (
     <div ref={ref} style={{ overflowX: 'hidden' }}>
       {/* Hero */}
-      <section style={{ background: 'linear-gradient(160deg, var(--navy-900), var(--navy-800))', padding: '160px 0 60px' }}>
+      <section style={{ background: 'linear-gradient(160deg, var(--ivory), var(--teal-pale))', padding: '160px 0 60px' }}>
         <div className="container">
-          <span style={{ fontSize: '11px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--gold)', letterSpacing: '2.5px', textTransform: 'uppercase' }}>Legal</span>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(32px, 4vw, 48px)', color: 'var(--white)', fontWeight: 600, margin: '14px 0 0' }}>Refund & Cancellation Policy</h1>
-          <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', marginTop: '10px', fontFamily: 'var(--font-body)' }}>Last updated: July 2026</p>
+          <span style={{ fontSize: '11px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--gold-deep)', letterSpacing: '2.5px', textTransform: 'uppercase' }}>Legal</span>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(32px, 4vw, 48px)', color: 'var(--navy-800)', fontWeight: 600, margin: '14px 0 0' }}>Refund & Cancellation Policy</h1>
+          <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '10px', fontFamily: 'var(--font-body)' }}>Last updated: July 2026</p>
         </div>
       </section>
 

@@ -104,20 +104,20 @@ export default function FAQPage() {
     <div style={{ overflowX: 'hidden' }}>
 
       {/* Hero */}
-      <section style={{ background: 'linear-gradient(160deg, var(--navy-900), var(--navy-800))', padding: '148px 0 70px', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(199,166,106,0.04) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+      <section style={{ background: 'linear-gradient(160deg, var(--ivory), var(--white) 60%, var(--teal-pale))', padding: '148px 0 70px', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(15,39,68,0.035) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
             <div style={{ width: '32px', height: '1px', background: 'var(--gold)' }} />
-            <span style={{ fontSize: '11px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--gold)', letterSpacing: '2.5px', textTransform: 'uppercase' }}>FAQ</span>
+            <span style={{ fontSize: '11px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--gold-deep)', letterSpacing: '2.5px', textTransform: 'uppercase' }}>FAQ</span>
           </div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px, 5vw, 60px)', color: 'var(--white)', fontWeight: 600, margin: '0 0 16px', lineHeight: 1.15 }}>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px, 5vw, 60px)', color: 'var(--navy-800)', fontWeight: 600, margin: '0 0 16px', lineHeight: 1.15 }}>
             Frequently Asked Questions
           </h1>
-          <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.5)', maxWidth: '520px', lineHeight: 1.85, fontFamily: 'var(--font-body)', fontWeight: 300, margin: '0 0 32px' }}>
+          <p style={{ fontSize: '15px', color: 'var(--text-muted)', maxWidth: '520px', lineHeight: 1.85, fontFamily: 'var(--font-body)', fontWeight: 300, margin: '0 0 32px' }}>
             Everything you need to know about our treatments, appointments, and clinic policies.
           </p>
-          <Link to="/contact" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 28px', background: 'var(--gold)', color: 'var(--navy-800)', borderRadius: '2px', fontSize: '12px', fontWeight: 600, fontFamily: 'var(--font-body)', textDecoration: 'none', letterSpacing: '1px', textTransform: 'uppercase' }}>
+          <Link to="/contact" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 28px', background: 'linear-gradient(135deg, var(--gold-light), var(--gold) 60%, var(--gold-deep))', color: 'var(--navy-900)', borderRadius: '2px', fontSize: '12px', fontWeight: 600, fontFamily: 'var(--font-body)', textDecoration: 'none', letterSpacing: '1px', textTransform: 'uppercase' }}>
             Still have questions? Book a consultation →
           </Link>
         </div>
@@ -131,7 +131,7 @@ export default function FAQPage() {
           {categories.length > 2 && (
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '48px' }}>
               {categories.map(cat => (
-                <button key={cat} onClick={() => setActiveCategory(cat)} style={{ padding: '8px 20px', borderRadius: '100px', border: '1px solid', fontSize: '12px', fontFamily: 'var(--font-body)', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', background: activeCategory === cat ? 'var(--navy-800)' : 'var(--white)', color: activeCategory === cat ? 'var(--gold-pale)' : 'var(--text-muted)', borderColor: activeCategory === cat ? 'var(--navy-800)' : 'rgba(15,39,68,0.12)' }}>
+                <button key={cat} onClick={() => setActiveCategory(cat)} style={{ padding: '8px 20px', borderRadius: '100px', border: '1px solid', fontSize: '12px', fontFamily: 'var(--font-body)', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', background: activeCategory === cat ? 'var(--gold-pale)' : 'var(--white)', color: activeCategory === cat ? 'var(--gold-deep)' : 'var(--text-muted)', borderColor: activeCategory === cat ? 'var(--gold)' : 'rgba(15,39,68,0.12)' }}>
                   {cat} {cat !== 'All' && `(${faqs.filter(f => f.category === cat).length})`}
                 </button>
               ))}
@@ -150,15 +150,15 @@ export default function FAQPage() {
           )}
 
           {/* Bottom CTA */}
-          <div style={{ marginTop: '64px', textAlign: 'center', padding: '48px 40px', background: 'var(--navy-800)', borderRadius: '4px', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ marginTop: '64px', textAlign: 'center', padding: '48px 40px', background: 'var(--teal-pale)', borderRadius: '4px', position: 'relative', overflow: 'hidden' }}>
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'var(--gold)' }} />
-            <p style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(20px, 3vw, 28px)', color: 'var(--gold-pale)', fontWeight: 600, margin: '0 0 12px' }}>
+            <p style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(20px, 3vw, 28px)', color: 'var(--navy-800)', fontWeight: 600, margin: '0 0 12px' }}>
               Didn't find your answer?
             </p>
-            <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', fontFamily: 'var(--font-body)', fontWeight: 300, margin: '0 0 28px' }}>
+            <p style={{ fontSize: '14px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 300, margin: '0 0 28px' }}>
               Call us to schedule your appointment.
             </p>
-            <Link to="/contact" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '13px 32px', background: 'var(--gold)', color: 'var(--navy-800)', borderRadius: '2px', fontSize: '12px', fontWeight: 600, fontFamily: 'var(--font-body)', textDecoration: 'none', letterSpacing: '1px', textTransform: 'uppercase' }}>
+            <Link to="/contact" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '13px 32px', background: 'linear-gradient(135deg, var(--gold-light), var(--gold) 60%, var(--gold-deep))', color: 'var(--navy-900)', borderRadius: '2px', fontSize: '12px', fontWeight: 600, fontFamily: 'var(--font-body)', textDecoration: 'none', letterSpacing: '1px', textTransform: 'uppercase' }}>
               Book a Consultation →
             </Link>
           </div>

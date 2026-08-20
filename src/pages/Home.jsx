@@ -229,19 +229,19 @@ export default function Home() {
 
       {/* HERO */}
       <section style={{
-        background: 'linear-gradient(160deg, var(--navy-900) 0%, var(--navy-800) 60%, #122040 100%)',
+        background: 'linear-gradient(160deg, var(--ivory) 0%, #ffffff 55%, var(--teal-pale) 100%)',
         minHeight: '100vh', display: 'flex', alignItems: 'center',
         position: 'relative', overflow: 'hidden',
         paddingTop: '128px', paddingBottom: '80px',
       }}>
         {/* Background decorative blobs */}
-        <div style={{ position: 'absolute', top: '-5%', right: '-8%', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(30,111,106,0.1) 0%, transparent 70%)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', bottom: '-10%', left: '-5%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(199,166,106,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: '-5%', right: '-8%', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(20,107,100,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: '-10%', left: '-5%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(199,166,106,0.10) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
         {/* Top-right dot pattern */}
         <div className="hero-corner-pattern" style={{
           position: 'absolute', top: '24px', right: '24px', width: '350px', height: '350px',
-          backgroundImage: 'radial-gradient(rgba(240,221,181,0.9) 2px, transparent 2px)',
+          backgroundImage: 'radial-gradient(rgba(156,122,60,0.5) 2px, transparent 2px)',
           backgroundSize: '18px 18px',
           maskImage: 'radial-gradient(circle at top right, black 40%, transparent 90%)',
           WebkitMaskImage: 'radial-gradient(circle at top right, black 40%, transparent 90%)',
@@ -250,7 +250,7 @@ export default function Home() {
         {/* Bottom-right dot pattern */}
         <div className="hero-corner-pattern" style={{
           position: 'absolute', bottom: '24px', right: '24px', width: '350px', height: '350px',
-          backgroundImage: 'radial-gradient(rgba(240,221,181,0.9) 2px, transparent 2px)',
+          backgroundImage: 'radial-gradient(rgba(156,122,60,0.5) 2px, transparent 2px)',
           backgroundSize: '18px 18px',
           maskImage: 'radial-gradient(circle at bottom right, black 40%, transparent 90%)',
           WebkitMaskImage: 'radial-gradient(circle at bottom right, black 40%, transparent 90%)',
@@ -317,17 +317,17 @@ export default function Home() {
               <h1 style={{
                 fontFamily: 'var(--font-display)',
                 fontSize: 'clamp(36px, 4.5vw, 68px)',
-                fontWeight: 600, color: 'var(--white)',
+                fontWeight: 600, color: 'var(--navy-800)',
                 lineHeight: 1.1, marginBottom: '24px',
               }}>
                 Gentle Care<br />for a{' '}
-                <span style={{ color: 'var(--gold)', fontStyle: 'italic', display: 'block' }}>
+                <span style={{ color: 'var(--gold-deep)', fontStyle: 'italic', display: 'block' }}>
                   Healthy, Confident<br />Smile
                 </span>
               </h1>
 
               <p style={{
-                fontSize: '15px', color: 'rgba(255,255,255,0.6)',
+                fontSize: '15px', color: 'var(--text-muted)',
                 lineHeight: '1.85', maxWidth: '520px', marginBottom: '14px',
                 fontFamily: 'var(--font-body)', fontWeight: 300,
               }}>
@@ -336,7 +336,7 @@ export default function Home() {
                 approach.
               </p>
               <p style={{
-                fontSize: '13px', color: 'rgba(255,255,255,0.38)',
+                fontSize: '13px', color: 'var(--text-light)',
                 lineHeight: '1.7', maxWidth: '480px', marginBottom: '36px',
                 fontFamily: 'var(--font-body)',
               }}>
@@ -346,13 +346,13 @@ export default function Home() {
 
               <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginBottom: '48px' }}>
                 <Link to="/contact"><button className="btn-primary">Book an Appointment</button></Link>
-                <Link to="/specializations"><button className="btn-outline">Our Services</button></Link>
+                <Link to="/specializations"><button className="btn-outline-dark">Our Services</button></Link>
               </div>
 
               {/* Stats */}
               <div style={{
                 display: 'flex', gap: '44px', flexWrap: 'wrap',
-                paddingTop: '36px', borderTop: '1px solid rgba(199,166,106,0.15)',
+                paddingTop: '36px', borderTop: '1px solid rgba(199,166,106,0.3)',
               }}>
                 {[
                   { num: '2010', label: 'Established' },
@@ -361,8 +361,8 @@ export default function Home() {
                   { num: 'Implants', label: 'Tooth Replacement' },
                 ].map((s, i) => (
                   <div key={i}>
-                    <div style={{ fontFamily: 'var(--font-display)', fontSize: '40px', fontWeight: 700, color: 'var(--gold)', lineHeight: 1 }}>{s.num}</div>
-                    <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', marginTop: '6px', letterSpacing: '1px', textTransform: 'uppercase', fontFamily: 'var(--font-body)' }}>{s.label}</div>
+                    <div style={{ fontFamily: 'var(--font-display)', fontSize: '40px', fontWeight: 700, color: 'var(--gold-deep)', lineHeight: 1 }}>{s.num}</div>
+                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '6px', letterSpacing: '1px', textTransform: 'uppercase', fontFamily: 'var(--font-body)' }}>{s.label}</div>
                   </div>
                 ))}
               </div>
@@ -383,15 +383,15 @@ export default function Home() {
               {/* Floating trust badge */}
               <div style={{
                 position: 'absolute', left: '-24px', bottom: '-24px', zIndex: 2,
-                background: 'var(--navy-800)', border: '1px solid rgba(199,166,106,0.35)',
+                background: 'var(--white)', border: '1px solid rgba(199,166,106,0.35)',
                 borderRadius: '10px', padding: '16px 20px',
-                boxShadow: '0 16px 40px rgba(0,0,0,0.4)',
+                boxShadow: '0 16px 40px rgba(15,39,68,0.16)',
                 display: 'flex', alignItems: 'center', gap: '12px',
               }}>
                 <span style={{ fontSize: '24px' }}>⭐</span>
                 <div>
-                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '17px', color: 'var(--gold-pale)', fontWeight: 700, lineHeight: 1 }}>4.9 / 5</div>
-                  <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.45)', letterSpacing: '1px', textTransform: 'uppercase', marginTop: '4px' }}>Patient Rated</div>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '17px', color: 'var(--gold-deep)', fontWeight: 700, lineHeight: 1 }}>4.9 / 5</div>
+                  <div style={{ fontSize: '9px', color: 'var(--text-muted)', letterSpacing: '1px', textTransform: 'uppercase', marginTop: '4px' }}>Patient Rated</div>
                 </div>
               </div>
             </div>
@@ -401,14 +401,14 @@ export default function Home() {
         {/* Scroll indicator */}
         <div style={{ position: 'absolute', bottom: '32px', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', animation: 'float 2.5s ease-in-out infinite' }}>
           <div style={{ width: '1px', height: '40px', background: 'linear-gradient(180deg, var(--gold), transparent)' }} />
-          <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', letterSpacing: '2px', textTransform: 'uppercase' }}>Scroll</span>
+          <span style={{ fontSize: '10px', color: 'var(--text-light)', letterSpacing: '2px', textTransform: 'uppercase' }}>Scroll</span>
         </div>
       </section>
 
       {/* TAGLINE STRIP */}
-      <section style={{ background: 'var(--navy-700, #0f2744)', padding: '20px 0', borderBottom: '1px solid rgba(199,166,106,0.15)' }}>
+      <section style={{ background: 'var(--teal-pale)', padding: '20px 0', borderBottom: '1px solid rgba(199,166,106,0.15)' }}>
         <div className="container" style={{ textAlign: 'center' }}>
-          <p style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(16px, 2vw, 22px)', color: 'var(--gold-pale)', fontWeight: 600, margin: 0, fontStyle: 'italic', letterSpacing: '0.3px' }}>
+          <p style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(16px, 2vw, 22px)', color: 'var(--teal)', fontWeight: 600, margin: 0, fontStyle: 'italic', letterSpacing: '0.3px' }}>
             "Healthy Smiles. Gentle Care. For the Whole Family."
           </p>
         </div>
@@ -436,11 +436,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Shape divider: navy (hero-style blue) -> ivory, into Our Doctors section */}
-      <div style={{ position: 'relative', background: 'linear-gradient(160deg, var(--navy-900) 0%, var(--navy-800) 100%)', lineHeight: 0 }}>
+      {/* Shape divider: gold (intro strip) -> ivory, into Our Doctors section */}
+      <div style={{ position: 'relative', background: 'var(--gold)', lineHeight: 0 }}>
         <svg viewBox="0 0 1200 100" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '64px' }}>
           <path d="M0,38 C300,95 900,5 1200,48 L1200,100 L0,100 Z" fill="#FAF8F4" />
-          <path d="M0,38 C300,95 900,5 1200,48" fill="none" stroke="#6f93c2" strokeWidth="2.5" opacity="0.55" />
+          <path d="M0,38 C300,95 900,5 1200,48" fill="none" stroke="var(--navy-800)" strokeWidth="2.5" opacity="0.3" />
         </svg>
       </div>
 
@@ -449,8 +449,8 @@ export default function Home() {
         padding: '90px 0',
         background: 'var(--ivory)',
         backgroundImage: `
-          radial-gradient(rgba(30,70,190,0.35) 1.5px, transparent 1.5px),
-          radial-gradient(rgba(200,40,40,0.3) 1.5px, transparent 1.5px)
+          radial-gradient(rgba(156,122,60,0.3) 1.5px, transparent 1.5px),
+          radial-gradient(rgba(20,107,100,0.25) 1.5px, transparent 1.5px)
         `,
         backgroundSize: '30px 30px, 30px 30px',
         backgroundPosition: '0 0, 15px 15px',
@@ -508,13 +508,13 @@ export default function Home() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2px', background: 'rgba(15,39,68,0.06)' }}>
             {HIGHLIGHTS.map((h, i) => (
               <div key={i} style={{
-                background: h.highlight ? 'var(--navy-800)' : 'var(--white)',
+                background: h.highlight ? 'var(--teal-pale)' : 'var(--white)',
                 padding: '36px 32px',
                 position: 'relative', overflow: 'hidden',
                 transition: 'var(--transition)',
               }}
-              onMouseEnter={e => { e.currentTarget.style.background = h.highlight ? 'var(--navy-700)' : 'var(--ivory-dark)' }}
-              onMouseLeave={e => { e.currentTarget.style.background = h.highlight ? 'var(--navy-800)' : 'var(--white)' }}>
+              onMouseEnter={e => { e.currentTarget.style.background = h.highlight ? '#dcefec' : 'var(--ivory-dark)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = h.highlight ? 'var(--teal-pale)' : 'var(--white)' }}>
                 {h.highlight && (
                   <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'var(--gold)' }} />
                 )}
@@ -530,12 +530,12 @@ export default function Home() {
                 <h3 style={{
                   fontFamily: 'var(--font-display)',
                   fontSize: '22px', fontWeight: 600,
-                  color: h.highlight ? 'var(--gold-pale)' : 'var(--navy-800)',
+                  color: 'var(--navy-800)',
                   marginBottom: '12px',
                 }}>{h.title}</h3>
-                <p style={{ fontSize: '13px', color: h.highlight ? 'rgba(255,255,255,0.6)' : 'var(--text-muted)', lineHeight: '1.8' }}>{h.desc}</p>
+                <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: '1.8' }}>{h.desc}</p>
                 {h.highlight && (
-                  <div style={{ marginTop: '20px', fontSize: '11px', color: 'var(--gold)', letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 600 }}>
+                  <div style={{ marginTop: '20px', fontSize: '11px', color: 'var(--teal)', letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 600 }}>
                     Core Specialty →
                   </div>
                 )}
@@ -551,9 +551,9 @@ export default function Home() {
       </section>
 
       {/* WHY CHOOSE */}
-      <section style={{ padding: '100px 0', background: 'linear-gradient(160deg, var(--navy-800), var(--navy-900))', position: 'relative', overflow: 'hidden' }}>
+      <section style={{ padding: '100px 0', background: 'linear-gradient(160deg, var(--white), var(--teal-pale))', position: 'relative', overflow: 'hidden' }}>
         {/* Top-right dot grid pattern */}
-        <svg width="130" height="130" viewBox="0 0 130 130" style={{ position: 'absolute', top: '24px', right: '24px', opacity: 0.5, pointerEvents: 'none' }}>
+        <svg width="130" height="130" viewBox="0 0 130 130" style={{ position: 'absolute', top: '24px', right: '24px', opacity: 0.6, pointerEvents: 'none' }}>
           {Array.from({ length: 6 }).map((_, row) =>
             Array.from({ length: 6 }).map((_, col) => (
               <circle key={`${row}-${col}`} cx={10 + col * 22} cy={10 + row * 22} r="2" fill="var(--gold)" />
@@ -565,8 +565,8 @@ export default function Home() {
             <div>
               <span className="section-tag">Why Usha Dental Clinic</span>
               <div className="gold-line" />
-              <h2 className="section-title light">Dental Care You Can Trust</h2>
-              <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.6)', lineHeight: '1.85', marginBottom: '32px', fontWeight: 300 }}>
+              <h2 className="section-title">Dental Care You Can Trust</h2>
+              <p style={{ fontSize: '15px', color: 'var(--text-muted)', lineHeight: '1.85', marginBottom: '32px', fontWeight: 300 }}>
                 A multi-speciality clinic in Sitamarhi focused on painless procedures, modern technology, and care for every member of the family.
               </p>
               <Link to="/contact"><button className="btn-primary">Book an Appointment</button></Link>
@@ -574,13 +574,13 @@ export default function Home() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px' }}>
               {WHY.map((w, i) => (
                 <div key={i} style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid rgba(199,166,106,0.1)',
+                  background: 'var(--white)',
+                  border: '1px solid rgba(199,166,106,0.25)',
                   padding: '20px 18px',
                   display: 'flex', alignItems: 'flex-start', gap: '10px',
                 }}>
                   <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--gold)', flexShrink: 0, marginTop: '5px' }} />
-                  <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', lineHeight: '1.6', fontFamily: 'var(--font-body)' }}>{w}</span>
+                  <span style={{ fontSize: '12px', color: 'var(--charcoal)', lineHeight: '1.6', fontFamily: 'var(--font-body)' }}>{w}</span>
                 </div>
               ))}
             </div>
@@ -613,7 +613,7 @@ export default function Home() {
               }}
               onMouseEnter={e => { e.currentTarget.style.borderBottom = '3px solid var(--gold)'; e.currentTarget.style.background = 'var(--ivory)' }}
               onMouseLeave={e => { e.currentTarget.style.borderBottom = '3px solid transparent'; e.currentTarget.style.background = 'var(--white)' }}>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: '48px', fontWeight: 700, color: 'rgb(7, 5, 14)', lineHeight: 1, marginBottom: '16px' }}>{step.num}</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: '48px', fontWeight: 700, color: 'var(--gold-pale)', lineHeight: 1, marginBottom: '16px', WebkitTextStroke: '1px rgba(199,166,106,0.55)' }}>{step.num}</div>
                 <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '18px', fontWeight: 600, color: 'var(--navy-800)', marginBottom: '10px' }}>{step.title}</h3>
                 <p style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: '1.8' }}>{step.desc}</p>
               </div>
@@ -652,8 +652,8 @@ export default function Home() {
           <div style={{ textAlign: 'center', marginBottom: '56px' }}>
             <span className="section-tag" style={{ color: 'var(--gold)' }}>Step Inside</span>
             <div className="gold-line center" />
-            <h2 className="section-title light">Our Clinic, Up Close</h2>
-            <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', maxWidth: '480px', margin: '0 auto', lineHeight: '1.85', fontFamily: 'var(--font-body)', fontWeight: 300 }}>
+            <h2 className="section-title">Our Clinic, Up Close</h2>
+            <p style={{ fontSize: '14px', color: 'var(--text-muted)', maxWidth: '480px', margin: '0 auto', lineHeight: '1.85', fontFamily: 'var(--font-body)', fontWeight: 300 }}>
               Move your cursor over the image for a closer look at Usha Multi Speciality Dental Clinic.
             </p>
           </div>

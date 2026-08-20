@@ -30,7 +30,7 @@ export default function Blog() {
         <div className="container page-hero-inner">
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
             <div style={{ width: '32px', height: '1px', background: 'var(--gold)' }} />
-            <span style={{ fontSize: '11px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--gold)', letterSpacing: '2.5px', textTransform: 'uppercase' }}>Insights</span>
+            <span style={{ fontSize: '11px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--gold-deep)', letterSpacing: '2.5px', textTransform: 'uppercase' }}>Insights</span>
           </div>
           <h1>Articles & Healing Wisdom</h1>
           <p>Tips on dental health, oral care, and updates from our clinic.</p>

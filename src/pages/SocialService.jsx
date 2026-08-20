@@ -5,18 +5,50 @@ export default function SocialService() {
     <div className="page-fade">
       {/* Hero */}
       <section style={{
-        background: 'linear-gradient(160deg, var(--navy-900), var(--navy-800))',
-        padding: '188px 0 80px', color: 'var(--white)',
+        background: 'linear-gradient(160deg, var(--ivory), var(--white) 60%, var(--teal-pale))',
+        padding: '188px 0 90px', color: 'var(--navy-800)', overflow: 'hidden',
       }}>
         <div className="container">
-          <span className="section-tag">Giving Back</span>
-          <div className="gold-line" />
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(38px, 5vw, 60px)', color: 'var(--white)', fontWeight: 600, marginBottom: '20px' }}>
-            Social Service
-          </h1>
-          <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.55)', maxWidth: '600px', lineHeight: '1.9', fontWeight: 300 }}>
-            Beyond the clinic, Usha Multi Speciality Dental Clinic believes in giving back to the community of Sitamarhi through dental health awareness and outreach.
-          </p>
+          <div className="hero-grid" style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '40px', alignItems: 'center' }}>
+            <div>
+              <span className="section-tag">Giving Back</span>
+              <div className="gold-line" />
+              <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(34px, 5vw, 56px)', color: 'var(--navy-800)', fontWeight: 600, marginBottom: '20px' }}>
+                Social Service
+              </h1>
+              <p style={{ fontSize: '15px', color: 'var(--text-muted)', maxWidth: '520px', lineHeight: '1.9', fontWeight: 300 }}>
+                Beyond the clinic, Usha Multi Speciality Dental Clinic believes in giving back to the community of Sitamarhi through dental health awareness and outreach.
+              </p>
+            </div>
+
+            {/* Community-care illustration — original artwork, on-brand */}
+            <div className="social-hero-visual" style={{ display: 'flex', justifyContent: 'center' }}>
+              <svg viewBox="0 0 400 400" style={{ width: '100%', maxWidth: '360px' }}>
+                <circle cx="200" cy="200" r="150" fill="none" stroke="#C9A45C" strokeWidth="1" opacity="0.35" />
+                <circle cx="200" cy="200" r="115" fill="none" stroke="#C9A45C" strokeWidth="1.5" opacity="0.5" />
+                <circle cx="200" cy="200" r="78" fill="var(--teal-pale)" stroke="#C9A45C" strokeWidth="2" opacity="0.95" />
+                <g stroke="#C9A45C" strokeWidth="1" opacity="0.4">
+                  {Array.from({ length: 16 }).map((_, i) => {
+                    const a = (i * 360 / 16) * Math.PI / 180
+                    return <line key={i} x1={200 + 155 * Math.cos(a)} y1={200 + 155 * Math.sin(a)} x2={200 + 175 * Math.cos(a)} y2={200 + 175 * Math.sin(a)} />
+                  })}
+                </g>
+                <path d="M200,225 C200,205 175,190 155,205 C138,218 138,245 155,262 L200,300 L245,262 C262,245 262,218 245,205 C225,190 200,205 200,225 Z" fill="none" stroke="#0d2340" strokeWidth="2.5" />
+                <g transform="translate(58,84)">
+                  <circle r="30" fill="var(--white)" stroke="#C9A45C" strokeWidth="1.5" />
+                  <text x="0" y="10" fontSize="26" textAnchor="middle">🦷</text>
+                </g>
+                <g transform="translate(345,100)">
+                  <circle r="30" fill="var(--white)" stroke="#C9A45C" strokeWidth="1.5" />
+                  <text x="0" y="10" fontSize="26" textAnchor="middle">🏫</text>
+                </g>
+                <g transform="translate(200,368)">
+                  <circle r="30" fill="var(--white)" stroke="#C9A45C" strokeWidth="1.5" />
+                  <text x="0" y="10" fontSize="26" textAnchor="middle">🤝</text>
+                </g>
+              </svg>
+            </div>
+          </div>
         </div>
       </section>
 
