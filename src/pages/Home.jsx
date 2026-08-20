@@ -321,7 +321,7 @@ export default function Home() {
                 lineHeight: 1.1, marginBottom: '24px',
               }}>
                 Gentle Care<br />for a{' '}
-                <span style={{ color: 'var(--gold-deep)', fontStyle: 'italic', display: 'block' }}>
+                <span style={{ color: 'var(--maroon)', display: 'block' }}>
                   Healthy, Confident<br />Smile
                 </span>
               </h1>
