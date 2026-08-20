@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-export default function AutoSwipe({ images, interval = 2000, height }) {
+export default function AutoSwipe({ images, interval = 2000, height, fullBleed = false }) {
   const [index, setIndex] = useState(0)
 
   useEffect(() => {
@@ -12,10 +12,11 @@ export default function AutoSwipe({ images, interval = 2000, height }) {
 
   return (
     <div style={{
-      position: 'relative', width: '100%',
-      borderRadius: '14px', overflow: 'hidden',
-      border: '2px solid rgba(199,166,106,0.35)',
-      boxShadow: '0 30px 60px -20px rgba(0,0,0,0.5)',
+      position: 'relative', width: '100%', margin: 0, padding: 0,
+      borderRadius: fullBleed ? 0 : '14px', overflow: 'hidden',
+      border: fullBleed ? 'none' : '2px solid rgba(199,166,106,0.35)',
+      boxShadow: fullBleed ? 'none' : '0 30px 60px -20px rgba(0,0,0,0.5)',
+      display: 'block', lineHeight: 0,
     }}>
       {images.map((img, i) => (
         <img key={img} src={img} alt="" style={{

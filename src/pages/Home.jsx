@@ -411,10 +411,8 @@ export default function Home() {
       </section>
 
       {/* PROMO BANNER */}
-      <section style={{ background: 'var(--white)', padding: '56px 0' }}>
-        <div className="container">
-          <AutoSwipe images={['/smile-closeup.png', '/natures-care.png']} interval={2000} height="440px" />
-        </div>
+      <section style={{ background: 'var(--white)', padding: '0', margin: 0, lineHeight: 0 }}>
+        <AutoSwipe images={['/smile-closeup.png', '/natures-care.png']} interval={2000} height="440px" fullBleed />
       </section>
 
       {/* INTRO STRIP */}
