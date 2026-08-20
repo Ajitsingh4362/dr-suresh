@@ -377,22 +377,13 @@ export default function Home() {
                 background: 'radial-gradient(circle, rgba(199,166,106,0.18) 0%, transparent 70%)',
                 filter: 'blur(20px)', pointerEvents: 'none', zIndex: 0,
               }} />
-              <div style={{ position: 'relative', zIndex: 1 }}>
-                <AutoSwipe images={['/smile-closeup.png', '/natures-care.png']} interval={2000} />
-              </div>
-              {/* Floating trust badge */}
               <div style={{
-                position: 'absolute', left: '-24px', bottom: '-24px', zIndex: 2,
-                background: 'var(--white)', border: '1px solid rgba(199,166,106,0.35)',
-                borderRadius: '10px', padding: '16px 20px',
-                boxShadow: '0 16px 40px rgba(15,39,68,0.16)',
-                display: 'flex', alignItems: 'center', gap: '12px',
+                position: 'relative', zIndex: 1,
+                borderRadius: '14px', overflow: 'hidden',
+                border: '2px solid rgba(199,166,106,0.35)',
+                boxShadow: '0 30px 60px -20px rgba(0,0,0,0.5)',
               }}>
-                <span style={{ fontSize: '24px' }}>⭐</span>
-                <div>
-                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '17px', color: 'var(--gold-deep)', fontWeight: 700, lineHeight: 1 }}>4.9 / 5</div>
-                  <div style={{ fontSize: '9px', color: 'var(--text-muted)', letterSpacing: '1px', textTransform: 'uppercase', marginTop: '4px' }}>Patient Rated</div>
-                </div>
+                <img src="/clinic-banner.png" alt="Usha Multi Speciality Dental Clinic — Premium Care for Healthy Smiles" style={{ width: '100%', height: 'auto', display: 'block' }} />
               </div>
             </div>
           </div>
@@ -415,8 +406,10 @@ export default function Home() {
       </section>
 
       {/* PROMO BANNER */}
-      <section style={{ background: 'var(--white)', padding: '0' }}>
-        <img src="/clinic-banner.png" alt="Usha Multi Speciality Dental Clinic — Premium Care for Healthy Smiles" style={{ width: '100%', height: 'auto', display: 'block' }} />
+      <section style={{ background: 'var(--white)', padding: '56px 0' }}>
+        <div className="container">
+          <AutoSwipe images={['/smile-closeup.png', '/natures-care.png']} interval={2000} height="440px" />
+        </div>
       </section>
 
       {/* INTRO STRIP */}
@@ -683,7 +676,8 @@ export default function Home() {
             gap: 40px !important;
           }
           .hero-visual-wrapper {
-            display: none !important;
+            max-width: 420px;
+            margin: 0 auto;
           }
         }
         @media (max-width: 600px) {
