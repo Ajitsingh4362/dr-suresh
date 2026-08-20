@@ -228,7 +228,7 @@ export default function Home() {
       <div ref={ref} style={{ overflowX: 'hidden' }}>
 
       {/* TOP HERO — blank, full-width image only */}
-      <section style={{ background: 'var(--ivory)', overflow: 'hidden', lineHeight: 0 }}>
+      <section style={{ background: 'var(--ivory)', overflow: 'hidden', lineHeight: 0, paddingTop: '128px' }}>
         <img src="/clinic-banner.png" alt="Usha Multi Speciality Dental Clinic — Premium Care for Healthy Smiles" style={{ width: '100%', height: 'auto', display: 'block' }} />
       </section>
 
