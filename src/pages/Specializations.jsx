@@ -96,7 +96,7 @@ export default function Specializations() {
                 <span style={{ fontSize: '11px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--white)', letterSpacing: '2.5px', textTransform: 'uppercase' }}>Services</span>
               </div>
               <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(34px, 5vw, 58px)', color: 'var(--white)', fontWeight: 600, marginBottom: '20px' }}>
-                Complete Dental Care, Under One Roof
+                Complete Dental Care, Under One Roof in Sitamarhi
               </h1>
               <p style={{ fontSize: '16px', color: 'var(--white)', fontFamily: 'var(--font-display)', fontStyle: 'italic', marginBottom: '20px' }}>
                 Multi-Speciality Dental Care in Sitamarhi
@@ -151,7 +151,7 @@ export default function Specializations() {
                 <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'var(--gold)' }} />
                 <div style={{ position: 'absolute', bottom: '-20px', right: '-20px', width: '120px', height: '120px', borderRadius: '50%', background: 'rgba(199,166,106,0.1)' }} />
                 {s.image && (
-                  <img src={s.image} alt={s.title} style={{ width: '100%', height: '160px', objectFit: 'cover', borderRadius: '6px', marginBottom: '20px', border: '1px solid rgba(199,166,106,0.35)' }} />
+                  <img src={s.image} alt={`${s.title} — Usha Multi Speciality Dental Clinic, Sitamarhi`} style={{ width: '100%', height: '160px', objectFit: 'cover', borderRadius: '6px', marginBottom: '20px', border: '1px solid rgba(199,166,106,0.35)' }} />
                 )}
                 <div style={{ fontSize: '40px', marginBottom: '20px' }}>{s.icon}</div>
                 <div style={{ fontSize: '10px', color: 'var(--gold-deep)', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '12px' }}>Core Specialty</div>
@@ -179,7 +179,7 @@ export default function Specializations() {
                 onMouseEnter={e => { e.currentTarget.style.borderBottom = '3px solid var(--gold)'; e.currentTarget.style.background = 'var(--ivory)' }}
                 onMouseLeave={e => { e.currentTarget.style.borderBottom = '3px solid transparent'; e.currentTarget.style.background = 'var(--white)' }}>
                 {s.image && (
-                  <img src={s.image} alt={s.title} style={{ width: '100%', height: '130px', objectFit: 'cover', borderRadius: '6px', marginBottom: '16px' }} />
+                  <img src={s.image} alt={`${s.title} — Usha Multi Speciality Dental Clinic, Sitamarhi`} style={{ width: '100%', height: '130px', objectFit: 'cover', borderRadius: '6px', marginBottom: '16px' }} />
                 )}
                 <div style={{ fontSize: '32px', marginBottom: '16px' }}>{s.icon}</div>
                 <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '20px', fontWeight: 600, color: 'var(--navy-800)', marginBottom: '8px' }}>{s.title}</h3>
@@ -206,6 +206,9 @@ export default function Specializations() {
             <span className="section-tag">Why Clients Choose Us</span>
             <div className="gold-line center" />
             <h2 className="section-title">Dental Care You Can Trust</h2>
+            <p className="section-desc" style={{ margin: '0 auto' }}>
+              Here's why patients across Sitamarhi choose Usha Multi Speciality Dental Clinic for their dental care.
+            </p>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '2px' }}>
             {[
@@ -240,7 +243,7 @@ export default function Specializations() {
             Every patient's journey is different. The greatest reward is seeing people walk out pain-free and confident in their smile again.
           </p>
           <p style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: '1.9', fontFamily: 'var(--font-body)', fontWeight: 300 }}>
-            From routine check-ups to complete smile makeovers — patient comfort and satisfaction guide every treatment at Usha Multi Speciality Dental Clinic.
+            From routine check-ups to complete smile makeovers — patient comfort and satisfaction guide every treatment at Usha Multi Speciality Dental Clinic in Sitamarhi.
           </p>
         </div>
       </section>
