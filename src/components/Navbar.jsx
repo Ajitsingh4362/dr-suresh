@@ -12,7 +12,20 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  useEffect(() => { setMenuOpen(false); window.scrollTo(0, 0) }, [location])
+  useEffect(() => {
+    setMenuOpen(false)
+    if (location.hash) {
+      // Give the new page a moment to render before we look for the anchor.
+      const id = location.hash.slice(1)
+      const timer = setTimeout(() => {
+        const el = document.getElementById(id)
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        else window.scrollTo(0, 0)
+      }, 80)
+      return () => clearTimeout(timer)
+    }
+    window.scrollTo(0, 0)
+  }, [location])
 
   const links = [
     { to: '/', label: 'Home' },

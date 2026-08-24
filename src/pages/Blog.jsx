@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import SEO from '../components/SEO'
+import SEO, { breadcrumbSchema } from '../components/SEO'
 
 export default function Blog() {
   const ref = useRef(null)
@@ -28,10 +28,14 @@ export default function Blog() {
   return (
     <div ref={ref} style={{ overflowX: 'hidden' }}>
       <SEO
-        title="Dental Health Blog — Tips from Sitamarhi's Trusted Dentist"
+        title="Dental Health Blog — Sitamarhi"
         description="Articles on root canal treatment, dental implants, braces, oral hygiene, and more from Usha Multi Speciality Dental Clinic, Sitamarhi's leading dental care team."
         path="/blog"
         keywords="dental blog Sitamarhi, oral health tips Sitamarhi, dentist advice Sitamarhi, dental care articles Bihar"
+        jsonLd={breadcrumbSchema([
+          { name: 'Home', path: '/' },
+          { name: 'Blog', path: '/blog' },
+        ])}
       />
       <section className="page-hero">
         <div className="container page-hero-inner">

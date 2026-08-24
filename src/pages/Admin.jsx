@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Routes, Route, NavLink, Link, Navigate, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import SEO from '../components/SEO'
 import AdminBlogList from './admin/AdminBlogList'
 import AdminBlogEditor from './admin/AdminBlogEditor'
 import AdminGallery from './admin/AdminGallery'
@@ -376,6 +377,7 @@ export default function Admin() {
   if (!authed) {
     return (
       <div className="admin-login">
+        <SEO title="Admin Login" noindex />
         <div className="admin-login-box">
           <img src="/usha-dental-logo.png" alt="Usha Multi Speciality Dental Clinic" style={{ height: '70px', width: 'auto', display: 'block', margin: '0 auto 12px' }} />
           <p className="admin-login-logo">Usha Multi Speciality Dental Clinic</p>
@@ -445,6 +447,7 @@ export default function Admin() {
 
   return (
     <div className="admin-shell">
+      <SEO title="Admin Panel" noindex />
       <button className="admin-mobile-toggle" onClick={() => setSidebarOpen(p => !p)}>
         {sidebarOpen ? '✕' : '☰'} Menu
       </button>

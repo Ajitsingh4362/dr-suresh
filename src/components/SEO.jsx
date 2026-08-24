@@ -2,6 +2,10 @@ import { Helmet } from 'react-helmet-async'
 
 const SITE_URL = 'https://www.ushadental.com'
 const SITE_NAME = 'Usha Multi Speciality Dental Clinic'
+// Shorter brand tag used only in <title> tags — Google truncates titles past
+// ~60 characters, so the full name (used everywhere else: OG tags, schema,
+// footer, body copy) is too long to also append to every page title.
+const SITE_NAME_SHORT = 'Usha Dental Clinic'
 const DEFAULT_IMAGE = `${SITE_URL}/clinic-banner.png`
 
 // Clinic identity — reused across every page's LocalBusiness/Dentist schema
@@ -28,7 +32,7 @@ export const CLINIC = {
  * jsonLd: a single schema.org object, or an array of them.
  */
 export default function SEO({ title, description, path = '/', keywords, image, jsonLd, noindex = false }) {
-  const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} | Best Dentist in Sitamarhi`
+  const fullTitle = title ? `${title} | ${SITE_NAME_SHORT}` : `Best Dentist in Sitamarhi | ${SITE_NAME_SHORT}`
   const canonical = `${SITE_URL}${path === '/' ? '' : path}`
   const desc = description || 'Usha Multi Speciality Dental Clinic — the leading dental clinic in Sitamarhi, Bihar. Root canal, dental implants, braces, cosmetic & pediatric dentistry by Dr. Suresh Kumar & Dr. Preeti Rajguru.'
   const img = image || DEFAULT_IMAGE
@@ -92,6 +96,30 @@ export function dentistSchema() {
       { '@type': 'Physician', name: 'Dr. Suresh Kumar', medicalSpecialty: 'Dentistry' },
       { '@type': 'Physician', name: 'Dr. Preeti Rajguru', medicalSpecialty: 'Dentistry' },
     ],
+  }
+}
+
+// List of services/treatments as an OfferCatalog — use on the Specializations
+// page so Google can understand the specific services offered, matching the
+// standard schema.org pattern for a local business's service list.
+export function servicesSchema(specs) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Dentist',
+    name: CLINIC.name,
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'Dental Services in Sitamarhi',
+      itemListElement: specs.map(s => ({
+        '@type': 'Offer',
+        itemOffered: {
+          '@type': 'Service',
+          name: s.title,
+          description: s.desc,
+          areaServed: 'Sitamarhi, Bihar',
+        },
+      })),
+    },
   }
 }
 

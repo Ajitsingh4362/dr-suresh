@@ -1,60 +1,66 @@
 import React, { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import SEO from '../components/SEO'
+import SEO, { breadcrumbSchema, servicesSchema } from '../components/SEO'
 
 const SPECS = [
   {
+    id: 'root-canal-treatment',
     icon: '🦷',
     image: '/svc-rct.png',
     title: 'Root Canal Treatment (RCT)',
     tagline: 'Save the Tooth, Relieve the Pain',
-    desc: 'When decay or infection reaches the inner pulp of a tooth, root canal treatment removes the damage and saves the natural tooth — done with modern, painless techniques.',
+    desc: 'When decay or infection reaches the inner pulp of a tooth, root canal treatment in Sitamarhi removes the damage and saves the natural tooth — done with modern, painless techniques.',
     points: ['Single-sitting RCT where possible', 'Advanced pain management', 'Digital diagnosis for precise treatment', 'Crown placement after treatment', 'Suitable for adults and teens', 'Long-term tooth preservation'],
     highlight: true,
     color: 'var(--gold-pale)',
   },
   {
+    id: 'cosmetic-dentistry',
     icon: '✨',
     image: '/svc-cosmetic.png',
     title: 'Cosmetic Dentistry',
     tagline: 'Smile Makeovers Designed Around You',
-    desc: 'From teeth whitening to veneers and bonding, cosmetic dentistry is about giving you a smile you feel confident showing off — without compromising on tooth health.',
+    desc: 'From teeth whitening to veneers and bonding, cosmetic dentistry at our Sitamarhi clinic is about giving you a smile you feel confident showing off — without compromising on tooth health.',
     points: ['Professional teeth whitening', 'Veneers and dental bonding', 'Smile design consultations', 'Stain and discoloration correction', 'Chipped or uneven tooth correction', 'Natural-looking results'],
     highlight: true,
     color: 'var(--teal-pale)',
   },
   {
+    id: 'dental-implants',
     icon: '🦴',
     image: '/svc-implants.png',
     title: 'Dental Implants',
     tagline: 'A Permanent, Natural-Looking Replacement',
-    desc: 'Missing teeth affect both function and confidence. Dental implants offer a long-term, natural-feeling replacement — planned and placed with precision.',
+    desc: 'Missing teeth affect both function and confidence. Our dental implants in Sitamarhi offer a long-term, natural-feeling replacement — planned and placed with precision.',
     points: ['Single and multiple tooth implants', 'Precise implant planning', 'Natural look and feel', 'Improved chewing and speech', 'Long-lasting, durable solution', 'Follow-up care included'],
     highlight: false,
   },
   {
+    id: 'orthodontics',
     icon: '📐',
     image: '/svc-ortho.png',
     title: 'Orthodontics',
     tagline: 'Straighter Teeth, Better Bite',
-    desc: 'Braces and aligners for children and adults — correcting crowding, gaps, and bite issues for a healthier, more confident smile.',
+    desc: 'Braces and aligners for children and adults in Sitamarhi — correcting crowding, gaps, and bite issues for a healthier, more confident smile.',
     points: ['Metal and ceramic braces', 'Bite correction', 'Suitable for kids and adults', 'Regular progress monitoring', 'Improved oral hygiene long-term', 'Confidence-boosting results'],
     highlight: false,
   },
   {
+    id: 'pediatric-dentistry',
     icon: '🧒',
     image: '/svc-pediatric.png',
     title: 'Pediatric Dentistry',
     tagline: 'Gentle, Friendly Care for Kids',
-    desc: 'Children need a dentist who understands them. Our approach to child dentistry focuses on comfort, patience, and building healthy habits early.',
+    desc: 'Children need a dentist who understands them. Our child dentistry team in Sitamarhi focuses on comfort, patience, and building healthy habits early.',
     points: ['Child-friendly environment', 'Cavity prevention and fluoride care', 'Gentle handling of dental anxiety', 'Habit counselling for parents', 'Early orthodontic screening', 'Painless treatment approach'],
     highlight: false,
   },
   {
+    id: 'emergency-dental-care',
     icon: '🚨',
     title: 'Emergency Dental Care',
     tagline: 'Prompt Relief When You Need It Most',
-    desc: 'Sudden tooth pain, breakage, or injury can\'t always wait. Emergency dental care is available for urgent situations that need immediate attention.',
+    desc: 'Sudden tooth pain, breakage, or injury can\'t always wait. Emergency dental care is available in Sitamarhi for urgent situations that need immediate attention.',
     points: ['Severe toothache relief', 'Broken or chipped tooth repair', 'Knocked-out tooth management', 'Infection and swelling care', 'Same-day appointments where possible', 'Clear guidance on next steps'],
     highlight: false,
   },
@@ -67,10 +73,17 @@ export default function Specializations() {
   return (
     <div ref={ref} style={{ overflowX: 'hidden' }}>
       <SEO
-        title="Dental Treatments in Sitamarhi — RCT, Implants, Braces & More"
-        description="Explore our dental specializations in Sitamarhi: root canal treatment, dental implants, orthodontics/braces, cosmetic dentistry, pediatric dentistry & emergency dental care. Advanced, painless treatments for the whole family."
+        title="Dental Treatments in Sitamarhi"
+        description="Dental treatments in Sitamarhi: root canal, implants, braces, cosmetic & pediatric dentistry, emergency care — painless treatment for the whole family."
         path="/specializations"
         keywords="root canal treatment Sitamarhi, dental implants Sitamarhi, braces Sitamarhi, orthodontist Sitamarhi, cosmetic dentistry Sitamarhi, pediatric dentist Sitamarhi, tooth extraction Sitamarhi, emergency dental care Sitamarhi, teeth whitening Sitamarhi"
+        jsonLd={[
+          breadcrumbSchema([
+            { name: 'Home', path: '/' },
+            { name: 'Services', path: '/specializations' },
+          ]),
+          servicesSchema(SPECS),
+        ]}
       />
       {/* Hero */}
       <section style={{ background: 'linear-gradient(160deg, var(--maroon-dark) 0%, var(--navy-800) 55%, var(--navy-900) 100%)', padding: '168px 0 80px', position: 'relative', overflow: 'hidden' }}>
@@ -124,7 +137,7 @@ export default function Specializations() {
         `}</style>
       </section>
 
-      {/* Highlighted — Cancer + Mind Body */}
+      {/* Highlighted — Root Canal + Cosmetic Dentistry (core specialties) */}
       <section style={{ padding: '90px 0', background: 'var(--ivory)' }}>
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: '48px' }}>
@@ -134,7 +147,7 @@ export default function Specializations() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px', marginBottom: '2px' }} className="two-col-grid">
             {SPECS.filter(s => s.highlight).map((s, i) => (
-              <div key={i} style={{ background: s.color, padding: '48px 40px', position: 'relative', overflow: 'hidden' }}>
+              <div key={i} id={s.id} style={{ background: s.color, padding: '48px 40px', position: 'relative', overflow: 'hidden', scrollMarginTop: '110px' }}>
                 <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'var(--gold)' }} />
                 <div style={{ position: 'absolute', bottom: '-20px', right: '-20px', width: '120px', height: '120px', borderRadius: '50%', background: 'rgba(199,166,106,0.1)' }} />
                 {s.image && (
@@ -162,7 +175,7 @@ export default function Specializations() {
           {/* Other 4 */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2px' }}>
             {SPECS.filter(s => !s.highlight).map((s, i) => (
-              <div key={i} style={{ background: 'var(--white)', padding: '36px 32px', borderBottom: '3px solid transparent', transition: 'var(--transition)' }}
+              <div key={i} id={s.id} style={{ background: 'var(--white)', padding: '36px 32px', borderBottom: '3px solid transparent', transition: 'var(--transition)', scrollMarginTop: '110px' }}
                 onMouseEnter={e => { e.currentTarget.style.borderBottom = '3px solid var(--gold)'; e.currentTarget.style.background = 'var(--ivory)' }}
                 onMouseLeave={e => { e.currentTarget.style.borderBottom = '3px solid transparent'; e.currentTarget.style.background = 'var(--white)' }}>
                 {s.image && (

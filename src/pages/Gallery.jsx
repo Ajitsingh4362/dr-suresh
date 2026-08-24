@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import Reveal from '../components/Reveal'
-import SEO from '../components/SEO'
+import SEO, { breadcrumbSchema } from '../components/SEO'
 
 export default function Gallery() {
   const ref = useRef(null)
@@ -28,10 +28,14 @@ export default function Gallery() {
   return (
     <div ref={ref} style={{ overflowX: 'hidden' }}>
       <SEO
-        title="Clinic Gallery — Usha Multi Speciality Dental Clinic, Sitamarhi"
+        title="Clinic Photo Gallery — Sitamarhi"
         description="Take a look inside Sitamarhi's leading dental clinic. Browse photos of our facility, treatments, and smile transformations at Usha Multi Speciality Dental Clinic."
         path="/gallery"
         keywords="dental clinic Sitamarhi photos, Usha Dental Clinic gallery, smile makeover Sitamarhi, dental clinic interior Sitamarhi"
+        jsonLd={breadcrumbSchema([
+          { name: 'Home', path: '/' },
+          { name: 'Gallery', path: '/gallery' },
+        ])}
       />
       <section className="page-hero">
         <div className="container page-hero-inner">
@@ -76,7 +80,7 @@ export default function Gallery() {
                 {shown.map((item, i) => (
                   <Reveal key={item.id} delay={(i % 8) * 50} className="gallery-item">
                     <div onClick={() => setLightbox(item)} style={{ width: '100%', height: '100%', cursor: 'pointer' }}>
-                      <img src={item.image_url} alt={item.title || ''} loading="lazy" />
+                      <img src={item.image_url} alt={item.title || 'Usha Multi Speciality Dental Clinic — Sitamarhi'} loading="lazy" />
                       {item.title && <div className="gallery-item-overlay"><p>{item.title}</p></div>}
                     </div>
                   </Reveal>
@@ -89,7 +93,7 @@ export default function Gallery() {
       {lightbox && (
         <div className="lightbox-overlay" onClick={() => setLightbox(null)}>
           <button className="lightbox-close" onClick={() => setLightbox(null)}>✕</button>
-          <img src={lightbox.image_url} alt={lightbox.title || ''} onClick={e => e.stopPropagation()} />
+          <img src={lightbox.image_url} alt={lightbox.title || 'Usha Multi Speciality Dental Clinic — Sitamarhi'} onClick={e => e.stopPropagation()} />
           {lightbox.title && <p className="lightbox-caption">{lightbox.title}</p>}
         </div>
       )}

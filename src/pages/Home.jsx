@@ -106,9 +106,9 @@ function HeroVisual() {
         alignItems: 'center', justifyContent: 'center',
         textAlign: 'center', padding: '20px',
       }}>
-        <div style={{ fontSize: '32px', marginBottom: '6px' }}>⚕️</div>
-        <div style={{ fontSize: '10px', color: 'var(--gold)', letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 600 }}>Integrative</div>
-        <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)', letterSpacing: '1px', textTransform: 'uppercase' }}>Healing</div>
+        <div style={{ fontSize: '32px', marginBottom: '6px' }}>🦷</div>
+        <div style={{ fontSize: '10px', color: 'var(--gold)', letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 600 }}>Multi-Speciality</div>
+        <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)', letterSpacing: '1px', textTransform: 'uppercase' }}>Dental Care</div>
       </div>
 
       {/* Orbit dot A */}
@@ -147,7 +147,7 @@ function HeroVisual() {
         animation: 'float-tag 3.5s ease-in-out infinite',
         minWidth: '140px',
       }}>
-        <div style={{ fontSize: '11px', color: 'var(--gold)', fontWeight: 600, letterSpacing: '1px' }}>🎗️ Cancer Support</div>
+        <div style={{ fontSize: '11px', color: 'var(--gold)', fontWeight: 600, letterSpacing: '1px' }}>🦷 Root Canal</div>
         <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', marginTop: '3px' }}>Core Specialty</div>
       </div>
 
@@ -160,8 +160,8 @@ function HeroVisual() {
         animation: 'float-tag 4.2s ease-in-out infinite 0.8s',
         minWidth: '145px',
       }}>
-        <div style={{ fontSize: '11px', color: '#4ecdc4', fontWeight: 600, letterSpacing: '1px' }}>🧠 Mind-Body</div>
-        <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', marginTop: '3px' }}>Medicine</div>
+        <div style={{ fontSize: '11px', color: '#4ecdc4', fontWeight: 600, letterSpacing: '1px' }}>✨ Cosmetic</div>
+        <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', marginTop: '3px' }}>Dentistry</div>
       </div>
 
       {/* Floating tag 3 — mid right */}
@@ -174,8 +174,8 @@ function HeroVisual() {
         animation: 'float-tag 5s ease-in-out infinite 1.5s',
         minWidth: '130px',
       }}>
-        <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)', fontWeight: 600, letterSpacing: '1px' }}>🌸 Women\'s</div>
-        <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', marginTop: '3px' }}>Wellness</div>
+        <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)', fontWeight: 600, letterSpacing: '1px' }}>🧒 Child-Friendly</div>
+        <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', marginTop: '3px' }}>Dentistry</div>
       </div>
 
       {/* Drifting geometric shapes */}
@@ -228,8 +228,8 @@ export default function Home() {
   return (
     <>
       <SEO
-        title="Best Dentist in Sitamarhi | Dental Clinic Bihar"
-        description="Usha Multi Speciality Dental Clinic — the top-rated dentist in Sitamarhi, Bihar. Root canal, dental implants, braces, cosmetic & pediatric dentistry by Dr. Suresh Kumar & Dr. Preeti Rajguru. Book your appointment today."
+        title="Best Dentist in Sitamarhi, Bihar"
+        description="Usha Multi Speciality Dental Clinic — Sitamarhi's top-rated dentist for root canal, implants, braces, cosmetic & pediatric dentistry. Book today."
         path="/"
         keywords={HOME_KEYWORDS}
         jsonLd={dentistSchema()}
@@ -515,7 +515,7 @@ export default function Home() {
             <div className="gold-line center" />
             <h2 className="section-title">Our Dental Services</h2>
             <p className="section-desc" style={{ margin: '0 auto' }}>
-              From routine care to advanced procedures, every treatment is delivered with modern technology and a gentle, patient-first approach.
+              From routine care to advanced procedures, every treatment at our Sitamarhi clinic is delivered with modern technology and a gentle, patient-first approach.
             </p>
           </div>
 

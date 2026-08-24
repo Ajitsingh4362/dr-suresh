@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import SEO from '../components/SEO'
+import SEO, { breadcrumbSchema } from '../components/SEO'
 
 const QUALS = [
   { icon: '🎓', year: 'Foundation', title: 'BDS — Bachelor of Dental Surgery', sub: 'Core clinical training in dental medicine and surgery' },
@@ -17,10 +17,14 @@ export default function About() {
   return (
     <div ref={ref} style={{ overflowX: 'hidden' }}>
       <SEO
-        title="About Us — Dr. Suresh Kumar & Dr. Preeti Rajguru"
-        description="Meet the team behind Sitamarhi's leading dental clinic. Dr. Suresh Kumar and Dr. Preeti Rajguru bring years of experience in root canal, implants, orthodontics, and family dentistry to Usha Multi Speciality Dental Clinic, Sitamarhi."
+        title="Dr. Suresh Kumar — Dentist in Sitamarhi"
+        description="Meet Dr. Suresh Kumar & Dr. Preeti Rajguru — Usha Multi Speciality Dental Clinic's trusted dentists in Sitamarhi for root canal, implants & orthodontics."
         path="/about"
         keywords="about Usha Dental Clinic, Dr Suresh Kumar dentist Sitamarhi, Dr Preeti Rajguru dentist Sitamarhi, best dental team Sitamarhi, MDS dentist Bihar"
+        jsonLd={breadcrumbSchema([
+          { name: 'Home', path: '/' },
+          { name: 'About', path: '/about' },
+        ])}
       />
       {/* Hero */}
       <section style={{ background: 'linear-gradient(160deg, var(--maroon-dark) 0%, var(--navy-800) 55%, var(--navy-900) 100%)', padding: '168px 0 90px', position: 'relative', overflow: 'hidden' }}>

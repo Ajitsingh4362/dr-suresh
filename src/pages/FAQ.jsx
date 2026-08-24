@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { Link } from 'react-router-dom'
-import SEO from '../components/SEO'
+import SEO, { faqSchema, breadcrumbSchema } from '../components/SEO'
 
 const CAT_COLORS = {
   General: '#1e6f6a', Treatments: '#4a3d8f', Appointments: '#b9914f',
@@ -71,43 +71,24 @@ export default function FAQPage() {
         setCategories(cats)
         setLoading(false)
       })
-
-    // Inject FAQ Schema for Google SEO
-    return () => {
-      const existing = document.getElementById('faq-schema')
-      if (existing) existing.remove()
-    }
   }, [])
-
-  useEffect(() => {
-    if (!faqs.length) return
-    const existing = document.getElementById('faq-schema')
-    if (existing) existing.remove()
-    const schema = {
-      '@context': 'https://schema.org',
-      '@type': 'FAQPage',
-      'mainEntity': faqs.filter(f => f.visible).map(f => ({
-        '@type': 'Question',
-        'name': f.question,
-        'acceptedAnswer': { '@type': 'Answer', 'text': f.answer }
-      }))
-    }
-    const script = document.createElement('script')
-    script.id = 'faq-schema'
-    script.type = 'application/ld+json'
-    script.text = JSON.stringify(schema)
-    document.head.appendChild(script)
-  }, [faqs])
 
   const shown = activeCategory === 'All' ? faqs : faqs.filter(f => f.category === activeCategory)
 
   return (
     <div style={{ overflowX: 'hidden' }}>
       <SEO
-        title="FAQs — Dentist in Sitamarhi Answers Your Questions"
+        title="FAQs — Dentist in Sitamarhi"
         description="Common questions about root canal treatment, dental implants, braces, appointments, and emergency dental care at Usha Multi Speciality Dental Clinic, Sitamarhi."
         path="/faq"
         keywords="dentist Sitamarhi FAQ, root canal painful, dental implant cost Sitamarhi, dental clinic timings Sitamarhi, emergency dentist Sitamarhi"
+        jsonLd={[
+          ...(faqs.length ? [faqSchema(faqs)] : []),
+          breadcrumbSchema([
+            { name: 'Home', path: '/' },
+            { name: 'FAQ', path: '/faq' },
+          ]),
+        ]}
       />
 
       {/* Hero */}

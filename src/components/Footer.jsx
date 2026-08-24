@@ -1,5 +1,5 @@
 import React from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, Link } from 'react-router-dom'
 
 export default function Footer() {
   return (
@@ -15,7 +15,7 @@ export default function Footer() {
               style={{ height: '96px', width: 'auto', marginBottom: '16px', objectFit: 'contain' }}
             />
             <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: '1.8', maxWidth: '240px' }}>
-              Complete dental care in Sitamarhi — painless procedures, modern technology, care for the whole family.
+              Complete dental care in Sitamarhi — painless procedures, modern technology, care for the whole family. Also serving Dumra, Riga, Pupri, Bairgania and nearby areas.
             </p>
             <div style={{ marginTop: '20px', display: 'flex', gap: '12px' }}>
               <a href="https://wa.me/918987367274" target="_blank" rel="noopener noreferrer"
@@ -52,14 +52,19 @@ export default function Footer() {
           <div>
             <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--gold-deep)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '18px' }}>Services</div>
             {[
-              'Root Canal Treatment',
-              'Cosmetic Dentistry',
-              'Dental Implants',
-              'Orthodontics (Braces)',
-              'Child Dentistry',
-              'Emergency Dental Care'
+              { l: 'Root Canal Treatment', slug: 'root-canal-treatment' },
+              { l: 'Cosmetic Dentistry', slug: 'cosmetic-dentistry' },
+              { l: 'Dental Implants', slug: 'dental-implants' },
+              { l: 'Orthodontics (Braces)', slug: 'orthodontics' },
+              { l: 'Child Dentistry', slug: 'pediatric-dentistry' },
+              { l: 'Emergency Dental Care', slug: 'emergency-dental-care' },
             ].map(s => (
-              <div key={s} style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '10px' }}>{s}</div>
+              <Link key={s.slug} to={`/specializations#${s.slug}`}
+                style={{ display: 'block', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '10px', transition: 'color 0.25s', textDecoration: 'none' }}
+                onMouseEnter={e => e.target.style.color = 'var(--gold-deep)'}
+                onMouseLeave={e => e.target.style.color = 'var(--text-muted)'}>
+                {s.l}
+              </Link>
             ))}
           </div>
 

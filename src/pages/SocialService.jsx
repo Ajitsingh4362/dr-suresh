@@ -1,14 +1,18 @@
 import Reveal from '../components/Reveal'
-import SEO from '../components/SEO'
+import SEO, { breadcrumbSchema } from '../components/SEO'
 
 export default function SocialService() {
   return (
     <div className="page-fade">
       <SEO
-        title="Social Service & Dental Camps in Sitamarhi"
+        title="Free Dental Camps — Sitamarhi"
         description="Usha Multi Speciality Dental Clinic runs free dental check-up camps and oral health awareness drives across Sitamarhi, Bihar — giving back to the community we serve."
         path="/social-service"
         keywords="free dental camp Sitamarhi, dental awareness Sitamarhi, Usha Dental Clinic social service"
+        jsonLd={breadcrumbSchema([
+          { name: 'Home', path: '/' },
+          { name: 'Social Service', path: '/social-service' },
+        ])}
       />
       {/* Hero */}
       <section style={{
@@ -65,8 +69,8 @@ export default function SocialService() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '32px', maxWidth: '960px', margin: '0 auto' }}>
             {[
               { icon: '🦷', title: 'Free Dental Check-up Camps', desc: 'Periodic free check-up camps for underserved communities in and around Sitamarhi.' },
-              { icon: '🏫', title: 'School Oral Health Awareness', desc: 'Visits to local schools to teach children proper brushing habits and the basics of oral hygiene.' },
-              { icon: '🤝', title: 'Community Outreach', desc: 'Supporting local initiatives focused on health awareness and accessible dental care.' },
+              { icon: '🏫', title: 'School Oral Health Awareness', desc: 'Visits to local schools in Sitamarhi to teach children proper brushing habits and the basics of oral hygiene.' },
+              { icon: '🤝', title: 'Community Outreach', desc: 'Supporting local initiatives across Sitamarhi focused on health awareness and accessible dental care.' },
             ].map((item, i) => (
               <Reveal key={i} delay={i * 100}>
                 <div style={{ background: 'var(--white)', borderRadius: '8px', padding: '32px 26px', textAlign: 'center', border: '1px solid rgba(199,166,106,0.2)', height: '100%' }}>
@@ -79,6 +83,9 @@ export default function SocialService() {
           </div>
 
           <div style={{ textAlign: 'center', marginTop: '56px' }}>
+            <p style={{ fontSize: '14px', color: 'var(--text-muted)', maxWidth: '620px', margin: '0 auto 20px', lineHeight: '1.85' }}>
+              Our outreach isn't limited to Sitamarhi town — we also organise camps and awareness visits across nearby areas including Dumra, Riga, Pupri, and Bairgania.
+            </p>
             <p style={{ fontSize: '14px', color: 'var(--text-muted)', maxWidth: '560px', margin: '0 auto 24px', lineHeight: '1.85' }}>
               Want to know more about our community initiatives, or partner with us? Get in touch.
             </p>

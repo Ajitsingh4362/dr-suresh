@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import SEO from '../components/SEO'
 
 function Section({ title, children }) {
   return (
@@ -15,6 +16,7 @@ export default function TermsConditions() {
 
   return (
     <div ref={ref} style={{ overflowX: 'hidden' }}>
+      <SEO title="Terms & Conditions" path="/terms-conditions" noindex />
       {/* Hero */}
       <section style={{ background: 'linear-gradient(160deg, var(--ivory), var(--teal-pale))', padding: '160px 0 60px' }}>
         <div className="container">
