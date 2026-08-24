@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 
-const CATEGORIES = ['General', 'Homeopathy', 'Consultation', 'Programs', 'Lifestyle', 'Other']
+const CATEGORIES = ['General', 'Treatments', 'Appointments', 'Children', 'Emergency', 'Other']
 
 const EMPTY = { question: '', answer: '', category: 'General', visible: true }
 
@@ -72,7 +72,7 @@ export default function AdminFAQ() {
 
   const filtered = faqs.filter(f => filterCat === 'all' || f.category === filterCat)
 
-  const catColors = { General: '#1e6f6a', Homeopathy: '#4a3d8f', Consultation: '#b9914f', Programs: '#8f3d3d', Lifestyle: '#6b8f3d', Other: '#666' }
+  const catColors = { General: '#1e6f6a', Treatments: '#4a3d8f', Appointments: '#b9914f', Emergency: '#8f3d3d', Children: '#6b8f3d', Other: '#666' }
 
   return (
     <div className="admin-panel">
