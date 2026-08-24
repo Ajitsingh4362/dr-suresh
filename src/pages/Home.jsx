@@ -4,6 +4,7 @@ import Tilt3D from '../components/Tilt3D'
 import AutoSwipe from '../components/AutoSwipe'
 import Typewriter from '../components/Typewriter'
 import BlogPreview from '../components/BlogPreview'
+import GalleryPreview from '../components/GalleryPreview'
 import ConsultationPopup from '../components/ConsultationPopup'
 import TestimonialsSection from '../components/TestimonialsSection'
 import SEO, { dentistSchema } from '../components/SEO'
@@ -659,6 +660,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* GALLERY PREVIEW — mirrors whatever is in Admin > Gallery */}
+      <GalleryPreview />
 
       {/* PREMIUM 3D SHOWCASE */}
       <section className="healing-map-section">
