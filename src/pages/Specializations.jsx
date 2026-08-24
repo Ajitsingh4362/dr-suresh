@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import SEO from '../components/SEO'
 
 const SPECS = [
   {
@@ -65,6 +66,12 @@ export default function Specializations() {
 
   return (
     <div ref={ref} style={{ overflowX: 'hidden' }}>
+      <SEO
+        title="Dental Treatments in Sitamarhi — RCT, Implants, Braces & More"
+        description="Explore our dental specializations in Sitamarhi: root canal treatment, dental implants, orthodontics/braces, cosmetic dentistry, pediatric dentistry & emergency dental care. Advanced, painless treatments for the whole family."
+        path="/specializations"
+        keywords="root canal treatment Sitamarhi, dental implants Sitamarhi, braces Sitamarhi, orthodontist Sitamarhi, cosmetic dentistry Sitamarhi, pediatric dentist Sitamarhi, tooth extraction Sitamarhi, emergency dental care Sitamarhi, teeth whitening Sitamarhi"
+      />
       {/* Hero */}
       <section style={{ background: 'linear-gradient(160deg, var(--maroon-dark) 0%, var(--navy-800) 55%, var(--navy-900) 100%)', padding: '168px 0 80px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', inset: 0, backgroundImage: "url('/hero-pattern.svg')", backgroundSize: 'cover', backgroundPosition: 'center' }} className="hero-corner-pattern" />

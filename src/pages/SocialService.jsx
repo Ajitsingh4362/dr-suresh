@@ -1,8 +1,15 @@
 import Reveal from '../components/Reveal'
+import SEO from '../components/SEO'
 
 export default function SocialService() {
   return (
     <div className="page-fade">
+      <SEO
+        title="Social Service & Dental Camps in Sitamarhi"
+        description="Usha Multi Speciality Dental Clinic runs free dental check-up camps and oral health awareness drives across Sitamarhi, Bihar — giving back to the community we serve."
+        path="/social-service"
+        keywords="free dental camp Sitamarhi, dental awareness Sitamarhi, Usha Dental Clinic social service"
+      />
       {/* Hero */}
       <section style={{
         background: 'linear-gradient(160deg, var(--ivory), var(--white) 60%, var(--teal-pale))',

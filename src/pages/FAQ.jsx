@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { Link } from 'react-router-dom'
+import SEO from '../components/SEO'
 
 const CAT_COLORS = {
   General: '#1e6f6a', Treatments: '#4a3d8f', Appointments: '#b9914f',
@@ -102,6 +103,12 @@ export default function FAQPage() {
 
   return (
     <div style={{ overflowX: 'hidden' }}>
+      <SEO
+        title="FAQs — Dentist in Sitamarhi Answers Your Questions"
+        description="Common questions about root canal treatment, dental implants, braces, appointments, and emergency dental care at Usha Multi Speciality Dental Clinic, Sitamarhi."
+        path="/faq"
+        keywords="dentist Sitamarhi FAQ, root canal painful, dental implant cost Sitamarhi, dental clinic timings Sitamarhi, emergency dentist Sitamarhi"
+      />
 
       {/* Hero */}
       <section style={{ background: 'linear-gradient(160deg, var(--ivory), var(--white) 60%, var(--teal-pale))', padding: '148px 0 70px', position: 'relative', overflow: 'hidden' }}>

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import SEO from '../components/SEO'
 
 const QUALS = [
   { icon: '🎓', year: 'Foundation', title: 'BDS — Bachelor of Dental Surgery', sub: 'Core clinical training in dental medicine and surgery' },
@@ -15,6 +16,12 @@ export default function About() {
 
   return (
     <div ref={ref} style={{ overflowX: 'hidden' }}>
+      <SEO
+        title="About Us — Dr. Suresh Kumar & Dr. Preeti Rajguru"
+        description="Meet the team behind Sitamarhi's leading dental clinic. Dr. Suresh Kumar and Dr. Preeti Rajguru bring years of experience in root canal, implants, orthodontics, and family dentistry to Usha Multi Speciality Dental Clinic, Sitamarhi."
+        path="/about"
+        keywords="about Usha Dental Clinic, Dr Suresh Kumar dentist Sitamarhi, Dr Preeti Rajguru dentist Sitamarhi, best dental team Sitamarhi, MDS dentist Bihar"
+      />
       {/* Hero */}
       <section style={{ background: 'linear-gradient(160deg, var(--maroon-dark) 0%, var(--navy-800) 55%, var(--navy-900) 100%)', padding: '168px 0 90px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', inset: 0, backgroundImage: "url('/hero-pattern.svg')", backgroundSize: 'cover', backgroundPosition: 'center' }} className="hero-corner-pattern" />

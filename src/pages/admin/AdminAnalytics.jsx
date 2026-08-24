@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 
 // ─── Shared visual atoms ──────────────────────────────────────────
 
-function Card({ children, style }) {
+function Card({ children, style, onClick, className }) {
   return (
-    <div className="analytics-card" style={{ background: 'var(--white)', border: '1px solid rgba(15,39,68,0.06)', borderRadius: '10px', padding: '24px', boxShadow: 'var(--shadow-sm)', ...style }}>
+    <div
+      className={`analytics-card${className ? ' ' + className : ''}`}
+      style={{ background: 'var(--white)', border: '1px solid rgba(15,39,68,0.06)', borderRadius: '10px', padding: '24px', boxShadow: 'var(--shadow-sm)', ...style }}
+      onClick={onClick}
+    >
       {children}
     </div>
   )
@@ -40,9 +44,13 @@ function SegmentedControl({ options, value, onChange }) {
 }
 
 // Stat card — icon chip, big display number, optional trend pill
-function StatCard({ icon, label, value, sub, color = 'var(--navy-800)', tint = 'rgba(13,35,64,0.06)', trend }) {
+function StatCard({ icon, label, value, sub, color = 'var(--navy-800)', tint = 'rgba(13,35,64,0.06)', trend, onClick }) {
   return (
-    <Card style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+    <Card
+      style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px', cursor: onClick ? 'pointer' : 'default' }}
+      className={onClick ? 'analytics-stat-clickable' : undefined}
+      onClick={onClick}
+    >
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
         <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: tint, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>{icon}</div>
         {trend !== undefined && (
@@ -50,6 +58,7 @@ function StatCard({ icon, label, value, sub, color = 'var(--navy-800)', tint = '
             {trend >= 0 ? '↑' : '↓'} {Math.abs(trend)}
           </span>
         )}
+        {onClick && <span style={{ fontSize: '10px', color: 'var(--text-light)', fontFamily: 'var(--font-body)' }}>View →</span>}
       </div>
       <div>
         <p style={{ fontFamily: 'var(--font-display)', fontSize: '30px', fontWeight: 700, color, margin: '0 0 3px', lineHeight: 1 }}>{value}</p>
@@ -57,6 +66,56 @@ function StatCard({ icon, label, value, sub, color = 'var(--navy-800)', tint = '
       </div>
       {sub && <p style={{ fontSize: '11.5px', color: 'var(--text-light)', fontFamily: 'var(--font-body)', margin: 0 }}>{sub}</p>}
     </Card>
+  )
+}
+
+// Revenue drill-down modal — patients behind a Billed/Collected/Outstanding/All-Time figure
+function RevenueDrilldownModal({ title, sub, data, money, search, setSearch, onClose }) {
+  const filtered = data.filter(d => d.name.toLowerCase().includes(search.toLowerCase()))
+  const total = data.reduce((s, d) => s + d.amount, 0)
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(5,12,23,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }} onClick={onClose}>
+      <div style={{ background: 'var(--white)', borderRadius: '10px', padding: '26px', width: '100%', maxWidth: '540px', maxHeight: '82vh', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
+          <div>
+            <h2 style={{ fontFamily: 'var(--font-display)', color: 'var(--navy-800)', margin: 0, fontSize: '1.2rem' }}>{title}</h2>
+            <p style={{ fontSize: '11.5px', color: 'var(--text-muted)', margin: '4px 0 0', fontFamily: 'var(--font-body)' }}>{sub}</p>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: 'var(--text-muted)', lineHeight: 1, padding: 0 }}>✕</button>
+        </div>
+
+        <p style={{ fontFamily: 'var(--font-display)', fontSize: '22px', fontWeight: 700, color: 'var(--navy-800)', margin: '14px 0 16px' }}>
+          {money(total)} <span style={{ fontSize: '11px', fontWeight: 500, color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}>· {data.length} patient{data.length !== 1 ? 's' : ''}</span>
+        </p>
+
+        <input
+          type="text"
+          placeholder="Filter by patient name..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          style={{ padding: '9px 14px', border: '1px solid rgba(15,39,68,0.12)', borderRadius: '100px', fontSize: '12.5px', fontFamily: 'var(--font-body)', outline: 'none', marginBottom: '14px', width: '100%', boxSizing: 'border-box' }}
+        />
+
+        <div style={{ overflowY: 'auto', flex: 1 }}>
+          {filtered.length === 0 ? (
+            <p style={{ color: 'var(--text-light)', fontSize: '13px', fontFamily: 'var(--font-body)', textAlign: 'center', padding: '24px 0' }}>No matching patients</p>
+          ) : filtered.map(d => (
+            <div key={d.patient_id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0', borderBottom: '1px solid rgba(15,39,68,0.06)', flexWrap: 'wrap' }}>
+              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(199,166,106,0.16)', color: 'var(--gold-deep)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, fontFamily: 'var(--font-display)', flexShrink: 0 }}>
+                {(d.name || '?')[0].toUpperCase()}
+              </div>
+              <div style={{ flex: 1, minWidth: '110px' }}>
+                <p style={{ fontWeight: 600, fontSize: '13px', color: 'var(--navy-800)', margin: '0 0 2px', fontFamily: 'var(--font-body)' }}>{d.name}</p>
+                <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: 0, fontFamily: 'var(--font-body)' }}>{d.count} invoice{d.count !== 1 ? 's' : ''}{d.phone ? ` · ${d.phone}` : ''}</p>
+              </div>
+              <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--navy-800)', fontFamily: 'var(--font-body)', whiteSpace: 'nowrap' }}>{money(d.amount)}</span>
+              <Link to={`/admin/patients/${d.patient_id}`} className="admin-btn-outline admin-btn-sm" style={{ whiteSpace: 'nowrap' }}>View Profile</Link>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -205,6 +264,8 @@ export default function AdminAnalytics() {
   const [range, setRange] = useState('30') // days
   const [revFilter, setRevFilter] = useState('month') // today | week | month | custom
   const [revDate, setRevDate] = useState(new Date().toISOString().split('T')[0])
+  const [revModal, setRevModal] = useState(null) // 'billed' | 'collected' | 'outstanding' | 'alltime' | null
+  const [revModalSearch, setRevModalSearch] = useState('')
 
   useEffect(() => {
     async function fetchAll() {
@@ -328,6 +389,32 @@ export default function AdminAnalytics() {
 
   const money = n => '\u20B9' + Number(n || 0).toLocaleString('en-IN')
 
+  // ─── Revenue drill-down (per-patient breakdown for each stat card) ──
+  const patientMap = {}
+  patients.forEach(p => { patientMap[p.id] = p })
+
+  function groupByPatient(invList, amountFn) {
+    const map = {}
+    invList.forEach(inv => {
+      const amt = amountFn(inv)
+      if (amt <= 0) return
+      if (!map[inv.patient_id]) {
+        const p = patientMap[inv.patient_id]
+        map[inv.patient_id] = { patient_id: inv.patient_id, name: p?.name || 'Unknown Patient', phone: p?.phone || '', amount: 0, count: 0 }
+      }
+      map[inv.patient_id].amount += amt
+      map[inv.patient_id].count += 1
+    })
+    return Object.values(map).sort((a, b) => b.amount - a.amount)
+  }
+
+  const revenueModalConfig = {
+    billed: { title: 'Billed', sub: revLabel, data: groupByPatient(revInvoices, i => Number(i.total_amount || 0)) },
+    collected: { title: 'Collected', sub: revLabel, data: groupByPatient(revInvoices, i => Number(i.paid_amount || 0)) },
+    outstanding: { title: 'Outstanding', sub: revLabel, data: groupByPatient(revInvoices, i => Math.max(Number(i.total_amount || 0) - Number(i.paid_amount || 0), 0)) },
+    alltime: { title: 'All-Time Collected', sub: 'All time', data: groupByPatient(invoices, i => Number(i.paid_amount || 0)) },
+  }
+
   return (
     <div className="admin-panel" style={{ maxWidth: '1100px' }}>
       <div className="admin-panel-header">
@@ -362,10 +449,10 @@ export default function AdminAnalytics() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '14px', marginBottom: '28px' }}>
-          <StatCard icon="🧾" label="Billed" value={money(revBilled)} sub={`${revInvoiceCount} invoice${revInvoiceCount !== 1 ? 's' : ''}`} color="var(--navy-800)" tint="rgba(13,35,64,0.07)" />
-          <StatCard icon="✅" label="Collected" value={money(revCollected)} sub={revLabel} color="#1e6f6a" tint="rgba(30,111,106,0.1)" />
-          <StatCard icon="⏳" label="Outstanding" value={money(revDue)} sub={revLabel} color="#c0392b" tint="rgba(192,57,43,0.08)" />
-          <StatCard icon="📈" label="All-Time Collected" value={money(allTimeCollected)} sub={`${money(allTimeDue)} due overall`} color="var(--gold-deep)" tint="rgba(199,166,106,0.16)" />
+          <StatCard icon="🧾" label="Billed" value={money(revBilled)} sub={`${revInvoiceCount} invoice${revInvoiceCount !== 1 ? 's' : ''}`} color="var(--navy-800)" tint="rgba(13,35,64,0.07)" onClick={() => { setRevModal('billed'); setRevModalSearch('') }} />
+          <StatCard icon="✅" label="Collected" value={money(revCollected)} sub={revLabel} color="#1e6f6a" tint="rgba(30,111,106,0.1)" onClick={() => { setRevModal('collected'); setRevModalSearch('') }} />
+          <StatCard icon="⏳" label="Outstanding" value={money(revDue)} sub={revLabel} color="#c0392b" tint="rgba(192,57,43,0.08)" onClick={() => { setRevModal('outstanding'); setRevModalSearch('') }} />
+          <StatCard icon="📈" label="All-Time Collected" value={money(allTimeCollected)} sub={`${money(allTimeDue)} due overall`} color="var(--gold-deep)" tint="rgba(199,166,106,0.16)" onClick={() => { setRevModal('alltime'); setRevModalSearch('') }} />
         </div>
 
         <AreaChart data={revenueTrend} label="Collections — Last 7 Days" color="#C9A45C" height={160} money={money} />
@@ -452,8 +539,22 @@ export default function AdminAnalytics() {
         )}
       </Card>
 
+      {revModal && (
+        <RevenueDrilldownModal
+          title={revenueModalConfig[revModal].title}
+          sub={revenueModalConfig[revModal].sub}
+          data={revenueModalConfig[revModal].data}
+          money={money}
+          search={revModalSearch}
+          setSearch={setRevModalSearch}
+          onClose={() => setRevModal(null)}
+        />
+      )}
+
       <style>{`
         .analytics-seg-btn:not([data-active="true"]):hover { background: rgba(15,39,68,0.07) !important; color: var(--navy-800) !important; }
+        .analytics-stat-clickable { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+        .analytics-stat-clickable:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(15,39,68,0.12); }
         @media (max-width: 760px) {
           .admin-panel [style*="grid-template-columns: 2fr 1fr"] { grid-template-columns: 1fr !important; }
           .admin-panel [style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }

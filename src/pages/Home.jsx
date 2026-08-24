@@ -6,6 +6,9 @@ import Typewriter from '../components/Typewriter'
 import BlogPreview from '../components/BlogPreview'
 import ConsultationPopup from '../components/ConsultationPopup'
 import TestimonialsSection from '../components/TestimonialsSection'
+import SEO, { dentistSchema } from '../components/SEO'
+
+const HOME_KEYWORDS = 'dentist in Sitamarhi, best dentist in Sitamarhi, dental clinic in Sitamarhi, dental clinic Sitamarhi, root canal treatment in Sitamarhi, dental implants in Sitamarhi, braces in Sitamarhi, orthodontist in Sitamarhi, cosmetic dentist in Sitamarhi, pediatric dentist Sitamarhi, child dentist Sitamarhi, tooth extraction Sitamarhi, smile makeover Sitamarhi, teeth whitening Sitamarhi, dental clinic Bhavdepur, Dr Suresh Kumar dentist, Dr Preeti Rajguru dentist, Usha Dental Clinic Sitamarhi, emergency dentist Sitamarhi'
 
 const HIGHLIGHTS = [
   { icon: '🦷', title: 'Root Canal Treatment', desc: 'Painless, precise RCT using modern techniques — relieving pain while saving your natural tooth.', highlight: true },
@@ -224,6 +227,13 @@ export default function Home() {
 
   return (
     <>
+      <SEO
+        title="Best Dentist in Sitamarhi | Dental Clinic Bihar"
+        description="Usha Multi Speciality Dental Clinic — the top-rated dentist in Sitamarhi, Bihar. Root canal, dental implants, braces, cosmetic & pediatric dentistry by Dr. Suresh Kumar & Dr. Preeti Rajguru. Book your appointment today."
+        path="/"
+        keywords={HOME_KEYWORDS}
+        jsonLd={dentistSchema()}
+      />
       {showPopup && <ConsultationPopup onClose={() => setShowPopup(false)} />}
       <div ref={ref} style={{ overflowX: 'hidden' }}>
 
@@ -317,6 +327,13 @@ export default function Home() {
                     <Typewriter text="MDS" speed={70} startDelay={2200} cursor={false} loop pauseAfter={5000} />
                   </div>
                 </div>
+              </div>
+
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+                <div style={{ width: '28px', height: '1px', background: 'var(--gold)' }} />
+                <span style={{ fontSize: '11px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--gold-deep)', letterSpacing: '2.5px', textTransform: 'uppercase' }}>
+                  Best Dentist in Sitamarhi, Bihar
+                </span>
               </div>
 
               <h1 style={{

@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import Reveal from '../components/Reveal'
+import SEO from '../components/SEO'
 
 export default function Gallery() {
   const ref = useRef(null)
@@ -26,6 +27,12 @@ export default function Gallery() {
 
   return (
     <div ref={ref} style={{ overflowX: 'hidden' }}>
+      <SEO
+        title="Clinic Gallery — Usha Multi Speciality Dental Clinic, Sitamarhi"
+        description="Take a look inside Sitamarhi's leading dental clinic. Browse photos of our facility, treatments, and smile transformations at Usha Multi Speciality Dental Clinic."
+        path="/gallery"
+        keywords="dental clinic Sitamarhi photos, Usha Dental Clinic gallery, smile makeover Sitamarhi, dental clinic interior Sitamarhi"
+      />
       <section className="page-hero">
         <div className="container page-hero-inner">
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>

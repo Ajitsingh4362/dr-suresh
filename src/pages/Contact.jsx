@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import emailjs from '@emailjs/browser'
 import { supabase } from '../lib/supabase'
+import SEO, { dentistSchema } from '../components/SEO'
 
 const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID'
 const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID'
@@ -146,6 +147,13 @@ export default function Contact() {
 
   return (
     <div ref={ref} style={{ overflowX: 'hidden' }}>
+      <SEO
+        title="Contact Us — Book an Appointment in Sitamarhi"
+        description="Visit or call Usha Multi Speciality Dental Clinic near Bhawdepur Chowk, Sitamarhi, Bihar. Call/WhatsApp +91 89873 67274 or book your appointment online with Sitamarhi's trusted dentist."
+        path="/contact"
+        keywords="dentist near me Sitamarhi, dental clinic Bhavdepur, book dentist appointment Sitamarhi, Usha Dental Clinic address, Usha Dental Clinic phone number"
+        jsonLd={dentistSchema()}
+      />
       {/* Hero */}
       <section style={{ background: 'linear-gradient(160deg, var(--maroon-dark) 0%, var(--navy-800) 55%, var(--navy-900) 100%)', padding: '168px 0 80px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', inset: 0, backgroundImage: "url('/hero-pattern.svg')", backgroundSize: 'cover', backgroundPosition: 'center' }} className="hero-corner-pattern" />

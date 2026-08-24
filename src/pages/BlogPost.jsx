@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import SEO, { articleSchema, breadcrumbSchema } from '../components/SEO'
 
 export default function BlogPost() {
   const ref = useRef(null)
@@ -31,6 +32,21 @@ export default function BlogPost() {
 
   return (
     <div ref={ref} className="blog-post-page" style={{ overflowX: 'hidden', paddingTop: '90px' }}>
+      <SEO
+        title={post.title}
+        description={post.excerpt || post.title + ' — Usha Multi Speciality Dental Clinic, Sitamarhi.'}
+        path={`/blog/${post.slug}`}
+        image={post.cover_image}
+        keywords={`${post.title}, dentist Sitamarhi, dental clinic Sitamarhi, ${post.category || ''}`}
+        jsonLd={[
+          articleSchema(post),
+          breadcrumbSchema([
+            { name: 'Home', path: '/' },
+            { name: 'Blog', path: '/blog' },
+            { name: post.title, path: `/blog/${post.slug}` },
+          ]),
+        ]}
+      />
       <article className="blog-post-inner">
         <Link to="/blog" className="blog-post-back">← All Articles</Link>
         {post.cover_image && (
