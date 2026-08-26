@@ -748,7 +748,7 @@ export default function Home() {
           .intro-video-section { height: calc(70vh + 128px); min-height: 540px; }
         }
         @media (max-width: 600px) {
-          .intro-video-section { height: calc(60vh + 128px); min-height: 480px; }
+          .intro-video-section { height: 52vh; min-height: 320px; }
         }
         @media (max-width: 1024px) {
           .hero-corner-pattern {
