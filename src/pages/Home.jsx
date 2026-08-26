@@ -239,7 +239,7 @@ export default function Home() {
       <div ref={ref} style={{ overflowX: 'hidden' }}>
 
       {/* INTRO VIDEO — full-width, with overlay text */}
-      <section className="intro-video-section" style={{ position: 'relative', width: '100%', overflow: 'hidden', background: '#000', paddingTop: '128px' }}>
+      <section className="intro-video-section" style={{ position: 'relative', width: '100%', overflow: 'hidden', background: '#000' }}>
         <video
           className="intro-video-el"
           src="/dr-suresh-intro.mp4"
@@ -247,7 +247,7 @@ export default function Home() {
           loop
           muted
           playsInline
-          style={{ width: '100%', height: '100%', display: 'block', objectFit: 'cover' }}
+          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'block', objectFit: 'cover' }}
         />
         <div style={{
           position: 'absolute', inset: 0,
@@ -743,12 +743,12 @@ export default function Home() {
 
       {/* Responsive overrides */}
       <style>{`
-        .intro-video-section { height: 70vh; min-height: 420px; max-height: 640px; }
+        .intro-video-section { height: calc(70vh + 128px); min-height: 548px; max-height: 768px; }
         @media (max-width: 900px) {
-          .intro-video-section { height: 60vh; min-height: 360px; }
+          .intro-video-section { height: calc(60vh + 128px); min-height: 488px; }
         }
         @media (max-width: 600px) {
-          .intro-video-section { height: 52vh; min-height: 320px; }
+          .intro-video-section { height: calc(52vh + 128px); min-height: 448px; }
         }
         @media (max-width: 1024px) {
           .hero-corner-pattern {
