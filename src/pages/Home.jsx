@@ -743,12 +743,12 @@ export default function Home() {
 
       {/* Responsive overrides */}
       <style>{`
-        .intro-video-section { height: 70vh; min-height: 420px; max-height: 640px; }
+        .intro-video-section { height: calc(85vh + 128px); min-height: 620px; max-height: 860px; }
         @media (max-width: 900px) {
-          .intro-video-section { height: 60vh; min-height: 360px; }
+          .intro-video-section { height: calc(70vh + 128px); min-height: 540px; }
         }
         @media (max-width: 600px) {
-          .intro-video-section { height: 52vh; min-height: 320px; }
+          .intro-video-section { height: calc(60vh + 128px); min-height: 480px; }
         }
         @media (max-width: 1024px) {
           .hero-corner-pattern {
