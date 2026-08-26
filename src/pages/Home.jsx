@@ -238,13 +238,8 @@ export default function Home() {
       {showPopup && <ConsultationPopup onClose={() => setShowPopup(false)} />}
       <div ref={ref} style={{ overflowX: 'hidden' }}>
 
-      {/* TOP HERO — blank, full-width image only */}
-      <section style={{ background: 'var(--ivory)', overflow: 'hidden', lineHeight: 0, paddingTop: '128px' }}>
-        <img src="/clinic-banner.png" alt="Usha Multi Speciality Dental Clinic — Premium Care for Healthy Smiles" style={{ width: '100%', height: 'auto', display: 'block' }} />
-      </section>
-
       {/* INTRO VIDEO — full-width, with overlay text */}
-      <section className="intro-video-section" style={{ position: 'relative', width: '100%', overflow: 'hidden', background: '#000' }}>
+      <section className="intro-video-section" style={{ position: 'relative', width: '100%', overflow: 'hidden', background: '#000', paddingTop: '128px' }}>
         <video
           className="intro-video-el"
           src="/dr-suresh-intro.mp4"
@@ -259,7 +254,7 @@ export default function Home() {
           background: 'linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.15) 40%, rgba(0,0,0,0.55) 100%)',
         }} />
         <div style={{
-          position: 'absolute', inset: 0,
+          position: 'absolute', top: '128px', left: 0, right: 0, bottom: 0,
           display: 'flex', flexDirection: 'column',
           alignItems: 'flex-start', justifyContent: 'center',
           textAlign: 'left', padding: '24px 6vw',
@@ -294,6 +289,11 @@ export default function Home() {
           </div>
           <Link to="/contact"><button className="btn-primary">Book Your Appointment</button></Link>
         </div>
+      </section>
+
+      {/* TOP HERO — blank, full-width image only */}
+      <section style={{ background: 'var(--ivory)', overflow: 'hidden', lineHeight: 0 }}>
+        <img src="/clinic-banner.png" alt="Usha Multi Speciality Dental Clinic — Premium Care for Healthy Smiles" style={{ width: '100%', height: 'auto', display: 'block' }} />
       </section>
 
       {/* HERO */}
