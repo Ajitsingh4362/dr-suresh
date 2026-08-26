@@ -243,6 +243,59 @@ export default function Home() {
         <img src="/clinic-banner.png" alt="Usha Multi Speciality Dental Clinic — Premium Care for Healthy Smiles" style={{ width: '100%', height: 'auto', display: 'block' }} />
       </section>
 
+      {/* INTRO VIDEO — full-width, with overlay text */}
+      <section className="intro-video-section" style={{ position: 'relative', width: '100%', overflow: 'hidden', background: '#000' }}>
+        <video
+          className="intro-video-el"
+          src="/dr-suresh-intro.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          style={{ width: '100%', height: '100%', display: 'block', objectFit: 'cover' }}
+        />
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.15) 40%, rgba(0,0,0,0.55) 100%)',
+        }} />
+        <div style={{
+          position: 'absolute', inset: 0,
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'flex-start', justifyContent: 'center',
+          textAlign: 'left', padding: '24px 6vw',
+        }}>
+          <div style={{
+            fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 4vw, 44px)',
+            fontWeight: 700, color: '#ffffff', lineHeight: 1.2, marginBottom: '18px',
+            textShadow: '0 2px 12px rgba(0,0,0,0.5)',
+          }}>
+            Dr. Suresh Kumar
+          </div>
+          <div style={{
+            fontSize: 'clamp(11px, 1.4vw, 15px)', color: 'var(--gold)',
+            letterSpacing: '2.5px', textTransform: 'uppercase', fontWeight: 600,
+            marginBottom: '22px', textShadow: '0 2px 8px rgba(0,0,0,0.5)',
+          }}>
+            Multi-Speciality Dental Care
+          </div>
+          <div style={{
+            fontFamily: 'var(--font-display)', fontSize: 'clamp(16px, 2.2vw, 24px)',
+            fontWeight: 600, color: '#ffffff', marginBottom: '4px',
+            textShadow: '0 2px 10px rgba(0,0,0,0.5)',
+          }}>
+            Dr. Preeti Rajgur
+          </div>
+          <div style={{
+            fontSize: 'clamp(10px, 1.2vw, 13px)', color: 'rgba(255,255,255,0.85)',
+            letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 600,
+            marginBottom: '32px', textShadow: '0 2px 8px rgba(0,0,0,0.5)',
+          }}>
+            MDS
+          </div>
+          <Link to="/contact"><button className="btn-primary">Book Your Appointment</button></Link>
+        </div>
+      </section>
+
       {/* HERO */}
       <section className="main-hero-section" style={{
         background: 'linear-gradient(160deg, var(--ivory) 0%, #ffffff 55%, var(--teal-pale) 100%)',
@@ -690,6 +743,13 @@ export default function Home() {
 
       {/* Responsive overrides */}
       <style>{`
+        .intro-video-section { height: 70vh; min-height: 420px; max-height: 640px; }
+        @media (max-width: 900px) {
+          .intro-video-section { height: 60vh; min-height: 360px; }
+        }
+        @media (max-width: 600px) {
+          .intro-video-section { height: 52vh; min-height: 320px; }
+        }
         @media (max-width: 1024px) {
           .hero-corner-pattern {
             display: none !important;
