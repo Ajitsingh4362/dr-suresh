@@ -29,7 +29,7 @@ export default function ConsultationPopup({ onClose }) {
         </div>
         <h2 className="popup-title">{settings.title}</h2>
         <p className="popup-sub">{settings.subtitle}</p>
-        <Link to="/contact" onClick={onClose} className="btn-primary popup-btn">Book Now</Link>
+        <Link to="/contact" onClick={onClose} className="btn-primary popup-btn cta-pulse">Book Now</Link>
         <button className="popup-skip" onClick={onClose}>Maybe later</button>
       </div>
     </div>

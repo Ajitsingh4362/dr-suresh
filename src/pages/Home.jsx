@@ -287,7 +287,7 @@ export default function Home() {
           }}>
             MDS
           </div>
-          <Link to="/contact"><button className="btn-primary intro-cta-pulse">Book Your Appointment</button></Link>
+          <Link to="/contact"><button className="btn-primary cta-pulse">Book Your Appointment</button></Link>
         </div>
       </section>
 
@@ -421,7 +421,7 @@ export default function Home() {
               </p>
 
               <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginBottom: '48px' }}>
-                <Link to="/contact"><button className="btn-primary">Book an Appointment</button></Link>
+                <Link to="/contact"><button className="btn-primary cta-pulse">Book an Appointment</button></Link>
                 <Link to="/specializations"><button className="btn-outline-dark">Our Services</button></Link>
               </div>
 
@@ -558,7 +558,7 @@ export default function Home() {
 
       {/* Mobile/Tablet-only CTA, just above Healing Areas */}
       <div className="mobile-book-cta-wrap" style={{ padding: '32px 0', background: 'var(--ivory)', textAlign: 'center' }}>
-        <Link to="/contact"><button className="btn-primary">Book an Appointment</button></Link>
+        <Link to="/contact"><button className="btn-primary cta-pulse">Book an Appointment</button></Link>
       </div>
 
       {/* SPECIALIZATIONS PREVIEW */}
@@ -613,7 +613,7 @@ export default function Home() {
 
           <div style={{ textAlign: 'center', marginTop: '48px', display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link to="/specializations"><button className="btn-outline-dark">Explore All Specializations</button></Link>
-            <Link to="/contact"><button className="btn-primary">Book an Appointment</button></Link>
+            <Link to="/contact"><button className="btn-primary cta-pulse">Book an Appointment</button></Link>
           </div>
         </div>
       </section>
@@ -637,7 +637,7 @@ export default function Home() {
               <p style={{ fontSize: '15px', color: 'var(--text-muted)', lineHeight: '1.85', marginBottom: '32px', fontWeight: 300 }}>
                 A multi-speciality clinic in Sitamarhi focused on painless procedures, modern technology, and care for every member of the family.
               </p>
-              <Link to="/contact"><button className="btn-primary">Book an Appointment</button></Link>
+              <Link to="/contact"><button className="btn-primary cta-pulse">Book an Appointment</button></Link>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px' }}>
               {WHY.map((w, i) => (
@@ -701,7 +701,7 @@ export default function Home() {
           </p>
           <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link to="/contact">
-              <button style={{ background: 'var(--navy-800)', color: 'var(--white)', border: 'none', padding: '14px 32px', borderRadius: '2px', fontSize: '13px', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', transition: 'var(--transition)' }}
+              <button className="cta-pulse" style={{ background: 'var(--navy-800)', color: 'var(--white)', border: 'none', padding: '14px 32px', borderRadius: '2px', fontSize: '13px', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', transition: 'var(--transition)' }}
                 onMouseEnter={e => e.currentTarget.style.background = 'var(--navy-700)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'var(--navy-800)'}>
                 Book an Appointment
@@ -730,7 +730,7 @@ export default function Home() {
           </div>
           <Tilt3D image="/clinic-banner-2.png" alt="Usha Multi Speciality Dental Clinic" />
           <div className="mobile-book-cta-wrap" style={{ padding: '32px 0 0', background: 'transparent', textAlign: 'center' }}>
-            <Link to="/contact"><button className="btn-primary">Book an Appointment</button></Link>
+            <Link to="/contact"><button className="btn-primary cta-pulse">Book an Appointment</button></Link>
           </div>
         </div>
       </section>
@@ -743,28 +743,6 @@ export default function Home() {
 
       {/* Responsive overrides */}
       <style>{`
-        .intro-cta-pulse {
-          position: relative;
-          animation: introCtaPulse 2.2s ease-in-out infinite;
-        }
-        .intro-cta-pulse::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          border-radius: inherit;
-          box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.55);
-          animation: introCtaRing 2.2s ease-out infinite;
-          pointer-events: none;
-        }
-        @keyframes introCtaPulse {
-          0%, 100% { box-shadow: 0 4px 14px rgba(0,0,0,0.25); transform: scale(1); }
-          50% { box-shadow: 0 6px 22px rgba(212, 175, 55, 0.55); transform: scale(1.035); }
-        }
-        @keyframes introCtaRing {
-          0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.5); }
-          70% { box-shadow: 0 0 0 14px rgba(212, 175, 55, 0); }
-          100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
-        }
         .intro-video-section { height: calc(85vh + 128px); min-height: 620px; max-height: 860px; }
         @media (max-width: 900px) {
           .intro-video-section { height: calc(70vh + 128px); min-height: 540px; }

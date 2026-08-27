@@ -131,7 +131,7 @@ export default function About() {
                 ))}
               </div>
               <div style={{ marginTop: '28px' }}>
-                <Link to="/contact"><button className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>Book Appointment</button></Link>
+                <Link to="/contact"><button className="btn-primary cta-pulse" style={{ width: "100%", justifyContent: "center" }}>Book Appointment</button></Link>
               </div>
             </div>
 
