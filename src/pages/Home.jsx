@@ -287,7 +287,7 @@ export default function Home() {
           }}>
             MDS
           </div>
-          <Link to="/contact"><button className="btn-primary">Book Your Appointment</button></Link>
+          <Link to="/contact"><button className="btn-primary intro-cta-pulse">Book Your Appointment</button></Link>
         </div>
       </section>
 
@@ -743,6 +743,28 @@ export default function Home() {
 
       {/* Responsive overrides */}
       <style>{`
+        .intro-cta-pulse {
+          position: relative;
+          animation: introCtaPulse 2.2s ease-in-out infinite;
+        }
+        .intro-cta-pulse::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.55);
+          animation: introCtaRing 2.2s ease-out infinite;
+          pointer-events: none;
+        }
+        @keyframes introCtaPulse {
+          0%, 100% { box-shadow: 0 4px 14px rgba(0,0,0,0.25); transform: scale(1); }
+          50% { box-shadow: 0 6px 22px rgba(212, 175, 55, 0.55); transform: scale(1.035); }
+        }
+        @keyframes introCtaRing {
+          0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.5); }
+          70% { box-shadow: 0 0 0 14px rgba(212, 175, 55, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+        }
         .intro-video-section { height: calc(85vh + 128px); min-height: 620px; max-height: 860px; }
         @media (max-width: 900px) {
           .intro-video-section { height: calc(70vh + 128px); min-height: 540px; }
