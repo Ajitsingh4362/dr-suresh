@@ -16,6 +16,12 @@ function cleanPhone(phone) {
   return p
 }
 
+// Short Hindi line on top, a divider, then the English message below — keeps
+// every WhatsApp message bilingual without doubling its length.
+function bilingual(hindiLine, englishBody) {
+  return `${hindiLine}\n➖➖➖➖➖➖➖➖➖➖\n${englishBody}`
+}
+
 // ✅ RAZORPAY KEY — apni key yahan daalo
 const RAZORPAY_KEY = 'rzp_test_XXXXXXXXXXXXXXXX'
 
@@ -114,11 +120,12 @@ export default function Contact() {
 
     // Patient ko turant ek WhatsApp confirmation-of-request bhejo (best-effort)
     if (form.phone) {
-      const welcomeMsg = `Hi ${form.name}, thank you for reaching out to Usha Multi Speciality Dental Clinic! We've received your appointment request${form.program ? ` for ${form.program}` : ''}. Our team will review it and you'll get another WhatsApp message here as soon as it's confirmed. \ud83e\uddf7${WHATSAPP_FOOTER}`
+      const englishMsg = `Hi ${form.name}, thank you for reaching out to Usha Multi Speciality Dental Clinic! We've received your appointment request${form.program ? ` for ${form.program}` : ''}. Our team will review it and you'll get another WhatsApp message here as soon as it's confirmed. \ud83e\uddf7`
+      const welcomeMsg = bilingual(`Namaste ${form.name}, humein aapki appointment request mil gayi hai — jald hi confirm karke bataayenge.`, englishMsg) + WHATSAPP_FOOTER
       fetch(`${WHATSAPP_API}/notify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ number: cleanPhone(form.phone), message: welcomeMsg }),
+        body: JSON.stringify({ number: cleanPhone(form.phone), message: welcomeMsg, type: 'booking_confirmation', name: form.name }),
       }).catch(err => console.error('Booking welcome WhatsApp message failed:', err))
     }
 

@@ -71,6 +71,72 @@ working, replace that number wherever it's hardcoded. To have messages
 sent *from* Dr. Suresh's own number, he needs to be the one who scans
 the QR (delete `./auth` and re-scan with his phone when ready).
 
+## Render free tier & missed reminders
+
+Render's **free** web service plan spins the service down after **15 minutes**
+with no incoming request, and only wakes it back up on the next request. The
+9 AM cron jobs below run *inside* this same process — if the service happens
+to be asleep right at 9:00/9:05/9:10/9:15 AM, that day's reminders/wishes are
+silently **skipped** (nothing queues them for later).
+
+**1. Keep the service awake — already handled automatically**
+
+The code now self-pings its own `/status` endpoint every 10 minutes (see the
+"Self-ping keep-alive" block near the bottom of `index.js`). This uses
+`RENDER_EXTERNAL_URL`, which Render sets automatically — nothing to
+configure, nothing to sign up for. As long as this keeps working, the
+service never goes idle long enough to sleep, so the 9 AM jobs fire
+normally. (This is a well-known community workaround, not something Render
+officially guarantees for the free tier — it can occasionally miss a beat.)
+
+**2. A backup that runs the checks directly (covers the rare gap)**
+
+As a safety net for the odd time self-ping misses a beat (a slow/failed
+ping, a Render-side restart, etc.), set up one free scheduled task on
+[cron-job.org](https://cron-job.org) (or similar) per check, a little
+*after* the usual cron time — this both wakes the service and runs the
+check if it hasn't already run today:
+
+| Time (IST)  | Method | URL                                                                     |
+|-------------|--------|--------------------------------------------------------------------------|
+| 9:20 AM     | POST   | `https://dr-suresh-whatsapp.onrender.com/check-appointment-reminders`   |
+| 9:25 AM     | POST   | `https://dr-suresh-whatsapp.onrender.com/check-followups`               |
+| 9:30 AM     | POST   | `https://dr-suresh-whatsapp.onrender.com/check-birthdays`               |
+| 9:35 AM     | POST   | `https://dr-suresh-whatsapp.onrender.com/check-festivals`               |
+
+Each of these calls needs one custom header:
+```
+X-Cron-Secret: <your CRON_SECRET value>
+```
+
+To set this up:
+1. Pick any long random string as your secret (e.g. generate one at
+   <https://1password.com/password-generator> or just mash the keyboard).
+2. In Render's dashboard for this service -> **Environment** -> add
+   `CRON_SECRET` = that string -> save (Render will redeploy).
+3. In cron-job.org, create the 4 scheduled tasks above, each with that
+   `X-Cron-Secret` header set to the same value.
+
+It's safe to run self-ping and this backup together, and safe if the
+internal 9 AM cron *and* the backup both end up running on the same day — a
+dedup table (`sql/whatsapp_notification_log.sql`, run this once in Supabase
+SQL Editor if you haven't) makes sure the same reminder/wish never goes to
+the same person twice in one day, no matter how many times a check runs.
+
+**The only 100% guarantee** is a paid Render instance (their cheapest
+"Starter" plan) — it never spins down at all, by design. Self-ping + the
+backup schedule above get you very close to that for free, but not with an
+absolute guarantee.
+
+## Message log (View Log)
+
+The admin panel's WhatsApp tab has a **View Log** view alongside Connection —
+it lists the last 200 send attempts (patient, number, message type, and
+whether it was sent / failed / skipped, with a reason for failures and
+skips). Run `sql/whatsapp_message_log.sql` once in Supabase if you haven't —
+every send (manual, from `/notify`, or automatic from the daily/periodic
+checks) is now logged there.
+
 ## Important notes
 
 - Unofficial WhatsApp Web automation — fine for internal/team
@@ -80,6 +146,26 @@ the QR (delete `./auth` and re-scan with his phone when ready).
   want it deployed to an always-on server instead, so it works with no
   local PC dependency.
 - If it disconnects and won't reconnect, delete `./auth` and re-scan.
+
+## Automatic post-visit feedback & resolution follow-up (new)
+
+Every time a `patient_consultations` entry is created:
+- **5 hours later**, the patient gets a bilingual (Hindi + English) WhatsApp
+  message asking for feedback on their visit.
+- **7 days later**, they get a follow-up asking whether the problem they
+  came in for has been resolved.
+
+Each of these only ever goes out once per entry (tracked via
+`feedback_sent_at` / `resolution_followup_sent_at` on that row — run
+`sql/patient_consultations_followup_columns.sql` once in Supabase if you
+haven't). Unlike the 9 AM checks above, these run every 30 minutes all day,
+since "N hours/days after entry" can land at any time.
+
+To trigger either manually right now (for testing):
+```bash
+curl -X POST https://dr-suresh-whatsapp.onrender.com/check-feedback-requests -H "Authorization: Bearer <admin-token>"
+curl -X POST https://dr-suresh-whatsapp.onrender.com/check-resolution-followups -H "Authorization: Bearer <admin-token>"
+```
 
 ## Automatic follow-up reminders (new)
 

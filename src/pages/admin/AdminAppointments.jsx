@@ -12,6 +12,12 @@ function cleanPhone(phone) {
   return p
 }
 
+// Short Hindi line on top, a divider, then the English message below — keeps
+// every WhatsApp message bilingual without doubling its length.
+function bilingual(hindiLine, englishBody) {
+  return `${hindiLine}\n➖➖➖➖➖➖➖➖➖➖\n${englishBody}`
+}
+
 export default function AdminAppointments() {
   const [appts, setAppts] = useState([])
   const [tab, setTab] = useState('all')
@@ -49,13 +55,14 @@ export default function AdminAppointments() {
     if (status === 'confirmed') {
       const dateStr = appt.preferred_date ? new Date(appt.preferred_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : 'a date our team will confirm'
       const timeStr = appt.preferred_time ? ` at ${appt.preferred_time}` : ''
-      const msg = `Hi ${appt.name}, this is Usha Multi Speciality Dental Clinic confirming your appointment with Dr. Suresh Kumar for ${appt.service || 'consultation'} on ${dateStr}${timeStr}. Looking forward to seeing you!${WHATSAPP_FOOTER}`
+      const englishMsg = `Hi ${appt.name}, this is Usha Multi Speciality Dental Clinic confirming your appointment with Dr. Suresh Kumar for ${appt.service || 'consultation'} on ${dateStr}${timeStr}. Looking forward to seeing you!`
+      const msg = bilingual(`Namaste ${appt.name}, aapki appointment confirm ho gayi hai — ${dateStr}${timeStr} ko milte hain.`, englishMsg) + WHATSAPP_FOOTER
 
       try {
         const res = await fetch(`${WHATSAPP_API}/notify`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ number: cleanPhone(appt.phone), message: msg }),
+          body: JSON.stringify({ number: cleanPhone(appt.phone), message: msg, type: 'appointment_confirmation', name: appt.name }),
         })
         const data = await res.json()
         if (!data.ok) throw new Error(data.error || ('HTTP ' + res.status))

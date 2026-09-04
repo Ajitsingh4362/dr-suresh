@@ -24,6 +24,10 @@ export default function AdminWhatsApp() {
   const [loggingOut, setLoggingOut] = useState(false)
   const [generating, setGenerating] = useState(false)
   const [checkedOnce, setCheckedOnce] = useState(false)
+  const [view, setView] = useState('connection') // 'connection' | 'log'
+  const [logEntries, setLogEntries] = useState([])
+  const [logLoading, setLogLoading] = useState(false)
+  const [logError, setLogError] = useState(null)
   const pollRef = useRef(null)
 
   // On load: just check status once (no QR fetch yet) so we know
@@ -32,6 +36,24 @@ export default function AdminWhatsApp() {
     checkStatus()
     return () => clearInterval(pollRef.current)
   }, [])
+
+  useEffect(() => {
+    if (view === 'log') fetchLog()
+  }, [view])
+
+  async function fetchLog() {
+    setLogLoading(true)
+    setLogError(null)
+    try {
+      const res = await fetch(`${NOTIFIER_URL}/message-log?limit=200`, { headers: await authHeaders() })
+      const data = await res.json()
+      if (!data.ok) throw new Error(data.error || ('HTTP ' + res.status))
+      setLogEntries(data.entries || [])
+    } catch (e) {
+      setLogError(e.message)
+    }
+    setLogLoading(false)
+  }
 
   async function checkStatus() {
     try {
@@ -95,6 +117,31 @@ export default function AdminWhatsApp() {
         </div>
       </div>
 
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '1px solid rgba(15,39,68,0.08)' }}>
+        <button
+          onClick={() => setView('connection')}
+          style={{
+            padding: '10px 4px', marginRight: '18px', border: 'none', background: 'none', cursor: 'pointer',
+            fontFamily: 'var(--font-body)', fontSize: '13px', fontWeight: 600,
+            color: view === 'connection' ? 'var(--navy-800)' : 'var(--text-muted)',
+            borderBottom: view === 'connection' ? '2px solid var(--navy-800)' : '2px solid transparent',
+          }}>
+          Connection
+        </button>
+        <button
+          onClick={() => setView('log')}
+          style={{
+            padding: '10px 4px', border: 'none', background: 'none', cursor: 'pointer',
+            fontFamily: 'var(--font-body)', fontSize: '13px', fontWeight: 600,
+            color: view === 'log' ? 'var(--navy-800)' : 'var(--text-muted)',
+            borderBottom: view === 'log' ? '2px solid var(--navy-800)' : '2px solid transparent',
+          }}>
+          View Log
+        </button>
+      </div>
+
+      {view === 'connection' && (
+      <>
       {!serverReachable && (
         <div style={{ background: '#fdf1ef', border: '1px solid rgba(192,57,43,0.25)', borderRadius: '2px', padding: '18px 20px', marginBottom: '20px' }}>
           <p style={{ fontWeight: 600, fontSize: '13px', color: '#c0392b', margin: '0 0 6px', fontFamily: 'var(--font-body)' }}>WhatsApp service not reachable</p>
@@ -149,6 +196,75 @@ export default function AdminWhatsApp() {
           )}
         </div>
       )}
+      </>
+      )}
+
+      {view === 'log' && (
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+            <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: 0, fontFamily: 'var(--font-body)' }}>
+              Last {logEntries.length} message attempts — newest first.
+            </p>
+            <button className="admin-btn-outline admin-btn-sm" onClick={fetchLog} disabled={logLoading}>
+              {logLoading ? 'Refreshing...' : 'Refresh'}
+            </button>
+          </div>
+
+          {logError && (
+            <div style={{ background: '#fdf1ef', border: '1px solid rgba(192,57,43,0.25)', borderRadius: '2px', padding: '14px 16px', marginBottom: '16px', fontSize: '12.5px', color: '#8a4a42', fontFamily: 'var(--font-body)' }}>
+              Could not load the log: {logError}
+            </div>
+          )}
+
+          {!logError && logLoading && logEntries.length === 0 && (
+            <p style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}>Loading...</p>
+          )}
+
+          {!logError && !logLoading && logEntries.length === 0 && (
+            <p style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}>No messages logged yet.</p>
+          )}
+
+          {logEntries.length > 0 && (
+            <div style={{ overflowX: 'auto', border: '1px solid rgba(15,39,68,0.08)', borderRadius: '2px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--font-body)', fontSize: '12.5px' }}>
+                <thead>
+                  <tr style={{ background: 'var(--ivory)', textAlign: 'left' }}>
+                    <th style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>Time</th>
+                    <th style={{ padding: '10px 12px' }}>Patient</th>
+                    <th style={{ padding: '10px 12px' }}>Number</th>
+                    <th style={{ padding: '10px 12px' }}>Type</th>
+                    <th style={{ padding: '10px 12px' }}>Status</th>
+                    <th style={{ padding: '10px 12px' }}>Reason</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {logEntries.map(e => (
+                    <tr key={e.id} style={{ borderTop: '1px solid rgba(15,39,68,0.06)' }}>
+                      <td style={{ padding: '9px 12px', whiteSpace: 'nowrap', color: 'var(--text-muted)' }}>
+                        {new Date(e.created_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                      </td>
+                      <td style={{ padding: '9px 12px' }}>{e.recipient_name || '—'}</td>
+                      <td style={{ padding: '9px 12px', whiteSpace: 'nowrap' }}>{e.recipient_number || '—'}</td>
+                      <td style={{ padding: '9px 12px', whiteSpace: 'nowrap' }}>{e.message_type || '—'}</td>
+                      <td style={{ padding: '9px 12px', whiteSpace: 'nowrap' }}>
+                        <span style={{
+                          padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 600,
+                          background: e.status === 'sent' ? '#eefaf3' : e.status === 'failed' ? '#fdf1ef' : '#f5f0e6',
+                          color: e.status === 'sent' ? '#1e8f5a' : e.status === 'failed' ? '#c0392b' : '#8a6d1a',
+                        }}>
+                          {e.status === 'sent' ? '✅ Sent' : e.status === 'failed' ? '❌ Failed' : '⏭️ Skipped'}
+                        </span>
+                      </td>
+                      <td style={{ padding: '9px 12px', color: 'var(--text-muted)' }}>{e.reason || '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
       <style>{`
         @media (max-width: 420px) {
           .admin-wa-card { padding: 18px !important; }

@@ -14,6 +14,12 @@ const WHATSAPP_API = 'https://dr-suresh-whatsapp.onrender.com'
 // the URL inside it.
 const WHATSAPP_FOOTER = '\n\n*Book your appointment on www.ushadental.com*'
 
+// Short Hindi line on top, a divider, then the English message below — keeps
+// every WhatsApp message bilingual without doubling its length.
+function bilingual(hindiLine, englishBody) {
+  return `${hindiLine}\n➖➖➖➖➖➖➖➖➖➖\n${englishBody}`
+}
+
 // ─── Medicine Builder (quick-tap Rx, no free typing needed) ───
 const DENTAL_MEDICINES = [
   'Amoxicillin', 'Amoxicillin + Clavulanate (Augmentin)', 'Metronidazole', 'Azithromycin', 'Clindamycin',
@@ -425,12 +431,13 @@ export default function AdminPatientProfile() {
 
       // Welcome message
       if (patient.phone) {
-        const welcomeMsg = `Hi ${patient.name}, welcome to Usha Multi Speciality Dental Clinic! Your patient record has been created. We look forward to taking care of your dental health. \ud83e\uddf7${WHATSAPP_FOOTER}`
+        const englishMsg = `Hi ${patient.name}, welcome to Usha Multi Speciality Dental Clinic! Your patient record has been created. We look forward to taking care of your dental health. \ud83e\uddf7`
+        const welcomeMsg = bilingual(`Namaste ${patient.name}, Usha Dental Clinic mein aapka swagat hai — aapka record ban gaya hai.`, englishMsg) + WHATSAPP_FOOTER
         const phoneToSend = cleanPhone(patient.phone)
         fetch(`${WHATSAPP_API}/notify`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ number: phoneToSend, message: welcomeMsg }),
+          body: JSON.stringify({ number: phoneToSend, message: welcomeMsg, type: 'welcome', name: patient.name }),
         })
           .then(res => res.json())
           .then(data => {
@@ -497,12 +504,12 @@ export default function AdminPatientProfile() {
     setTimeout(() => setMsg(''), 2000)
   }
 
-  async function sendWhatsApp(number, message) {
+  async function sendWhatsApp(number, message, type, name) {
     try {
       const res = await fetch(`${WHATSAPP_API}/notify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ number, message }),
+        body: JSON.stringify({ number, message, type, name }),
       })
       const data = await res.json()
       if (!data.ok) console.error('WhatsApp message failed:', data.error)
@@ -519,7 +526,7 @@ export default function AdminPatientProfile() {
     lines.push(`\n💊 Prescription:\n${prescriptionText}`)
     if (consult.follow_up_date) lines.push(`\n📅 Follow-up: ${fmtDate(consult.follow_up_date)}${consult.follow_up_notes ? ` — ${consult.follow_up_notes}` : ''}`)
     lines.push(`\nPlease follow the dosage exactly as prescribed. Call us if you have any questions. Take care! 🙏`)
-    return lines.join('\n') + WHATSAPP_FOOTER
+    return bilingual(`Namaste ${patient.name}, aapki prescription neeche di gayi hai.`, lines.join('\n')) + WHATSAPP_FOOTER
   }
 
   async function addConsultation() {
@@ -544,7 +551,7 @@ export default function AdminPatientProfile() {
     if (shouldSendWhatsApp && finalPrescription && patient.phone) {
       const phoneToSend = cleanPhone(patient.phone)
       const msgText = buildPrescriptionWhatsAppMessage(payload, finalPrescription)
-      sendWhatsApp(phoneToSend, msgText).then(ok => {
+      sendWhatsApp(phoneToSend, msgText, 'prescription', patient.name).then(ok => {
         if (!ok) alert('Consultation saved, but the WhatsApp prescription message could not be sent. You can resend it manually from WhatsApp.')
       })
     }
@@ -590,7 +597,10 @@ export default function AdminPatientProfile() {
     } else {
       lines.push(`\nThank you for your payment! 🙏`)
     }
-    return lines.join('\n') + WHATSAPP_FOOTER
+    const hindiLine = due > 0
+      ? `Namaste ${patient.name}, aapka invoice neeche diya gaya hai — ₹${due.toLocaleString('en-IN')} baaki hai.`
+      : `Namaste ${patient.name}, aapka invoice neeche diya gaya hai — payment ke liye dhanyavaad.`
+    return bilingual(hindiLine, lines.join('\n')) + WHATSAPP_FOOTER
   }
 
   async function addInvoice() {
@@ -619,7 +629,7 @@ export default function AdminPatientProfile() {
     if (newInvoice.sendWhatsApp && patient.phone) {
       const phoneToSend = cleanPhone(patient.phone)
       const msgText = buildInvoiceWhatsAppMessage({ invoice_number: invoiceNumber, date: invoiceDate, items, total_amount: total, paid_amount: paid })
-      sendWhatsApp(phoneToSend, msgText).then(ok => {
+      sendWhatsApp(phoneToSend, msgText, 'invoice', patient.name).then(ok => {
         if (!ok) alert('Invoice saved, but the WhatsApp message could not be sent. You can share the PDF manually from the invoice card.')
       })
     }
