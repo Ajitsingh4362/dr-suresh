@@ -194,8 +194,12 @@ Every time a `patient_consultations` entry is created:
 Each of these only ever goes out once per entry (tracked via
 `feedback_sent_at` / `resolution_followup_sent_at` on that row — run
 `sql/patient_consultations_followup_columns.sql` once in Supabase if you
-haven't). Unlike the 9 AM checks above, these run every 30 minutes all day,
-since "N hours/days after entry" can land at any time.
+haven't). The check itself runs every 30 minutes all day, since "N
+hours/days after entry" can land at any time — but the actual WhatsApp
+message only goes out between **9 AM and 8 PM IST**; if someone becomes due
+outside that window, it's simply picked up by the next in-window check
+(nothing is lost, just delayed a few hours) rather than messaging a patient
+in the middle of the night.
 
 To trigger either manually right now (for testing):
 ```bash

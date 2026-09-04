@@ -217,6 +217,21 @@ function sendWhatsAppMessage(number, message, mentionNumber, meta = {}) {
 
 function wait(ms) { return new Promise(r => setTimeout(r, ms)) }
 
+// The feedback-request and resolution-followup checks (below) run every 30
+// minutes all day, since they fire "N hours/days after entry" rather than
+// at a fixed clock time. But that doesn't mean it's OK to actually message
+// a patient at 2 AM — this restricts real sends to a reasonable daytime
+// window regardless of server timezone. A patient who becomes "due"
+// outside this window just waits for the next in-window check to catch
+// them (nothing is lost, just delayed a few hours).
+function isWithinSendingHours() {
+  const hour = parseInt(
+    new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Kolkata', hour: 'numeric', hour12: false }).format(new Date()),
+    10
+  )
+  return hour >= 9 && hour < 20 // 9 AM to 8 PM IST
+}
+
 // Puts a short Hindi line on top, a visual divider, then the (usually
 // longer/already-existing) English message below — keeps every message
 // bilingual without doubling its length, since only the top line is
@@ -406,6 +421,10 @@ async function checkFollowUpsAndNotify() {
 // "5 hours after" isn't tied to a fixed clock time like the other checks.
 async function checkFeedbackRequestsAndNotify() {
   console.log('Running post-visit feedback check...')
+  if (!isWithinSendingHours()) {
+    console.log('  Skipped — outside sending hours (9 AM - 8 PM IST). Will retry on the next in-window check.')
+    return { checked: 0, sent: 0, skipped: 'outside_sending_hours' }
+  }
   if (!isReady) {
     console.log('  Skipped — WhatsApp not connected.')
     logMessage({ type: 'feedback_request', status: 'skipped', reason: 'not connected' })
@@ -480,6 +499,10 @@ async function checkFeedbackRequestsAndNotify() {
 // resolution follow-up sent yet.
 async function checkResolutionFollowupsAndNotify() {
   console.log('Running resolution follow-up check...')
+  if (!isWithinSendingHours()) {
+    console.log('  Skipped — outside sending hours (9 AM - 8 PM IST). Will retry on the next in-window check.')
+    return { checked: 0, sent: 0, skipped: 'outside_sending_hours' }
+  }
   if (!isReady) {
     console.log('  Skipped — WhatsApp not connected.')
     logMessage({ type: 'resolution_followup', status: 'skipped', reason: 'not connected' })
