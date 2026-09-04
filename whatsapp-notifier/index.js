@@ -20,6 +20,7 @@
 //   POST /check-followups  -> manually trigger the follow-up reminder check (for testing)   [admin session required]
 //   POST /check-birthdays  -> manually trigger the birthday-wish check (for testing)         [admin session required]
 //   POST /check-festivals  -> manually trigger today's festival-wish check (for testing)      [admin session required]
+//   POST /check-monthly-promo          -> manually trigger the 1st/15th promo check           [admin session required]
 //   POST /check-feedback-requests      -> manually trigger the post-visit feedback check      [admin session required]
 //   POST /check-resolution-followups   -> manually trigger the 7-day resolution follow-up      [admin session required]
 //   GET  /message-log      -> recent send attempts (sent/failed/skipped), for the admin panel's [admin session required]
@@ -644,35 +645,15 @@ async function checkBirthdaysAndNotify() {
 }
 
 // ─── Automatic festival wishes ─────────────────────────────
-// IMPORTANT — most Indian festivals (Diwali, Holi, Eid, Raksha Bandhan, Chhath,
-// etc.) follow the lunar/lunisolar calendar, so their Gregorian date changes
-// every year. Entries below with a `year` are only valid for that exact year
-// and will simply stop matching once the year passes — nothing wrong will be
-// sent, but the wish for that festival will stop going out until someone adds
-// next year's date. Entries WITHOUT a `year` (New Year, Republic Day,
-// Independence Day, Makar Sankranti, Christmas) repeat safely every year.
-// Dates below were checked in August 2026 against public panchang/calendar
-// sources. When extending this list for a new year, verify dates against a
-// current Hindu panchang / Islamic calendar site rather than guessing.
-const FESTIVALS = [
-  { month: 1, day: 1, name: 'New Year', message: (n) => `Hi ${n}, Usha Multi Speciality Dental Clinic wishes you a very Happy New Year! 🎉 May this year bring you good health and happy smiles.` },
-  { month: 1, day: 14, name: 'Makar Sankranti', message: (n) => `Hi ${n}, wishing you and your family a very Happy Makar Sankranti! 🪁 From all of us at Usha Multi Speciality Dental Clinic.` },
-  { month: 1, day: 26, name: 'Republic Day', message: (n) => `Hi ${n}, wishing you a very Happy Republic Day! 🇮🇳 From all of us at Usha Multi Speciality Dental Clinic.` },
-  { month: 8, day: 15, name: 'Independence Day', message: (n) => `Hi ${n}, wishing you a very Happy Independence Day! 🇮🇳 From all of us at Usha Multi Speciality Dental Clinic.` },
-  { month: 12, day: 25, name: 'Christmas', message: (n) => `Hi ${n}, wishing you and your family a very Merry Christmas! 🎄 From all of us at Usha Multi Speciality Dental Clinic.` },
-
-  // 2026-specific (lunar/lunisolar) — will need next year's dates added for 2027
-  { year: 2026, month: 8, day: 26, name: 'Eid-e-Milad', message: (n) => `Hi ${n}, wishing you and your family a blessed Eid-e-Milad! 🌙 From all of us at Usha Multi Speciality Dental Clinic.` },
-  { year: 2026, month: 8, day: 28, name: 'Raksha Bandhan', message: (n) => `Hi ${n}, wishing you and your family a very Happy Raksha Bandhan! 🎀 From all of us at Usha Multi Speciality Dental Clinic.` },
-  { year: 2026, month: 9, day: 4, name: 'Janmashtami', message: (n) => `Hi ${n}, wishing you and your family a very Happy Janmashtami! 🦚 From all of us at Usha Multi Speciality Dental Clinic.` },
-  { year: 2026, month: 9, day: 14, name: 'Ganesh Chaturthi', message: (n) => `Hi ${n}, wishing you and your family a very Happy Ganesh Chaturthi! 🐘 From all of us at Usha Multi Speciality Dental Clinic.` },
-  { year: 2026, month: 10, day: 20, name: 'Dussehra', message: (n) => `Hi ${n}, wishing you and your family a very Happy Dussehra! 🏹 From all of us at Usha Multi Speciality Dental Clinic.` },
-  { year: 2026, month: 11, day: 8, name: 'Diwali', message: (n) => `Hi ${n}, wishing you and your family a very Happy Diwali! ✨🪔 May this festival of lights bring joy, prosperity, and good health to your home. From all of us at Usha Multi Speciality Dental Clinic.` },
-  { year: 2026, month: 11, day: 15, name: 'Chhath Puja', message: (n) => `Hi ${n}, wishing you and your family a blessed Chhath Puja! 🙏 May Chhathi Maiya bless your family with health and happiness. From all of us at Usha Multi Speciality Dental Clinic.` },
-
-  // 2027 — predicted/approximate for the Islamic-calendar ones; Holi date is solid
-  { year: 2027, month: 3, day: 22, name: 'Holi', message: (n) => `Hi ${n}, wishing you and your family a very Happy Holi! 🌈 From all of us at Usha Multi Speciality Dental Clinic.` },
-]
+// Festival dates and messages now live in the `festivals` table (see
+// sql/festivals.sql) instead of being hardcoded here — this lets festival
+// dates be added/corrected every year directly from Supabase, no code
+// change or redeploy needed. Most Indian festivals (Diwali, Holi, Eid,
+// Raksha Bandhan, Chhath, etc.) follow the lunar/lunisolar calendar, so
+// their Gregorian date changes every year — rows with a `year` only match
+// that exact year; add next year's row when it's due. Rows with `year`
+// left NULL (New Year, Republic Day, Independence Day, Makar Sankranti,
+// Christmas) repeat safely every year.
 
 async function checkFestivalsAndNotify() {
   console.log('Running festival check...')
@@ -684,7 +665,22 @@ async function checkFestivalsAndNotify() {
 
   const today = new Date()
   const y = today.getFullYear(), m = today.getMonth() + 1, d = today.getDate()
-  const festival = FESTIVALS.find(f => f.month === m && f.day === d && (f.year === undefined || f.year === y))
+
+  const { data: todaysFestivals, error: fErr } = await supabase
+    .from('festivals')
+    .select('id, name, message_template, year')
+    .eq('month', m)
+    .eq('day', d)
+    .eq('active', true)
+
+  if (fErr) {
+    console.error('  Error fetching festivals:', fErr.message)
+    return { checked: 0, sent: 0, error: fErr.message }
+  }
+
+  // A row with year = null repeats every year; a row with a specific year
+  // only matches that exact year.
+  const festival = (todaysFestivals || []).find(f => f.year === null || f.year === y)
 
   if (!festival) {
     console.log('  No festival today.')
@@ -714,7 +710,7 @@ async function checkFestivalsAndNotify() {
       logMessage({ number: cleanPhone(patient.phone), name: patient.name, type: `festival:${festivalSlug}`, status: 'skipped', reason: 'already sent today' })
       continue // already wished today (e.g. by the backup scheduler)
     }
-    const englishMsg = festival.message(patient.name)
+    const englishMsg = festival.message_template.replace(/{name}/g, patient.name)
     const msg = bilingual(`Namaste ${patient.name}, ${festival.name} ki hardik shubhkamnayein!`, englishMsg) + WHATSAPP_FOOTER
     try {
       await sendWhatsAppMessage(cleanPhone(patient.phone), msg, undefined, { name: patient.name, type: `festival:${festivalSlug}` })
@@ -731,6 +727,72 @@ async function checkFestivalsAndNotify() {
 
   console.log(`Festival check done (${festival.name}). ${sentCount}/${(patients || []).length} wishes sent.`)
   return { checked: (patients || []).length, sent: sentCount, festival: festival.name }
+}
+
+// ─── Twice-monthly promotional message (1st and 15th) ──────
+// Message text lives in the `monthly_promo` table (see sql/monthly_promo.sql)
+// so the offer/tip can be updated from Supabase without a code change.
+async function checkMonthlyPromoAndNotify() {
+  console.log('Running monthly promo check...')
+  if (!isReady) {
+    console.log('  Skipped — WhatsApp not connected.')
+    logMessage({ type: 'monthly_promo', status: 'skipped', reason: 'not connected' })
+    return { checked: 0, sent: 0, skipped: 'not_connected' }
+  }
+
+  const { data: promo, error: pErr } = await supabase
+    .from('monthly_promo')
+    .select('message_template, active')
+    .eq('id', 1)
+    .maybeSingle()
+
+  if (pErr) {
+    console.error('  Error fetching monthly promo:', pErr.message)
+    return { checked: 0, sent: 0, error: pErr.message }
+  }
+  if (!promo || !promo.active) {
+    console.log('  Monthly promo is inactive or not set up — skipping.')
+    return { checked: 0, sent: 0, skipped: 'inactive' }
+  }
+
+  // Only active patients, to keep the list smaller and more relevant.
+  const { data: patients, error } = await supabase
+    .from('patients')
+    .select('id, name, phone')
+    .eq('status', 'active')
+    .not('phone', 'is', null)
+
+  if (error) {
+    console.error('  Error fetching patients:', error.message)
+    return { checked: 0, sent: 0, error: error.message }
+  }
+
+  const todayStr = new Date().toISOString().split('T')[0]
+  let sentCount = 0
+  for (const patient of patients || []) {
+    if (!patient.phone) continue
+    const canSend = await claimNotificationSlot('patient', patient.id, 'monthly_promo', todayStr)
+    if (!canSend) {
+      logMessage({ number: cleanPhone(patient.phone), name: patient.name, type: 'monthly_promo', status: 'skipped', reason: 'already sent today' })
+      continue // already sent today (e.g. by the backup scheduler)
+    }
+    const englishMsg = promo.message_template.replace(/{name}/g, patient.name)
+    const msg = bilingual(`Namaste ${patient.name}, Usha Dental Clinic — Sitamarhi ka bharosemand dental care, Dr. Suresh Kumar ke saath.`, englishMsg) + WHATSAPP_FOOTER
+    try {
+      await sendWhatsAppMessage(cleanPhone(patient.phone), msg, undefined, { name: patient.name, type: 'monthly_promo' })
+      sentCount++
+      // Same extra-slow pace as festival wishes, on purpose — a promotional
+      // broadcast to potentially hundreds of numbers is exactly the pattern
+      // WhatsApp's spam detection watches for, so this trades speed for
+      // staying well clear of it.
+      await new Promise(r => setTimeout(r, 5000 + Math.random() * 4000))
+    } catch (err) {
+      console.error(`  Failed to send to ${patient.name}:`, err.message)
+    }
+  }
+
+  console.log(`Monthly promo check done. ${sentCount}/${(patients || []).length} sent.`)
+  return { checked: (patients || []).length, sent: sentCount }
 }
 
 // Runs every day at 9:00 AM India time
@@ -752,6 +814,11 @@ cron.schedule('10 9 * * *', () => {
 // patients and takes the longest to finish.
 cron.schedule('15 9 * * *', () => {
   checkFestivalsAndNotify()
+}, { timezone: 'Asia/Kolkata' })
+
+// Runs at 9:20 AM India time, only on the 1st and 15th of the month.
+cron.schedule('20 9 1,15 * *', () => {
+  checkMonthlyPromoAndNotify()
 }, { timezone: 'Asia/Kolkata' })
 
 // Runs every 30 minutes, all day — unlike the checks above, these two
@@ -935,6 +1002,15 @@ app.post('/check-birthdays', requireAdminOrCron, async (req, res) => {
 app.post('/check-festivals', requireAdminOrCron, async (req, res) => {
   try {
     const result = await checkFestivalsAndNotify()
+    res.json({ ok: true, ...result })
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message })
+  }
+})
+
+app.post('/check-monthly-promo', requireAdminOrCron, async (req, res) => {
+  try {
+    const result = await checkMonthlyPromoAndNotify()
     res.json({ ok: true, ...result })
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message })

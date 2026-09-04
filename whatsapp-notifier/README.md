@@ -137,6 +137,42 @@ skips). Run `sql/whatsapp_message_log.sql` once in Supabase if you haven't —
 every send (manual, from `/notify`, or automatic from the daily/periodic
 checks) is now logged there.
 
+## Twice-monthly promotional message (1st and 15th)
+
+Every 1st and 15th at 9:20 AM IST, every **active** patient with a phone
+number gets one promotional message (a Sitamarhi-best-clinic line + a
+tip/offer). The offer text lives in the `monthly_promo` table (run
+`sql/monthly_promo.sql` once in Supabase if you haven't) — to change the
+offer, just update that row in Supabase's Table Editor:
+```sql
+update monthly_promo set message_template = 'your new offer text with {name}' where id = 1;
+```
+To pause it without deleting anything: `update monthly_promo set active = false where id = 1;`
+
+⚠️ Unlike the other automatic messages, this one is **promotional, not
+transactional** — it goes to every active patient whether or not they have
+an upcoming appointment. That's a pattern WhatsApp's spam detection watches
+more closely (hence the slow pace between sends, same as festival wishes).
+Keep the frequency low and the content useful, and watch the WhatsApp tab's
+"View Log" after each run for anything that looks off.
+
+## Festival dates (now editable from Supabase)
+
+Festival dates and their WhatsApp wish text used to be hardcoded in
+`index.js`. They now live in the `festivals` table (run
+`sql/festivals.sql` once in Supabase if you haven't) — to add, fix, or
+remove a festival, edit that table directly in Supabase's Table Editor, no
+code change or redeploy needed. Columns:
+- `month`, `day` — the date to match (1-12, 1-31)
+- `year` — leave **empty/NULL** for festivals that repeat every year
+  (New Year, Republic Day, Independence Day, Makar Sankranti, Christmas).
+  For lunar/lunisolar festivals (Diwali, Holi, Eid, Raksha Bandhan, Chhath,
+  etc.) whose Gregorian date changes yearly, set the specific year — add a
+  new row with next year's date when it's due.
+- `message_template` — the English wish; use the literal text `{name}`
+  wherever the patient's name should go.
+- `active` — set to `false` to turn a festival off without deleting it.
+
 ## Important notes
 
 - Unofficial WhatsApp Web automation — fine for internal/team
