@@ -100,6 +100,21 @@ async function claimNotificationSlot(entityType, entityId, notificationType, dat
   return true
 }
 
+// Undoes claimNotificationSlot() when the send that followed it actually
+// failed (e.g. WhatsApp wasn't connected yet) — without this, a failed
+// attempt would permanently look like "already sent today" and the real
+// message would never go out even after the connection is fixed later
+// the same day.
+async function releaseNotificationSlot(entityType, entityId, notificationType, dateStr) {
+  try {
+    await supabase.from('whatsapp_notification_log').delete()
+      .eq('entity_type', entityType).eq('entity_id', String(entityId))
+      .eq('notification_type', notificationType).eq('sent_date', dateStr)
+  } catch (err) {
+    console.error(`  Failed to release notification slot for ${entityType}:${entityId} (${notificationType}):`, err.message)
+  }
+}
+
 async function startWhatsApp() {
   // Session is persisted in Supabase (not local disk) so it survives
   // Render free-tier restarts after the service spins down from inactivity.
@@ -450,6 +465,9 @@ async function checkFeedbackRequestsAndNotify() {
       await new Promise(r => setTimeout(r, 2000))
     } catch (err) {
       console.error(`  Failed to send to ${patient.name}:`, err.message)
+      // Undo the claim above if the send itself failed, so this doesn't
+      // permanently look "already sent" — a later run can retry it.
+      await supabase.from('patient_consultations').update({ feedback_sent_at: null }).eq('id', row.id)
     }
   }
 
@@ -519,6 +537,8 @@ async function checkResolutionFollowupsAndNotify() {
       await new Promise(r => setTimeout(r, 2000))
     } catch (err) {
       console.error(`  Failed to send to ${patient.name}:`, err.message)
+      // Undo the claim above if the send itself failed, so a later run can retry it.
+      await supabase.from('patient_consultations').update({ resolution_followup_sent_at: null }).eq('id', row.id)
     }
   }
 
@@ -578,6 +598,7 @@ async function checkAppointmentRemindersAndNotify() {
       await new Promise(r => setTimeout(r, 2000))
     } catch (err) {
       console.error(`  Failed to send to ${appt.name}:`, err.message)
+      await releaseNotificationSlot('appointment', appt.id, 'appointment_reminder', todayStr) // let a later attempt retry today
     }
   }
 
@@ -637,6 +658,7 @@ async function checkBirthdaysAndNotify() {
       await new Promise(r => setTimeout(r, 2000))
     } catch (err) {
       console.error(`  Failed to send to ${patient.name}:`, err.message)
+      await releaseNotificationSlot('patient', patient.id, 'birthday', todayStr)
     }
   }
 
@@ -722,6 +744,7 @@ async function checkFestivalsAndNotify() {
       await new Promise(r => setTimeout(r, 5000 + Math.random() * 4000))
     } catch (err) {
       console.error(`  Failed to send to ${patient.name}:`, err.message)
+      await releaseNotificationSlot('patient', patient.id, `festival:${festivalSlug}`, todayStr)
     }
   }
 
@@ -788,6 +811,7 @@ async function checkMonthlyPromoAndNotify() {
       await new Promise(r => setTimeout(r, 5000 + Math.random() * 4000))
     } catch (err) {
       console.error(`  Failed to send to ${patient.name}:`, err.message)
+      await releaseNotificationSlot('patient', patient.id, 'monthly_promo', todayStr)
     }
   }
 
