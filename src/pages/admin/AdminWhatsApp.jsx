@@ -29,12 +29,20 @@ export default function AdminWhatsApp() {
   const [logLoading, setLogLoading] = useState(false)
   const [logError, setLogError] = useState(null)
   const pollRef = useRef(null)
+  const statusPollRef = useRef(null)
+  const failStreakRef = useRef(0) // consecutive /status failures — avoids flashing the warning on a single blip
 
-  // On load: just check status once (no QR fetch yet) so we know
-  // whether it's already connected, without needing a click.
+  // On load: check status once immediately, then keep re-checking in the
+  // background every 5s for as long as the panel is open. This means if the
+  // service was mid-redeploy or waking up from a Render free-tier cold
+  // start, the panel recovers on its own — no manual refresh needed.
   useEffect(() => {
     checkStatus()
-    return () => clearInterval(pollRef.current)
+    statusPollRef.current = setInterval(checkStatus, 5000)
+    return () => {
+      clearInterval(pollRef.current)
+      clearInterval(statusPollRef.current)
+    }
   }, [])
 
   useEffect(() => {
@@ -59,10 +67,16 @@ export default function AdminWhatsApp() {
     try {
       const res = await fetch(`${NOTIFIER_URL}/status`)
       const data = await res.json()
+      failStreakRef.current = 0
       setServerReachable(true)
       setConnected(data.connected)
     } catch (e) {
-      setServerReachable(false)
+      failStreakRef.current += 1
+      // Only flip to "not reachable" after 2 consecutive misses (~5-10s
+      // apart) — a single failed fetch during a brief redeploy/cold-start
+      // window shouldn't show the scary red warning if the very next
+      // check (a few seconds later) succeeds anyway.
+      if (failStreakRef.current >= 2) setServerReachable(false)
     }
     setCheckedOnce(true)
   }

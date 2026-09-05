@@ -56,6 +56,9 @@ let sock = null
 let clearAuthState = null // set once useSupabaseAuthState() resolves
 let isReady = false
 let isShuttingDown = false // set true during graceful shutdown so connection.update doesn't try to reconnect
+let consecutiveNoAckFailures = 0 // resets on any successful delivery ack
+const NO_ACK_RECONNECT_THRESHOLD = 3 // this many failures in a row -> connection is probably "stuck", force a fresh reconnect
+let forcingReconnect = false // guards against overlapping forced-reconnect attempts
 let currentQrDataUrl = null // base64 PNG data URL of the latest QR
 const contactsCache = {} // jid -> { id, name, notify }
 const pendingSends = {} // messageId -> { resolve } — waiting for delivery ack
@@ -114,6 +117,34 @@ async function releaseNotificationSlot(entityType, entityId, notificationType, d
   } catch (err) {
     console.error(`  Failed to release notification slot for ${entityType}:${entityId} (${notificationType}):`, err.message)
   }
+}
+
+// Recovers from a "zombie" connection: sock.ev still says isReady=true and
+// never fires connection.update('close'), so the normal reconnect logic in
+// startWhatsApp()'s connection.update handler never gets a chance to run —
+// yet nothing is actually getting delivered. sendOnce() calls this once too
+// many messages in a row (across different, previously-working numbers)
+// all get no delivery ack. Best-effort: closing the stuck socket usually
+// does trigger a normal close+reconnect on its own; the extra setTimeout
+// below is just a safety net in case even that doesn't fire.
+async function forceReconnectDueToStuckConnection() {
+  if (forcingReconnect) return
+  forcingReconnect = true
+  console.log(`${NO_ACK_RECONNECT_THRESHOLD} sends in a row got no delivery ack — connection looks stuck. Forcing a fresh reconnect...`)
+  consecutiveNoAckFailures = 0
+  isReady = false
+  try {
+    sock?.end(new Error('Forced reconnect: connection appeared stuck (no delivery acks)'))
+  } catch (err) {
+    console.error('Error while closing stuck socket:', err.message)
+  }
+  setTimeout(() => {
+    if (!isReady) {
+      console.log('No reconnect happened on its own after forced close — starting a fresh connection directly.')
+      startWhatsApp().catch((err) => console.error('Forced restart failed:', err.message))
+    }
+    forcingReconnect = false
+  }, 6000)
 }
 
 async function startWhatsApp() {
@@ -326,6 +357,18 @@ async function sendOnce(number, message, mentionNumber, isRetry = false) {
     }
     if (status === null) {
       console.log(`Still no delivery ack for ${jid} after retry — WhatsApp may be silently blocking this number.`)
+      // A single number never getting an ack can genuinely be WhatsApp
+      // blocking that number. But if MANY different numbers in a row all
+      // get no ack (including numbers that normally deliver fine, like our
+      // own test number) — that's not a per-number block, that's the
+      // socket itself being "stuck": Baileys still reports isReady=true and
+      // never fires a connection.update('close'), so the normal reconnect
+      // logic never kicks in on its own. Force a fresh connection once this
+      // has happened too many times in a row.
+      consecutiveNoAckFailures++
+      if (consecutiveNoAckFailures >= NO_ACK_RECONNECT_THRESHOLD) {
+        forceReconnectDueToStuckConnection()
+      }
       // Previously this just logged and returned normally, so the message
       // got marked 'sent' in whatsapp_message_log even though WhatsApp
       // never actually delivered it (no ack after 2 attempts). Throwing
@@ -333,6 +376,9 @@ async function sendOnce(number, message, mentionNumber, isRetry = false) {
       // (they already release the day's dedup slot on failure).
       throw new Error(`No delivery ack from WhatsApp for ${jid} after retry — message was likely not delivered.`)
     }
+    // A real ack came through — the connection is genuinely working, so
+    // any earlier string of failures no longer indicates a stuck socket.
+    consecutiveNoAckFailures = 0
   }
 
   // Small gap before the next queued message goes out.
