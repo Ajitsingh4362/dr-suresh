@@ -55,6 +55,7 @@ const WHATSAPP_FOOTER = '\n\n*Book your appointment on www.ushadental.com*'
 let sock = null
 let clearAuthState = null // set once useSupabaseAuthState() resolves
 let isReady = false
+let isShuttingDown = false // set true during graceful shutdown so connection.update doesn't try to reconnect
 let currentQrDataUrl = null // base64 PNG data URL of the latest QR
 const contactsCache = {} // jid -> { id, name, notify }
 const pendingSends = {} // messageId -> { resolve } — waiting for delivery ack
@@ -141,6 +142,10 @@ async function startWhatsApp() {
     if (connection === 'close') {
       isReady = false
       currentQrDataUrl = null
+      if (isShuttingDown) {
+        console.log('Shutting down — not reconnecting.')
+        return
+      }
       const statusCode = lastDisconnect?.error?.output?.statusCode
       const shouldReconnect = statusCode !== DisconnectReason.loggedOut
       console.log('Disconnect reason:', lastDisconnect?.error?.message || lastDisconnect?.error, '| statusCode:', statusCode)
@@ -1117,5 +1122,45 @@ if (SELF_PING_URL && typeof fetch === 'function') {
 } else {
   console.log('Self-ping keep-alive disabled (RENDER_EXTERNAL_URL not set — expected when running locally).')
 }
+
+// ─── Crash safety-net ──────────────────────────────
+// Baileys occasionally throws from deep inside its own internals (e.g. a
+// "Connection Closed" Boom while it's mid-retry after a stream conflict) in
+// a way that isn't a normal rejected promise we can catch at the call site.
+// Node's default behaviour for that is to crash the entire process. That's
+// worse than the original problem: instead of one connection blip, the
+// whole service restarts, which itself can *cause* the next conflict (see
+// the SIGTERM handler below) — a crash loop. Logging and staying up is the
+// safer choice; the existing connection.update / reconnect logic already
+// knows how to recover a broken connection on its own.
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception (not crashing):', err?.message || err)
+})
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled rejection (not crashing):', reason?.message || reason)
+})
+
+// ─── Graceful shutdown on redeploy ─────────────────
+// Render starts the new instance and waits for it to be healthy *before*
+// stopping the old one — so for a few seconds both instances are alive at
+// once. Since the WhatsApp session lives in Supabase (shared by both), the
+// old instance staying connected while the new one connects looks like the
+// same session logging in from two places, and WhatsApp kicks one out with
+// a "conflict (replaced)" error. Closing our own socket as soon as Render
+// asks this instance to stop (SIGTERM) — instead of waiting to be killed —
+// releases the connection cleanly, so the new instance doesn't have to
+// fight over it.
+function gracefulShutdown(signal) {
+  console.log(`${signal} received — closing WhatsApp connection before exit...`)
+  isShuttingDown = true
+  try {
+    if (sock) sock.end(undefined)
+  } catch (err) {
+    console.error('Error while closing WhatsApp socket:', err.message)
+  }
+  setTimeout(() => process.exit(0), 1000) // give the close frame a moment to flush
+}
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
+process.on('SIGINT', () => gracefulShutdown('SIGINT'))
 
 startWhatsApp()
