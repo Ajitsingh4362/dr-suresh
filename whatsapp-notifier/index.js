@@ -321,6 +321,12 @@ async function sendOnce(number, message, mentionNumber, isRetry = false) {
     }
     if (status === null) {
       console.log(`Still no delivery ack for ${jid} after retry — WhatsApp may be silently blocking this number.`)
+      // Previously this just logged and returned normally, so the message
+      // got marked 'sent' in whatsapp_message_log even though WhatsApp
+      // never actually delivered it (no ack after 2 attempts). Throwing
+      // here makes it correctly log as 'failed' and lets callers retry
+      // (they already release the day's dedup slot on failure).
+      throw new Error(`No delivery ack from WhatsApp for ${jid} after retry — message was likely not delivered.`)
     }
   }
 
