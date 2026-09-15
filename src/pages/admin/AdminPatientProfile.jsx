@@ -314,12 +314,80 @@ export default function AdminPatientProfile() {
   const blankInvoice = () => ({
     date: new Date().toISOString().split('T')[0],
     items: [{ description: '', amount: '' }],
+    discount_amount: '',
+    discount_reason: '',
     paid_amount: '',
     status: 'unpaid',
     notes: '',
     sendWhatsApp: true,
   })
   const [newInvoice, setNewInvoice] = useState(blankInvoice())
+
+  // Edit Invoice — lets the admin correct a mistake, apply a discount, or
+  // change the paid amount (up or down) on an existing invoice, instead of
+  // only being able to add payments on top via Record Payment.
+  const [editingInvoiceId, setEditingInvoiceId] = useState(null)
+  const [editInvoice, setEditInvoice] = useState(null)
+  function startEditInvoice(inv) {
+    setEditingInvoiceId(inv.id)
+    setEditInvoice({
+      date: inv.date,
+      items: (inv.items && inv.items.length > 0) ? inv.items.map(it => ({ description: it.description, amount: String(it.amount) })) : [{ description: '', amount: '' }],
+      discount_amount: inv.discount_amount ? String(inv.discount_amount) : '',
+      discount_reason: inv.discount_reason || '',
+      paid_amount: String(inv.paid_amount ?? 0),
+      notes: inv.notes || '',
+      notifyPatient: false,
+    })
+    setShowInvoiceForm(false)
+  }
+  function cancelEditInvoice() {
+    setEditingInvoiceId(null)
+    setEditInvoice(null)
+  }
+  function setEditInvoiceItem(idx, key, val) {
+    setEditInvoice(inv => ({ ...inv, items: inv.items.map((it, i) => i === idx ? { ...it, [key]: val } : it) }))
+  }
+  function addEditInvoiceItemRow() {
+    setEditInvoice(inv => ({ ...inv, items: [...inv.items, { description: '', amount: '' }] }))
+  }
+  function removeEditInvoiceItemRow(idx) {
+    setEditInvoice(inv => ({ ...inv, items: inv.items.filter((_, i) => i !== idx) }))
+  }
+  async function saveInvoiceEdit(invId) {
+    const items = (editInvoice.items || []).filter(it => it.description && it.amount !== '')
+    if (items.length === 0) { alert('Add at least one item with description and amount.'); return }
+    const subtotal = invoiceItemsTotal(items)
+    const discount = Math.min(Math.max(parseFloat(editInvoice.discount_amount) || 0, 0), subtotal)
+    const total = subtotal - discount
+    const paid = Math.min(Math.max(parseFloat(editInvoice.paid_amount) || 0, 0), total)
+    const status = paid <= 0 ? 'unpaid' : (paid >= total ? 'paid' : 'partial')
+
+    const payload = {
+      date: editInvoice.date,
+      items,
+      discount_amount: discount,
+      discount_reason: editInvoice.discount_reason || null,
+      total_amount: total,
+      paid_amount: paid,
+      status,
+      notes: editInvoice.notes || null,
+      last_edited_at: new Date().toISOString(),
+    }
+    const { error } = await supabase.from('patient_invoices').update(payload).eq('id', invId)
+    if (error) { alert('Could not save changes: ' + error.message); return }
+
+    if (editInvoice.notifyPatient && patient.phone) {
+      const inv = invoices.find(i => i.id === invId)
+      const msgText = buildInvoiceWhatsAppMessage({ invoice_number: inv?.invoice_number, date: editInvoice.date, items, total_amount: total, paid_amount: paid })
+      sendWhatsApp(cleanPhone(patient.phone), msgText, 'invoice', patient.name).then(ok => {
+        if (!ok) alert('Invoice updated, but the WhatsApp message could not be sent.')
+      })
+    }
+
+    cancelEditInvoice()
+    fetchAll()
+  }
 
   // Quick Appointment Fee (Overview tab)
   const [appointmentFee, setAppointmentFee] = useState('')
@@ -589,6 +657,10 @@ export default function AdminPatientProfile() {
     lines.push(`📅 Date: ${fmtDate(inv.date)}`)
     lines.push(`\nItems:`)
     inv.items.forEach(it => lines.push(`• ${it.description} — ₹${Number(it.amount).toLocaleString('en-IN')}`))
+    if (inv.discount_amount > 0) {
+      lines.push(`\nSubtotal: ₹${invoiceItemsTotal(inv.items).toLocaleString('en-IN')}`)
+      lines.push(`Discount: -₹${Number(inv.discount_amount).toLocaleString('en-IN')}`)
+    }
     lines.push(`\nTotal: ₹${inv.total_amount.toLocaleString('en-IN')}`)
     lines.push(`Paid: ₹${inv.paid_amount.toLocaleString('en-IN')}`)
     if (due > 0) {
@@ -606,8 +678,10 @@ export default function AdminPatientProfile() {
   async function addInvoice() {
     const items = (newInvoice.items || []).filter(it => it.description && it.amount !== '')
     if (items.length === 0) { alert('Add at least one item with description and amount.'); return }
-    const total = invoiceItemsTotal(items)
-    const paid = parseFloat(newInvoice.paid_amount) || 0
+    const subtotal = invoiceItemsTotal(items)
+    const discount = Math.min(Math.max(parseFloat(newInvoice.discount_amount) || 0, 0), subtotal)
+    const total = subtotal - discount
+    const paid = Math.min(Math.max(parseFloat(newInvoice.paid_amount) || 0, 0), total)
     const status = paid <= 0 ? 'unpaid' : (paid >= total ? 'paid' : 'partial')
     const invoiceNumber = 'UMDC-INV-' + Date.now().toString().slice(-8)
     const invoiceDate = newInvoice.date || new Date().toISOString().split('T')[0]
@@ -617,6 +691,8 @@ export default function AdminPatientProfile() {
       invoice_number: invoiceNumber,
       date: invoiceDate,
       items,
+      discount_amount: discount,
+      discount_reason: newInvoice.discount_reason || null,
       total_amount: total,
       paid_amount: paid,
       status,
@@ -628,7 +704,7 @@ export default function AdminPatientProfile() {
     // Auto-send the invoice on WhatsApp the moment it's saved
     if (newInvoice.sendWhatsApp && patient.phone) {
       const phoneToSend = cleanPhone(patient.phone)
-      const msgText = buildInvoiceWhatsAppMessage({ invoice_number: invoiceNumber, date: invoiceDate, items, total_amount: total, paid_amount: paid })
+      const msgText = buildInvoiceWhatsAppMessage({ invoice_number: invoiceNumber, date: invoiceDate, items, discount_amount: discount, total_amount: total, paid_amount: paid })
       sendWhatsApp(phoneToSend, msgText, 'invoice', patient.name).then(ok => {
         if (!ok) alert('Invoice saved, but the WhatsApp message could not be sent. You can share the PDF manually from the invoice card.')
       })
@@ -1122,7 +1198,16 @@ export default function AdminPatientProfile() {
               <button className="admin-btn-outline admin-btn-sm" onClick={addInvoiceItemRow} style={{ marginBottom: '16px' }}>+ Add Item</button>
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '14px', fontSize: '13px', color: 'var(--navy-800)', fontFamily: 'var(--font-body)' }}>
-                <strong>Total: ₹{invoiceItemsTotal(newInvoice.items).toLocaleString('en-IN')}</strong>
+                <strong>Subtotal: ₹{invoiceItemsTotal(newInvoice.items).toLocaleString('en-IN')}</strong>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                <Field label="Discount (₹, optional)" value={newInvoice.discount_amount} onChange={v => setNewInvoice(inv => ({ ...inv, discount_amount: v }))} type="number" />
+                <Field label="Discount Reason (optional)" value={newInvoice.discount_reason} onChange={v => setNewInvoice(inv => ({ ...inv, discount_reason: v }))} />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', margin: '2px 0 14px', fontSize: '13px', color: 'var(--navy-800)', fontFamily: 'var(--font-body)' }}>
+                <strong>Total after discount: ₹{Math.max(invoiceItemsTotal(newInvoice.items) - (parseFloat(newInvoice.discount_amount) || 0), 0).toLocaleString('en-IN')}</strong>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
@@ -1164,17 +1249,78 @@ export default function AdminPatientProfile() {
                   <span style={{ color: 'var(--text-muted)' }}>Total: <strong style={{ color: 'var(--navy-800)' }}>₹{Number(inv.total_amount).toLocaleString('en-IN')}</strong></span>
                   <span style={{ color: 'var(--text-muted)' }}>Paid: <strong style={{ color: '#1e8f5a' }}>₹{Number(inv.paid_amount).toLocaleString('en-IN')}</strong></span>
                   {due > 0 && <span style={{ color: 'var(--text-muted)' }}>Due: <strong style={{ color: '#c0392b' }}>₹{due.toLocaleString('en-IN')}</strong></span>}
+                  {Number(inv.discount_amount) > 0 && <span style={{ color: 'var(--text-muted)' }}>Discount: <strong style={{ color: '#b98d1f' }}>₹{Number(inv.discount_amount).toLocaleString('en-IN')}</strong></span>}
                 </div>
 
+                {editingInvoiceId === inv.id ? (
+                  <div style={{ background: 'var(--ivory)', border: '1px solid rgba(15,39,68,0.08)', borderRadius: '2px', padding: '16px', marginBottom: '12px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                      <Field label="Invoice Date" value={editInvoice.date} onChange={v => setEditInvoice(e => ({ ...e, date: v }))} type="date" />
+                    </div>
+
+                    <label style={{ fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 600, display: 'block', margin: '8px 0 8px' }}>Items</label>
+                    {editInvoice.items.map((item, idx) => (
+                      <div key={idx} style={{ display: 'flex', gap: '8px', marginBottom: '8px', alignItems: 'center' }}>
+                        <input
+                          placeholder="Description (e.g. RCT - Molar)"
+                          value={item.description}
+                          onChange={e => setEditInvoiceItem(idx, 'description', e.target.value)}
+                          style={{ flex: 3, padding: '9px 12px', border: '1px solid rgba(15,39,68,0.12)', borderRadius: '2px', fontSize: '0.85rem', fontFamily: 'var(--font-body)', outline: 'none' }}
+                        />
+                        <input
+                          type="number"
+                          placeholder="Amount"
+                          value={item.amount}
+                          onChange={e => setEditInvoiceItem(idx, 'amount', e.target.value)}
+                          style={{ flex: 1, padding: '9px 12px', border: '1px solid rgba(15,39,68,0.12)', borderRadius: '2px', fontSize: '0.85rem', fontFamily: 'var(--font-body)', outline: 'none' }}
+                        />
+                        {editInvoice.items.length > 1 && (
+                          <button onClick={() => removeEditInvoiceItemRow(idx)} style={{ background: 'none', border: 'none', color: '#c0392b', cursor: 'pointer', fontSize: '16px', padding: '4px 8px' }}>✕</button>
+                        )}
+                      </div>
+                    ))}
+                    <button className="admin-btn-outline admin-btn-sm" onClick={addEditInvoiceItemRow} style={{ marginBottom: '16px' }}>+ Add Item</button>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '14px', fontSize: '13px', color: 'var(--navy-800)', fontFamily: 'var(--font-body)' }}>
+                      <strong>Subtotal: ₹{invoiceItemsTotal(editInvoice.items).toLocaleString('en-IN')}</strong>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                      <Field label="Discount (₹)" value={editInvoice.discount_amount} onChange={v => setEditInvoice(e => ({ ...e, discount_amount: v }))} type="number" />
+                      <Field label="Discount Reason" value={editInvoice.discount_reason} onChange={v => setEditInvoice(e => ({ ...e, discount_reason: v }))} />
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', margin: '2px 0 14px', fontSize: '13px', color: 'var(--navy-800)', fontFamily: 'var(--font-body)' }}>
+                      <strong>Total after discount: ₹{Math.max(invoiceItemsTotal(editInvoice.items) - (parseFloat(editInvoice.discount_amount) || 0), 0).toLocaleString('en-IN')}</strong>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                      <Field label="Paid Amount (correct if wrong)" value={editInvoice.paid_amount} onChange={v => setEditInvoice(e => ({ ...e, paid_amount: v }))} type="number" />
+                    </div>
+                    <Field label="Notes" value={editInvoice.notes} onChange={v => setEditInvoice(e => ({ ...e, notes: v }))} multiline />
+
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', cursor: 'pointer', marginBottom: '12px' }}>
+                      <input type="checkbox" checked={editInvoice.notifyPatient} onChange={e => setEditInvoice(inv2 => ({ ...inv2, notifyPatient: e.target.checked }))} />
+                      📲 Send updated invoice to patient on WhatsApp
+                    </label>
+
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button className="admin-btn-primary admin-btn-sm" onClick={() => saveInvoiceEdit(inv.id)}>Save Changes</button>
+                      <button className="admin-btn-outline admin-btn-sm" onClick={cancelEditInvoice}>Cancel</button>
+                    </div>
+                  </div>
+                ) : (
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                   <button className="admin-btn-outline admin-btn-sm" onClick={() => downloadInvoice(inv)} disabled={invoicePdfLoading === inv.id}>
                     {invoicePdfLoading === inv.id ? 'Generating...' : '\ud83d\udcc4 Download PDF'}
                   </button>
+                  <button className="admin-btn-outline admin-btn-sm" onClick={() => startEditInvoice(inv)}>✏️ Edit</button>
                   {due > 0 && (
                     <button className="admin-btn-primary admin-btn-sm" onClick={() => recordPayment(inv)}>✅ Record Payment</button>
                   )}
                   <button onClick={() => deleteInvoice(inv.id)} style={{ background: 'none', border: 'none', color: '#c0392b', cursor: 'pointer', fontSize: '12px', fontFamily: 'var(--font-body)', marginLeft: 'auto' }}>Delete</button>
                 </div>
+                )}
               </div>
             )
           })}

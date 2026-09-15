@@ -278,7 +278,7 @@ export default function Home() {
             fontWeight: 600, color: '#ffffff', marginBottom: '4px',
             textShadow: '0 2px 10px rgba(0,0,0,0.5)',
           }}>
-            Dr. Preeti Rajgur
+            Dr. Preeti Rajguru
           </div>
           <div style={{
             fontSize: 'clamp(10px, 1.2vw, 13px)', color: 'rgba(255,255,255,0.85)',

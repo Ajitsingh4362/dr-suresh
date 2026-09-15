@@ -60,26 +60,56 @@ export default function Contact() {
     return () => { document.body.removeChild(script) }
   }, [])
 
+  const formElRef = useRef(null)
+
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value })
 
-  const openRazorpay = () => {
+  // Autofill (Chrome/Android/Google Autofill/Safari) often sets the DOM
+  // value directly without firing a normal 'input' event, so React state
+  // never updates and validation sees the field as empty even though it
+  // looks filled. Chrome & Safari both add the `-webkit-autofill` pseudo
+  // class the instant a field is autofilled — we attach a zero-length CSS
+  // animation to that pseudo class purely so we get an `animationstart`
+  // event we can hook into, then sync the autofilled value into state.
+  const handleAutofill = e => {
+    if (e.animationName === 'onAutoFillStart' && e.target.name) {
+      setForm(f => (f[e.target.name] === e.target.value ? f : { ...f, [e.target.name]: e.target.value }))
+    }
+  }
+
+  // Belt-and-braces fallback for any autofill flow the animation trick
+  // doesn't catch (older WebViews, some Android keyboard "fill" bars):
+  // read the live DOM values straight off the inputs right before we
+  // validate, instead of trusting only whatever React state happens to
+  // have synced by that point.
+  const readLiveFormValues = () => {
+    const el = formElRef.current
+    if (!el) return form
+    const live = { ...form }
+    el.querySelectorAll('input[name], select[name], textarea[name]').forEach(node => {
+      if (node.value) live[node.name] = node.value
+    })
+    return live
+  }
+
+  const openRazorpay = (data = form) => {
     if (!rzpReady) { alert('Payment gateway loading, please try again in a moment.'); return }
     const options = {
       key: RAZORPAY_KEY,
       amount: 50000, // ₹500 in paise — doctor se confirm karke change karna
       currency: 'INR',
       name: 'Usha Multi Speciality Dental Clinic',
-      description: form.program || 'Consultation Fee',
+      description: data.program || 'Consultation Fee',
       image: '/usha-dental-logo.png',
       prefill: {
-        name: form.name,
-        email: form.email,
-        contact: form.phone,
+        name: data.name,
+        email: data.email,
+        contact: data.phone,
       },
       theme: { color: '#C7A66A' },
       handler: function (response) {
         // Payment successful — ab form submit karo
-        submitForm(response.razorpay_payment_id)
+        submitForm(response.razorpay_payment_id, data)
       },
       modal: {
         ondismiss: () => setStatus(null),
@@ -89,43 +119,43 @@ export default function Contact() {
     rzp.open()
   }
 
-  const submitForm = async (paymentId = null) => {
+  const submitForm = async (paymentId = null, data = form) => {
     setStatus('loading')
 
     // Save to Supabase — admin panel mein dikhega
     await supabase.from('appointments').insert({
-      name: form.name,
-      phone: form.phone,
-      email: form.email || null,
-      service: form.program || null,
-      message: `Concern: ${form.concern}${form.message ? '\n' + form.message : ''}`,
-      preferred_date: form.preferred_date || null,
-      preferred_time: form.preferred_time || null,
+      name: data.name,
+      phone: data.phone,
+      email: data.email || null,
+      service: data.program || null,
+      message: `Concern: ${data.concern}${data.message ? '\n' + data.message : ''}`,
+      preferred_date: data.preferred_date || null,
+      preferred_time: data.preferred_time || null,
       status: 'pending',
     })
 
     // EmailJS bhi try karo (optional, fail hone pe bhi booking save rahegi)
     try {
       await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-        name:       form.name,
-        phone:      form.phone,
-        email:      form.email || 'Not provided',
-        program:    form.program || 'Not specified',
-        concern:    form.concern,
-        message:    form.message || 'No additional message',
+        name:       data.name,
+        phone:      data.phone,
+        email:      data.email || 'Not provided',
+        program:    data.program || 'Not specified',
+        concern:    data.concern,
+        message:    data.message || 'No additional message',
         pay_mode:   payMode === 'online' ? 'Pay Online (Razorpay)' : 'Pay at Clinic',
         payment_id: paymentId || 'N/A',
       }, EMAILJS_PUBLIC_KEY)
     } catch (_) {}
 
     // Patient ko turant ek WhatsApp confirmation-of-request bhejo (best-effort)
-    if (form.phone) {
-      const englishMsg = `Hi ${form.name}, thank you for reaching out to Usha Multi Speciality Dental Clinic! We've received your appointment request${form.program ? ` for ${form.program}` : ''}. Our team will review it and you'll get another WhatsApp message here as soon as it's confirmed. \ud83e\uddf7`
-      const welcomeMsg = bilingual(`Namaste ${form.name}, humein aapki appointment request mil gayi hai — jald hi confirm karke bataayenge.`, englishMsg) + WHATSAPP_FOOTER
+    if (data.phone) {
+      const englishMsg = `Hi ${data.name}, thank you for reaching out to Usha Multi Speciality Dental Clinic! We've received your appointment request${data.program ? ` for ${data.program}` : ''}. Our team will review it and you'll get another WhatsApp message here as soon as it's confirmed. \ud83e\uddf7`
+      const welcomeMsg = bilingual(`Namaste ${data.name}, humein aapki appointment request mil gayi hai — jald hi confirm karke bataayenge.`, englishMsg) + WHATSAPP_FOOTER
       fetch(`${WHATSAPP_API}/notify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ number: cleanPhone(form.phone), message: welcomeMsg, type: 'booking_confirmation', name: form.name }),
+        body: JSON.stringify({ number: cleanPhone(data.phone), message: welcomeMsg, type: 'booking_confirmation', name: data.name }),
       }).catch(err => console.error('Booking welcome WhatsApp message failed:', err))
     }
 
@@ -133,14 +163,19 @@ export default function Contact() {
     setForm({ name: '', phone: '', email: '', program: '', concern: '', message: '', preferred_date: '', preferred_time: '' })
   }
 
-  const handleSubmit = () => {
-    if (!form.name.trim() || !form.phone.trim() || !form.concern.trim()) {
+  const handleSubmit = e => {
+    if (e) e.preventDefault()
+
+    const live = readLiveFormValues()
+    if (JSON.stringify(live) !== JSON.stringify(form)) setForm(live)
+
+    if (!(live.name || '').trim() || !(live.phone || '').trim() || !(live.concern || '').trim()) {
       setStatus('error'); return
     }
     if (payMode === 'online') {
-      openRazorpay()
+      openRazorpay(live)
     } else {
-      submitForm()
+      submitForm(null, live)
     }
   }
 
@@ -261,8 +296,10 @@ export default function Contact() {
               </div>
             </div>
 
-            {/* Form */}
-            <div className="contact-form-col" style={{ background: 'var(--white)', padding: '40px', borderRadius: '4px', border: '1px solid rgba(199,166,106,0.2)', boxShadow: 'var(--shadow-md)', minWidth: 0, position: 'relative', overflow: 'hidden' }}>
+            {/* Form — a real <form> element (not a div) so browser/phone
+                autofill engines (Chrome, Android Autofill, Safari) recognise
+                and reliably fill it, instead of guessing at loose divs. */}
+            <form ref={formElRef} onSubmit={handleSubmit} noValidate className="contact-form-col" style={{ background: 'var(--white)', padding: '40px', borderRadius: '4px', border: '1px solid rgba(199,166,106,0.2)', boxShadow: 'var(--shadow-md)', minWidth: 0, position: 'relative', overflow: 'hidden' }}>
               <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'var(--gold)' }} />
               <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '28px', color: 'var(--navy-800)', marginBottom: '6px' }}>Book an Appointment</h3>
               <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '28px' }}>We will reach out within 24 hours to confirm your appointment.</p>
@@ -271,13 +308,13 @@ export default function Contact() {
                 <div className="form-row-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
                   <div>
                     <label style={{ fontSize: '10px', color: 'var(--gold-deep)', letterSpacing: '1.5px', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Full Name *</label>
-                    <input name="name" value={form.name} onChange={handleChange} placeholder="Your name" style={inp}
+                    <input name="name" autoComplete="name" value={form.name} onChange={handleChange} onAnimationStart={handleAutofill} placeholder="Your name" style={inp}
                       onFocus={e => e.target.style.borderColor = 'rgba(199,166,106,0.6)'}
                       onBlur={e => e.target.style.borderColor = 'rgba(199,166,106,0.2)'} />
                   </div>
                   <div>
                     <label style={{ fontSize: '10px', color: 'var(--gold-deep)', letterSpacing: '1.5px', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Phone / WhatsApp *</label>
-                    <input name="phone" value={form.phone} onChange={handleChange} placeholder="+91 XXXXX XXXXX" style={inp}
+                    <input name="phone" type="tel" autoComplete="tel" value={form.phone} onChange={handleChange} onAnimationStart={handleAutofill} placeholder="+91 XXXXX XXXXX" style={inp}
                       onFocus={e => e.target.style.borderColor = 'rgba(199,166,106,0.6)'}
                       onBlur={e => e.target.style.borderColor = 'rgba(199,166,106,0.2)'} />
                   </div>
@@ -285,7 +322,7 @@ export default function Contact() {
 
                 <div>
                   <label style={{ fontSize: '10px', color: 'var(--gold-deep)', letterSpacing: '1.5px', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Email Address</label>
-                  <input name="email" value={form.email} onChange={handleChange} placeholder="email@example.com" style={inp}
+                  <input name="email" type="email" autoComplete="email" value={form.email} onChange={handleChange} onAnimationStart={handleAutofill} placeholder="email@example.com" style={inp}
                     onFocus={e => e.target.style.borderColor = 'rgba(199,166,106,0.6)'}
                     onBlur={e => e.target.style.borderColor = 'rgba(199,166,106,0.2)'} />
                 </div>
@@ -300,7 +337,7 @@ export default function Contact() {
 
                 <div>
                   <label style={{ fontSize: '10px', color: 'var(--gold-deep)', letterSpacing: '1.5px', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Dental Concern *</label>
-                  <input name="concern" value={form.concern} onChange={handleChange} placeholder="Brief description of your dental concern" style={inp}
+                  <input name="concern" autoComplete="off" value={form.concern} onChange={handleChange} onAnimationStart={handleAutofill} placeholder="Brief description of your dental concern" style={inp}
                     onFocus={e => e.target.style.borderColor = 'rgba(199,166,106,0.6)'}
                     onBlur={e => e.target.style.borderColor = 'rgba(199,166,106,0.2)'} />
                 </div>
@@ -343,7 +380,7 @@ export default function Contact() {
 
                 <div>
                   <label style={{ fontSize: '10px', color: 'var(--gold-deep)', letterSpacing: '1.5px', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Additional Message</label>
-                  <textarea name="message" value={form.message} onChange={handleChange}
+                  <textarea name="message" autoComplete="off" value={form.message} onChange={handleChange}
                     placeholder="Any additional context, questions, or information..." rows={4}
                     style={{ ...inp, resize: 'vertical', lineHeight: '1.7' }}
                     onFocus={e => e.target.style.borderColor = 'rgba(199,166,106,0.6)'}
@@ -391,7 +428,7 @@ export default function Contact() {
                   </div>
                 )}
 
-                <button onClick={handleSubmit} disabled={status === 'loading'}
+                <button type="submit" disabled={status === 'loading'}
                   style={{
                     width: '100%', background: status === 'loading' ? 'rgba(199,166,106,0.5)' : 'linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 55%, var(--gold-deep) 100%)',
                     color: 'var(--navy-900)', border: 'none', padding: '16px',
@@ -409,10 +446,26 @@ export default function Contact() {
                   🔒 Your information is secure. We never share patient data.
                 </p>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       </section>
+      <style>{`
+        /* Autofill detection trick: Chrome & Safari both apply
+           :-webkit-autofill the instant a field is autofilled by the
+           browser, the phone's keyboard, or a password/contact manager.
+           This animation does nothing visually — it exists only so the
+           resulting 'animationstart' event tells handleAutofill() to sync
+           the value into React state, since autofill doesn't reliably
+           fire a normal input/change event on its own. */
+        @keyframes onAutoFillStart { from {} to {} }
+        input:-webkit-autofill,
+        select:-webkit-autofill,
+        textarea:-webkit-autofill {
+          animation-name: onAutoFillStart;
+          animation-duration: 0.01s;
+        }
+      `}</style>
     </div>
   )
 }

@@ -114,11 +114,12 @@ export default function About() {
               </div>
               <div style={{ textAlign: 'center', marginBottom: '28px' }}>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: '22px', color: 'var(--navy-800)', fontWeight: 600 }}>Dr. Suresh Kumar</div>
-                <div style={{ fontSize: '11px', color: 'var(--gold-deep)', letterSpacing: '1.5px', textTransform: 'uppercase', marginTop: '6px' }}>Usha Multi Speciality Dental Clinic</div>
+                <div style={{ fontSize: '11px', color: 'var(--gold-deep)', letterSpacing: '1.5px', textTransform: 'uppercase', marginTop: '6px' }}>BDS (GDC & Hosp, Mumbai)</div>
               </div>
               <div style={{ borderTop: '1px solid rgba(15,39,68,0.1)', paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 {[
-                  { label: 'Qualification', value: 'Consultant Implantologist' },
+                  { label: 'Qualification', value: 'BDS (GDC & Hosp, Mumbai), Post GCOI (Maulana Azad D.S., New Delhi)' },
+                  { label: 'Role', value: 'Consultant Implantologist' },
                   { label: 'Established', value: '2010' },
                   { label: 'Clinic', value: 'Sitamarhi, Bihar' },
                   { label: 'Focus', value: 'Family & Cosmetic Dentistry' },
