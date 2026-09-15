@@ -396,9 +396,9 @@ export default function Home() {
                 fontWeight: 600, color: 'var(--navy-800)',
                 lineHeight: 1.1, marginBottom: '24px',
               }}>
-                Gentle Care<br />for a{' '}
+                Gentle Care for a{' '}
                 <span style={{ color: 'var(--maroon)', display: 'block' }}>
-                  Healthy, Confident<br />Smile
+                  Healthy, Confident Smile
                 </span>
               </h1>
 
