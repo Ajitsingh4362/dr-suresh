@@ -89,7 +89,7 @@ export default function About() {
                 <img src="/dr-suresh-kumar.jpg" alt="Dr. Suresh Kumar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '19px', color: 'var(--navy-800)', fontWeight: 600 }}>Dr. Suresh Kumar</div>
-              <div style={{ fontSize: '12px', color: 'var(--gold)', letterSpacing: '1px', textTransform: 'uppercase', marginTop: '4px' }}>Consultant Implantologist</div>
+              <div style={{ fontSize: '12px', color: 'var(--gold)', letterSpacing: '1px', textTransform: 'uppercase', marginTop: '4px', lineHeight: '1.6' }}>BDS(GDC&Hosp,Mumbai)<br />Post GCOI-(Maulana Azad D S New Delhi)</div>
             </div>
             <div style={{ textAlign: 'center' }}>
               <div style={{ width: '160px', height: '160px', borderRadius: '50%', margin: '0 auto 18px', overflow: 'hidden', border: '3px solid var(--gold)' }}>
@@ -114,7 +114,7 @@ export default function About() {
               </div>
               <div style={{ textAlign: 'center', marginBottom: '28px' }}>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: '22px', color: 'var(--navy-800)', fontWeight: 600 }}>Dr. Suresh Kumar</div>
-                <div style={{ fontSize: '11px', color: 'var(--gold-deep)', letterSpacing: '1.5px', textTransform: 'uppercase', marginTop: '6px' }}>BDS (GDC & Hosp, Mumbai)</div>
+                <div style={{ fontSize: '11px', color: 'var(--gold-deep)', letterSpacing: '1.5px', textTransform: 'uppercase', marginTop: '6px', lineHeight: '1.6' }}>BDS(GDC&Hosp,Mumbai)<br />Post GCOI-(Maulana Azad D S New Delhi)</div>
               </div>
               <div style={{ borderTop: '1px solid rgba(15,39,68,0.1)', paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 {[
