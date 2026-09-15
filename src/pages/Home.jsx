@@ -536,8 +536,8 @@ export default function Home() {
             padding: '4px 4px 16px', maxWidth: '640px', margin: '0 auto',
           }}>
             {[
-              { photo: '/dr-suresh-kumar.jpg', name: 'Dr. Suresh Kumar', qual: 'Consultant Implantologist' },
-              { photo: '/dr-preeti-rajguru.jpg', name: 'Dr. Preeti Rajguru', qual: 'MDS' },
+              { photo: '/dr-suresh-kumar.jpg', name: 'Dr. Suresh Kumar', qual: ['BDS(GDC&Hosp,Mumbai)', 'Post GCOI-(Maulana Azad D S New Delhi)'] },
+              { photo: '/dr-preeti-rajguru.jpg', name: 'Dr. Preeti Rajguru', qual: ['MDS'] },
             ].map((d, i) => (
               <div key={i} style={{
                 flex: '0 0 260px', scrollSnapAlign: 'center', textAlign: 'center',
@@ -548,7 +548,11 @@ export default function Home() {
                   <img src={d.photo} alt={d.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: '18px', color: 'var(--navy-800)', fontWeight: 600 }}>{d.name}</div>
-                <div style={{ fontSize: '12px', color: 'var(--gold)', letterSpacing: '1px', textTransform: 'uppercase', marginTop: '4px' }}>{d.qual}</div>
+                <div style={{ fontSize: '12px', color: 'var(--gold)', letterSpacing: '1px', textTransform: 'uppercase', marginTop: '4px', lineHeight: '1.6' }}>
+                  {d.qual.map((line, li) => (
+                    <span key={li}>{line}{li < d.qual.length - 1 && <br />}</span>
+                  ))}
+                </div>
               </div>
             ))}
           </div>
