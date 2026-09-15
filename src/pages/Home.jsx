@@ -271,7 +271,7 @@ export default function Home() {
             letterSpacing: '2.5px', textTransform: 'uppercase', fontWeight: 600,
             marginBottom: '22px', textShadow: '0 2px 8px rgba(0,0,0,0.5)',
           }}>
-            BDS(GDC&Hosp,Mumbai)<br />Post GCOI-(Maulana Azad D S New Delhi)
+            Multi-Speciality Dental Care
           </div>
           <div style={{
             fontFamily: 'var(--font-display)', fontSize: 'clamp(16px, 2.2vw, 24px)',
