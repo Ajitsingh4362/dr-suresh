@@ -360,7 +360,12 @@ export default function AdminPatientProfile() {
     const subtotal = invoiceItemsTotal(items)
     const discount = Math.min(Math.max(parseFloat(editInvoice.discount_amount) || 0, 0), subtotal)
     const total = subtotal - discount
-    const paid = Math.min(Math.max(parseFloat(editInvoice.paid_amount) || 0, 0), total)
+    // Paid amount is NOT edited here anymore — it's always derived from the
+    // Payment History (Record Payment) entries, so it stays in sync with
+    // that installment-by-installment ledger. We only cap it to the new
+    // total in case a discount now makes it lower than what's already paid.
+    const inv = invoices.find(i => i.id === invId)
+    const paid = Math.min(Number(inv?.paid_amount || 0), total)
     const status = paid <= 0 ? 'unpaid' : (paid >= total ? 'paid' : 'partial')
 
     const payload = {
@@ -378,7 +383,6 @@ export default function AdminPatientProfile() {
     if (error) { alert('Could not save changes: ' + error.message); return }
 
     if (editInvoice.notifyPatient && patient.phone) {
-      const inv = invoices.find(i => i.id === invId)
       const msgText = buildInvoiceWhatsAppMessage({ invoice_number: inv?.invoice_number, date: editInvoice.date, items, total_amount: total, paid_amount: paid })
       sendWhatsApp(cleanPhone(patient.phone), msgText, 'invoice', patient.name).then(ok => {
         if (!ok) alert('Invoice updated, but the WhatsApp message could not be sent.')
@@ -564,7 +568,7 @@ export default function AdminPatientProfile() {
     if (feeAmt > 0) {
       const invoiceNumber = 'UMDC-INV-' + Date.now().toString().slice(-8)
       const feeDate = new Date().toISOString().split('T')[0]
-      const { error: feeErr } = await supabase.from('patient_invoices').insert({
+      const { data: feeInv, error: feeErr } = await supabase.from('patient_invoices').insert({
         patient_id: patientId,
         invoice_number: invoiceNumber,
         date: feeDate,
@@ -573,10 +577,18 @@ export default function AdminPatientProfile() {
         paid_amount: feeAmt,
         status: 'paid',
         notes: null,
-      })
+      }).select().single()
       if (feeErr) {
         alert('Patient saved, but the appointment fee could not be recorded:\n\n' + feeErr.message)
       } else {
+        if (feeInv) {
+          await supabase.from('patient_invoice_payments').insert({
+            invoice_id: feeInv.id,
+            amount: feeAmt,
+            paid_on: feeDate,
+            note: 'Paid at invoice creation',
+          })
+        }
         if (patient.phone) {
           const msgText = buildInvoiceWhatsAppMessage({ invoice_number: invoiceNumber, date: feeDate, items: [{ description: 'Appointment Fee', amount: feeAmt }], total_amount: feeAmt, paid_amount: feeAmt })
           sendWhatsApp(cleanPhone(patient.phone), msgText).then(ok => {
@@ -719,8 +731,20 @@ export default function AdminPatientProfile() {
       status,
       notes: newInvoice.notes || null,
     }
-    const { error } = await supabase.from('patient_invoices').insert(payload)
+    const { data: newInv, error } = await supabase.from('patient_invoices').insert(payload).select().single()
     if (error) { alert('Could not save invoice: ' + error.message); return }
+
+    // If money was collected right at invoice creation, record it as the
+    // first installment too — so it's counted correctly if more payments
+    // come in later, and shows up in the Payment History list.
+    if (paid > 0 && newInv) {
+      await supabase.from('patient_invoice_payments').insert({
+        invoice_id: newInv.id,
+        amount: paid,
+        paid_on: invoiceDate,
+        note: 'Paid at invoice creation',
+      })
+    }
 
     // Auto-send the invoice on WhatsApp the moment it's saved
     if (newInvoice.sendWhatsApp && patient.phone) {
@@ -1345,9 +1369,9 @@ export default function AdminPatientProfile() {
                       <strong>Total after discount: ₹{Math.max(invoiceItemsTotal(editInvoice.items) - (parseFloat(editInvoice.discount_amount) || 0), 0).toLocaleString('en-IN')}</strong>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-                      <Field label="Paid Amount (correct if wrong)" value={editInvoice.paid_amount} onChange={v => setEditInvoice(e => ({ ...e, paid_amount: v }))} type="number" />
-                    </div>
+                    <p style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', margin: '2px 0 14px' }}>
+                      Paid so far: <strong style={{ color: '#1e8f5a' }}>₹{Number(inv.paid_amount).toLocaleString('en-IN')}</strong> — recorded automatically from Payment History below. Use "✅ Record Payment" to add more, or remove a wrong entry from the history.
+                    </p>
                     <Field label="Notes" value={editInvoice.notes} onChange={v => setEditInvoice(e => ({ ...e, notes: v }))} multiline />
 
                     <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', cursor: 'pointer', marginBottom: '12px' }}>
