@@ -189,7 +189,7 @@ function initials(name) {
   return (name || '').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
 }
 
-function Field({ label, value, onChange, type = 'text', multiline, options }) {
+function Field({ label, value, onChange, type = 'text', multiline, options, placeholder }) {
   const style = { padding: '10px 14px', border: '1px solid rgba(15,39,68,0.12)', borderRadius: '2px', fontSize: '0.88rem', fontFamily: 'var(--font-body)', outline: 'none', width: '100%', background: 'var(--white)', resize: 'vertical' }
   return (
     <div style={{ marginBottom: '16px' }}>
@@ -200,9 +200,9 @@ function Field({ label, value, onChange, type = 'text', multiline, options }) {
           {options.map(o => <option key={o}>{o}</option>)}
         </select>
       ) : multiline ? (
-        <textarea value={value || ''} onChange={e => onChange(e.target.value)} rows={3} style={style} />
+        <textarea value={value || ''} onChange={e => onChange(e.target.value)} rows={3} style={style} placeholder={placeholder} />
       ) : (
-        <input type={type} value={value || ''} onChange={e => onChange(e.target.value)} style={style} />
+        <input type={type} value={value || ''} onChange={e => onChange(e.target.value)} style={style} placeholder={placeholder} />
       )}
     </div>
   )
@@ -444,6 +444,12 @@ export default function AdminPatientProfile() {
   // Appointments
   const [appointments, setAppointments] = useState([])
 
+  // Installment payments — keyed by invoice_id -> array of payment rows
+  const [payments, setPayments] = useState({})
+  const [payingInvoice, setPayingInvoice] = useState(null)
+  const [paymentForm, setPaymentForm] = useState({ amount: '', paid_on: '', note: '' })
+  const [savingPayment, setSavingPayment] = useState(false)
+
   useEffect(() => {
     if (!isNew) fetchAll()
   }, [id])
@@ -465,6 +471,21 @@ export default function AdminPatientProfile() {
     setDocs(d || [])
     setAppointments(a || [])
     setInvoices(inv || [])
+
+    // Fetch each invoice's installment history in one go, grouped by invoice_id
+    const invoiceIds = (inv || []).map(i => i.id)
+    if (invoiceIds.length) {
+      const { data: pays } = await supabase.from('patient_invoice_payments').select('*').in('invoice_id', invoiceIds).order('paid_on', { ascending: false })
+      const grouped = {}
+      ;(pays || []).forEach(pmt => {
+        if (!grouped[pmt.invoice_id]) grouped[pmt.invoice_id] = []
+        grouped[pmt.invoice_id].push(pmt)
+      })
+      setPayments(grouped)
+    } else {
+      setPayments({})
+    }
+
     setLoading(false)
   }
 
@@ -715,16 +736,35 @@ export default function AdminPatientProfile() {
     fetchAll()
   }
 
-  async function recordPayment(inv) {
-    const due = Number(inv.total_amount) - Number(inv.paid_amount)
-    const amt = prompt(`Record payment for ${inv.invoice_number}\nBalance due: ₹${due}`, due)
-    if (amt === null) return
-    const paidNow = parseFloat(amt)
-    if (isNaN(paidNow) || paidNow <= 0) return
-    const newPaid = Math.min(Number(inv.paid_amount) + paidNow, Number(inv.total_amount))
-    const status = newPaid >= Number(inv.total_amount) ? 'paid' : 'partial'
-    const { error } = await supabase.from('patient_invoices').update({ paid_amount: newPaid, status }).eq('id', inv.id)
-    if (error) { alert('Could not update payment: ' + error.message); return }
+  function openRecordPayment(inv) {
+    const due = Math.max(Number(inv.total_amount) - Number(inv.paid_amount), 0)
+    setPayingInvoice(inv)
+    setPaymentForm({ amount: due > 0 ? String(due) : '', paid_on: new Date().toISOString().split('T')[0], note: '' })
+  }
+
+  async function savePayment() {
+    if (!payingInvoice) return
+    const amt = parseFloat(paymentForm.amount)
+    if (isNaN(amt) || amt <= 0) { alert('Enter a valid payment amount'); return }
+    if (!paymentForm.paid_on) { alert('Pick the date this payment was received'); return }
+
+    setSavingPayment(true)
+    const { error } = await supabase.from('patient_invoice_payments').insert({
+      invoice_id: payingInvoice.id,
+      amount: amt,
+      paid_on: paymentForm.paid_on,
+      note: paymentForm.note || null,
+    })
+    setSavingPayment(false)
+    if (error) { alert('Could not record payment: ' + error.message); return }
+    setPayingInvoice(null)
+    fetchAll()
+  }
+
+  async function deletePayment(paymentId) {
+    if (!confirm('Delete this payment entry? The invoice\u2019s paid/due amount will be recalculated automatically.')) return
+    const { error } = await supabase.from('patient_invoice_payments').delete().eq('id', paymentId)
+    if (error) { alert('Could not delete payment: ' + error.message); return }
     fetchAll()
   }
 
@@ -1327,14 +1367,71 @@ export default function AdminPatientProfile() {
                   </button>
                   <button className="admin-btn-outline admin-btn-sm" onClick={() => startEditInvoice(inv)}>✏️ Edit</button>
                   {due > 0 && (
-                    <button className="admin-btn-primary admin-btn-sm" onClick={() => recordPayment(inv)}>✅ Record Payment</button>
+                    <button className="admin-btn-primary admin-btn-sm" onClick={() => openRecordPayment(inv)}>✅ Record Payment</button>
                   )}
                   <button onClick={() => deleteInvoice(inv.id)} style={{ background: 'none', border: 'none', color: '#c0392b', cursor: 'pointer', fontSize: '12px', fontFamily: 'var(--font-body)', marginLeft: 'auto' }}>Delete</button>
                 </div>
                 )}
+
+                {/* Payment history — every installment with its own date */}
+                {(payments[inv.id] || []).length > 0 && (
+                  <div style={{ marginTop: '14px', paddingTop: '12px', borderTop: '1px solid rgba(15,39,68,0.08)' }}>
+                    <p style={{ fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 600, marginBottom: '10px' }}>
+                      Payment History ({payments[inv.id].length})
+                    </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {payments[inv.id].map(pmt => (
+                        <div key={pmt.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', fontSize: '12px', fontFamily: 'var(--font-body)', background: 'var(--ivory)', border: '1px solid rgba(15,39,68,0.06)', borderRadius: '2px', padding: '8px 12px' }}>
+                          <span style={{ color: '#1e8f5a', fontWeight: 700, flexShrink: 0 }}>₹{Number(pmt.amount).toLocaleString('en-IN')}</span>
+                          <span style={{ color: 'var(--text-muted)', flexShrink: 0 }}>
+                            📅 {new Date(pmt.paid_on).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                          </span>
+                          {pmt.note && <span style={{ color: 'var(--text-light)', flex: 1, minWidth: '100px' }}>{pmt.note}</span>}
+                          <button onClick={() => deletePayment(pmt.id)} style={{ background: 'none', border: 'none', color: '#c0392b', cursor: 'pointer', fontSize: '11px', fontFamily: 'var(--font-body)', marginLeft: 'auto', flexShrink: 0 }}>Remove</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )
           })}
+
+          {/* Record Payment Modal — lets one invoice be paid in several installments,
+              each with its own date; the due amount recalculates automatically. */}
+          {payingInvoice && (
+            <>
+              <div style={{ position: 'fixed', inset: 0, background: 'rgba(7,15,28,0.5)', backdropFilter: 'blur(4px)', zIndex: 1000 }} onClick={() => !savingPayment && setPayingInvoice(null)} />
+              <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', background: 'var(--white)', borderRadius: '8px', width: '92%', maxWidth: '420px', maxHeight: '85vh', overflowY: 'auto', zIndex: 1001, boxShadow: '0 20px 60px rgba(7,15,28,0.25)' }}>
+                <div style={{ background: 'var(--navy-800)', padding: '18px 20px', position: 'relative' }}>
+                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'var(--gold)' }} />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <p style={{ fontFamily: 'var(--font-display)', fontSize: '1.05rem', fontWeight: 600, color: 'var(--gold-pale)', margin: 0 }}>✅ Record Payment</p>
+                      <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-body)', margin: '3px 0 0' }}>{payingInvoice.invoice_number}</p>
+                    </div>
+                    <button onClick={() => !savingPayment && setPayingInvoice(null)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', fontSize: '20px' }}>✕</button>
+                  </div>
+                </div>
+
+                <div style={{ padding: '20px' }}>
+                  <p style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', marginBottom: '16px' }}>
+                    Balance due: <strong style={{ color: '#c0392b' }}>₹{Math.max(Number(payingInvoice.total_amount) - Number(payingInvoice.paid_amount), 0).toLocaleString('en-IN')}</strong>
+                    {' '}(of ₹{Number(payingInvoice.total_amount).toLocaleString('en-IN')} total)
+                  </p>
+
+                  <Field label="Amount Received (₹)" value={paymentForm.amount} onChange={v => setPaymentForm(f => ({ ...f, amount: v }))} type="number" />
+                  <Field label="Date Received" value={paymentForm.paid_on} onChange={v => setPaymentForm(f => ({ ...f, paid_on: v }))} type="date" />
+                  <Field label="Note (optional)" value={paymentForm.note} onChange={v => setPaymentForm(f => ({ ...f, note: v }))} placeholder="e.g. Cash, UPI, 2nd installment..." />
+
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
+                    <button className="admin-btn-primary" style={{ flex: 1 }} onClick={savePayment} disabled={savingPayment}>{savingPayment ? 'Saving...' : 'Save Payment'}</button>
+                    <button className="admin-btn-outline" style={{ flex: 1 }} onClick={() => setPayingInvoice(null)} disabled={savingPayment}>Cancel</button>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       )}
 
