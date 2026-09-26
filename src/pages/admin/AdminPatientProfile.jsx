@@ -323,9 +323,9 @@ export default function AdminPatientProfile() {
   })
   const [newInvoice, setNewInvoice] = useState(blankInvoice())
 
-  // Edit Invoice — lets the admin correct a mistake, apply a discount, or
-  // change the paid amount (up or down) on an existing invoice, instead of
-  // only being able to add payments on top via Record Payment.
+  // Edit Invoice — lets the admin correct a mistake or apply a discount on
+  // an existing invoice. Paid amount is no longer editable here — it's
+  // always derived from Payment History (Pay Remaining Payment) entries.
   const [editingInvoiceId, setEditingInvoiceId] = useState(null)
   const [editInvoice, setEditInvoice] = useState(null)
   function startEditInvoice(inv) {
@@ -1370,7 +1370,7 @@ export default function AdminPatientProfile() {
                     </div>
 
                     <p style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', margin: '2px 0 14px' }}>
-                      Paid so far: <strong style={{ color: '#1e8f5a' }}>₹{Number(inv.paid_amount).toLocaleString('en-IN')}</strong> — recorded automatically from Payment History below. Use "✅ Record Payment" to add more, or remove a wrong entry from the history.
+                      Paid so far: <strong style={{ color: '#1e8f5a' }}>₹{Number(inv.paid_amount).toLocaleString('en-IN')}</strong> — recorded automatically from Payment History below. Use "💰 Pay Remaining Payment" to add more, or remove a wrong entry from the history.
                     </p>
                     <Field label="Notes" value={editInvoice.notes} onChange={v => setEditInvoice(e => ({ ...e, notes: v }))} multiline />
 
@@ -1391,7 +1391,7 @@ export default function AdminPatientProfile() {
                   </button>
                   <button className="admin-btn-outline admin-btn-sm" onClick={() => startEditInvoice(inv)}>✏️ Edit</button>
                   {due > 0 && (
-                    <button className="admin-btn-primary admin-btn-sm" onClick={() => openRecordPayment(inv)}>✅ Record Payment</button>
+                    <button className="admin-btn-primary admin-btn-sm" onClick={() => openRecordPayment(inv)}>💰 Pay Remaining Payment</button>
                   )}
                   <button onClick={() => deleteInvoice(inv.id)} style={{ background: 'none', border: 'none', color: '#c0392b', cursor: 'pointer', fontSize: '12px', fontFamily: 'var(--font-body)', marginLeft: 'auto' }}>Delete</button>
                 </div>
@@ -1421,8 +1421,8 @@ export default function AdminPatientProfile() {
             )
           })}
 
-          {/* Record Payment Modal — lets one invoice be paid in several installments,
-              each with its own date; the due amount recalculates automatically. */}
+          {/* Pay Remaining Payment Modal — lets one invoice be paid in several
+              installments, each with its own date; due recalculates automatically. */}
           {payingInvoice && (
             <>
               <div style={{ position: 'fixed', inset: 0, background: 'rgba(7,15,28,0.5)', backdropFilter: 'blur(4px)', zIndex: 1000 }} onClick={() => !savingPayment && setPayingInvoice(null)} />
@@ -1431,7 +1431,7 @@ export default function AdminPatientProfile() {
                   <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'var(--gold)' }} />
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                      <p style={{ fontFamily: 'var(--font-display)', fontSize: '1.05rem', fontWeight: 600, color: 'var(--gold-pale)', margin: 0 }}>✅ Record Payment</p>
+                      <p style={{ fontFamily: 'var(--font-display)', fontSize: '1.05rem', fontWeight: 600, color: 'var(--gold-pale)', margin: 0 }}>💰 Pay Remaining Payment</p>
                       <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-body)', margin: '3px 0 0' }}>{payingInvoice.invoice_number}</p>
                     </div>
                     <button onClick={() => !savingPayment && setPayingInvoice(null)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', fontSize: '20px' }}>✕</button>
@@ -1439,17 +1439,22 @@ export default function AdminPatientProfile() {
                 </div>
 
                 <div style={{ padding: '20px' }}>
-                  <p style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', marginBottom: '16px' }}>
-                    Balance due: <strong style={{ color: '#c0392b' }}>₹{Math.max(Number(payingInvoice.total_amount) - Number(payingInvoice.paid_amount), 0).toLocaleString('en-IN')}</strong>
-                    {' '}(of ₹{Number(payingInvoice.total_amount).toLocaleString('en-IN')} total)
-                  </p>
+                  <div style={{ background: 'rgba(192,57,43,0.06)', border: '1px solid rgba(192,57,43,0.15)', borderRadius: '4px', padding: '12px 14px', marginBottom: '18px' }}>
+                    <p style={{ fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 600, margin: '0 0 4px' }}>Remaining Amount</p>
+                    <p style={{ fontSize: '1.4rem', fontWeight: 700, color: '#c0392b', fontFamily: 'var(--font-display)', margin: 0 }}>
+                      ₹{Math.max(Number(payingInvoice.total_amount) - Number(payingInvoice.paid_amount), 0).toLocaleString('en-IN')}
+                    </p>
+                    <p style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', margin: '4px 0 0' }}>
+                      Paid ₹{Number(payingInvoice.paid_amount).toLocaleString('en-IN')} of ₹{Number(payingInvoice.total_amount).toLocaleString('en-IN')} total
+                    </p>
+                  </div>
 
-                  <Field label="Amount Received (₹)" value={paymentForm.amount} onChange={v => setPaymentForm(f => ({ ...f, amount: v }))} type="number" />
-                  <Field label="Date Received" value={paymentForm.paid_on} onChange={v => setPaymentForm(f => ({ ...f, paid_on: v }))} type="date" />
+                  <Field label="Pay Amount (₹)" value={paymentForm.amount} onChange={v => setPaymentForm(f => ({ ...f, amount: v }))} type="number" />
+                  <Field label="Date" value={paymentForm.paid_on} onChange={v => setPaymentForm(f => ({ ...f, paid_on: v }))} type="date" />
                   <Field label="Note (optional)" value={paymentForm.note} onChange={v => setPaymentForm(f => ({ ...f, note: v }))} placeholder="e.g. Cash, UPI, 2nd installment..." />
 
                   <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
-                    <button className="admin-btn-primary" style={{ flex: 1 }} onClick={savePayment} disabled={savingPayment}>{savingPayment ? 'Saving...' : 'Save Payment'}</button>
+                    <button className="admin-btn-primary" style={{ flex: 1 }} onClick={savePayment} disabled={savingPayment}>{savingPayment ? 'Submitting...' : 'Submit'}</button>
                     <button className="admin-btn-outline" style={{ flex: 1 }} onClick={() => setPayingInvoice(null)} disabled={savingPayment}>Cancel</button>
                   </div>
                 </div>
