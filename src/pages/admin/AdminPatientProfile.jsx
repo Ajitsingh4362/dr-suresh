@@ -916,6 +916,17 @@ export default function AdminPatientProfile() {
 
           <div style={{ flex: 1 }}>
             <input value={patient.name} onChange={e => setP('name', e.target.value)} placeholder="Patient Full Name" style={{ background: 'transparent', border: 'none', outline: 'none', fontFamily: 'var(--font-display)', fontSize: '1.6rem', fontWeight: 600, color: 'var(--gold-pale)', width: '100%', marginBottom: '8px' }} />
+            {!isNew && patient.patient_code && (
+              <p style={{ fontSize: '11.5px', color: 'var(--gold-pale)', fontFamily: 'var(--font-body)', margin: '0 0 6px', fontWeight: 600, letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                🆔 {patient.patient_code}
+                <span
+                  onClick={() => { navigator.clipboard.writeText(patient.patient_code); setMsg('Patient ID copied') }}
+                  style={{ cursor: 'pointer', fontSize: '10px', color: 'rgba(255,255,255,0.55)', textDecoration: 'underline', fontWeight: 500 }}
+                >
+                  copy
+                </span>
+              </p>
+            )}
             {!isNew && patient.created_at && (
               <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-body)', margin: '0 0 8px' }}>
                 🗓️ First visit: {fmtDate(patient.created_at)}

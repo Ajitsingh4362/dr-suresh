@@ -32,7 +32,8 @@ export default function AdminPatients() {
   }
 
   const filtered = patients.filter(p => {
-    const matchSearch = !search || p.name.toLowerCase().includes(search.toLowerCase()) || p.phone.includes(search) || (p.email || '').toLowerCase().includes(search.toLowerCase())
+    const q = search.toLowerCase()
+    const matchSearch = !search || p.name.toLowerCase().includes(q) || p.phone.includes(search) || (p.email || '').toLowerCase().includes(q) || (p.patient_code || '').toLowerCase().includes(q)
     const matchStatus = filterStatus === 'all' || p.status === filterStatus
     const matchTag = !filterTag || (p.tags || []).includes(filterTag)
     return matchSearch && matchStatus && matchTag
@@ -47,9 +48,9 @@ export default function AdminPatients() {
   function exportCSV() {
     const rows = filtered.length ? filtered : patients
     if (!rows.length) { alert('No patients to export'); return }
-    const headers = ['Name', 'Phone', 'Email', 'Age', 'Gender', 'Status', 'Tags', 'Since']
+    const headers = ['Patient ID', 'Name', 'Phone', 'Email', 'Age', 'Gender', 'Status', 'Tags', 'Since']
     const csvRows = rows.map(p => [
-      p.name, p.phone, p.email || '', p.age || '', p.gender || '', p.status || '',
+      p.patient_code || '', p.name, p.phone, p.email || '', p.age || '', p.gender || '', p.status || '',
       (p.tags || []).join('; '), new Date(p.created_at).toLocaleDateString('en-IN'),
     ])
     const csv = [headers, ...csvRows]
@@ -92,7 +93,7 @@ export default function AdminPatients() {
       {/* Filters */}
       <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
         <input
-          placeholder="Search name, phone, email..."
+          placeholder="Search name, phone, email, patient ID..."
           value={search}
           onChange={e => setSearch(e.target.value)}
           style={{ padding: '9px 14px', border: '1px solid rgba(15,39,68,0.12)', borderRadius: '2px', fontSize: '0.88rem', fontFamily: 'var(--font-body)', outline: 'none', flex: '1', minWidth: '200px' }}
@@ -127,6 +128,11 @@ export default function AdminPatients() {
                   <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '100px', fontFamily: 'var(--font-body)', fontWeight: 600, letterSpacing: '0.5px', background: p.status === 'active' ? 'rgba(30,111,106,0.12)' : 'rgba(199,166,106,0.15)', color: p.status === 'active' ? '#1e6f6a' : '#9c7a3c' }}>
                     {p.status}
                   </span>
+                  {p.patient_code && (
+                    <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '100px', fontFamily: 'var(--font-body)', fontWeight: 600, letterSpacing: '0.5px', background: 'rgba(199,166,106,0.15)', color: '#9c7a3c' }}>
+                      {p.patient_code}
+                    </span>
+                  )}
                 </div>
                 <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '3px 0 0', fontFamily: 'var(--font-body)' }}>
                   📞 {p.phone} {p.email ? `· ✉️ ${p.email}` : ''} {p.age ? `· ${p.age}y` : ''} {p.gender ? `· ${p.gender}` : ''}
