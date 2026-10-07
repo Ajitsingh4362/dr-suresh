@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
+import { getPortalSession } from '../lib/patientPortal'
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
@@ -26,6 +27,11 @@ export default function Navbar() {
     }
     window.scrollTo(0, 0)
   }, [location])
+
+  // Patient dashboard: shows "My Dashboard" once logged in, else "Patient Login"
+  const portalLink = getPortalSession()?.token
+    ? { to: '/patient-dashboard', label: 'My Dashboard' }
+    : { to: '/patient-login', label: 'Patient Login' }
 
   const links = [
     { to: '/', label: 'Home' },
@@ -93,7 +99,7 @@ export default function Navbar() {
           </NavLink>
 
           {/* Desktop Links */}
-          <div className="desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
+          <div className="desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '28px', marginLeft: '16px' }}>
             {links.map(link => (
               <NavLink key={link.to} to={link.to} end={link.to === '/'}
                 style={({ isActive }) => ({
@@ -108,6 +114,16 @@ export default function Navbar() {
                 {link.label}
               </NavLink>
             ))}
+            <NavLink to={portalLink.to}
+              style={({ isActive }) => ({
+                fontFamily: 'var(--font-body)', fontSize: '11px', fontWeight: 600,
+                color: isActive ? 'var(--gold-light)' : 'var(--white)',
+                letterSpacing: '1.5px', textTransform: 'uppercase',
+                padding: '9px 14px', border: '1px solid rgba(227,192,121,0.55)', borderRadius: '2px',
+                whiteSpace: 'nowrap',
+              })}>
+              {portalLink.label}
+            </NavLink>
             <NavLink to="/contact">
               <button className="btn-primary cta-pulse" style={{ padding: "10px 20px", fontSize: "11px" }}>
                 Book Consultation
@@ -161,12 +177,27 @@ export default function Navbar() {
           </NavLink>
         ))}
 
+        <NavLink to={portalLink.to}
+          style={({ isActive }) => ({
+            fontFamily: 'var(--font-display)', fontSize: '24px', fontWeight: 600,
+            color: isActive ? 'var(--gold-deep)' : 'var(--maroon)',
+            letterSpacing: '1px',
+          })}>
+          {portalLink.label}
+        </NavLink>
+
         <NavLink to="/contact" style={{ marginTop: '8px' }}>
           <button className="btn-primary cta-pulse">Book Consultation</button>
         </NavLink>
       </div>
 
       <style>{`
+        @media (max-width: 1240px) {
+          .desktop-nav { gap: 18px !important; }
+        }
+        @media (max-width: 1060px) {
+          .desktop-nav { gap: 13px !important; }
+        }
         @media (max-width: 900px) {
           .desktop-nav { display: none !important; }
           .hamburger { display: flex !important; }

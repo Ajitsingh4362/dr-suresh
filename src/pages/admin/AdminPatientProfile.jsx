@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { generatePatientPDF, generatePatientPDFBlob } from '../../lib/generatePatientPDF'
 import { generateInvoicePDF } from '../../lib/generateInvoicePDF'
+import { portalPassword } from '../../lib/patientPortal'
 
 const TABS = ['Overview', 'Medical History', 'Consultations', 'Billing', 'Notes', 'Documents', 'Appointments']
 const TAGS = ['Root Canal', 'Orthodontics', 'Implant', 'Cosmetic', 'Pediatric', 'VIP', 'Follow-up Due']
@@ -989,6 +990,20 @@ export default function AdminPatientProfile() {
                 >
                   copy
                 </span>
+              </p>
+            )}
+            {!isNew && patient.patient_code && (
+              <p style={{ fontSize: '11.5px', color: 'var(--gold-pale)', fontFamily: 'var(--font-body)', margin: '0 0 6px', fontWeight: 600, letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                🔑 Password: {portalPassword(patient.phone) || '— (add a mobile number)'}
+                {portalPassword(patient.phone) && (
+                  <span
+                    onClick={() => { navigator.clipboard.writeText(`Patient Login: www.ushadental.com/patient-login\nPatient ID: ${patient.patient_code}\nPassword: ${portalPassword(patient.phone)}`); setMsg('Login details copied') }}
+                    style={{ cursor: 'pointer', fontSize: '10px', color: 'rgba(255,255,255,0.55)', textDecoration: 'underline', fontWeight: 500 }}
+                  >
+                    copy login details
+                  </span>
+                )}
+                <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 400 }}>(patient dashboard login · last 4 digits of mobile)</span>
               </p>
             )}
             {!isNew && patient.created_at && (

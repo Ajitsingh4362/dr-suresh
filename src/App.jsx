@@ -17,6 +17,8 @@ import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsConditions from './pages/TermsConditions'
 import RefundPolicy from './pages/RefundPolicy'
 import Admin from './pages/Admin'
+import PatientLogin from './pages/PatientLogin'
+import PatientDashboard from './pages/PatientDashboard'
 
 function Layout() {
   const loc = useLocation()
@@ -38,6 +40,8 @@ function Layout() {
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-conditions" element={<TermsConditions />} />
         <Route path="/refund-policy" element={<RefundPolicy />} />
+        <Route path="/patient-login" element={<PatientLogin />} />
+        <Route path="/patient-dashboard" element={<PatientDashboard />} />
         <Route path="/admin/*" element={<Admin />} />
       </Routes>
       {!isAdmin && <Footer />}

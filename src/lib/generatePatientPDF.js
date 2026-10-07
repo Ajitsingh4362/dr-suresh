@@ -79,7 +79,14 @@ export async function generatePatientPDF({ patient, medical, consultations, auto
   wt('Sitamarhi, Bihar', tx, 37, [140,120,90], 'normal', 7)
   wt('PATIENT REPORT', W - margin, 13, [199,166,106], 'bold', 8, { align: 'right' })
   wt('Generated: ' + new Date().toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' }), W - margin, 20, [160,140,100], 'normal', 7, { align:'right' })
-  wt('Report ID: UMDC-' + Date.now().toString().slice(-6), W - margin, 26, [140,120,90], 'normal', 7, { align:'right' })
+  if (patient.patient_code) {
+    var portalPw = String(patient.phone || '').replace(/\D/g, '').slice(-4)
+    wt('Patient ID: ' + patient.patient_code, W - margin, 27, [220,195,140], 'bold', 8, { align:'right' })
+    if (portalPw.length === 4) wt('Password: ' + portalPw, W - margin, 32.5, [220,195,140], 'bold', 8, { align:'right' })
+    wt('Login: www.ushadental.com/patient-login', W - margin, 38, [160,140,100], 'normal', 6.5, { align:'right' })
+  } else {
+    wt('Report ID: UMDC-' + Date.now().toString().slice(-6), W - margin, 26, [140,120,90], 'normal', 7, { align:'right' })
+  }
 
   // ─── PATIENT INFO ─────────────────────────────────────────
   let y = 53
