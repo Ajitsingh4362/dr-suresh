@@ -117,7 +117,7 @@ export default function AdminPatients() {
           {filtered.map((p, i) => (
             <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '14px 20px', borderBottom: i < filtered.length - 1 ? '1px solid rgba(15,39,68,0.06)' : 'none', flexWrap: 'wrap' }}>
               {/* Avatar */}
-              <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: p.avatar_color || '#b9914f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '15px', flexShrink: 0, fontFamily: 'var(--font-display)' }}>
+              <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: p.avatar_color || '#b9914f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700 }}>
                 {initials(p.name)}
               </div>
 
@@ -125,11 +125,11 @@ export default function AdminPatients() {
               <div style={{ flex: 1, minWidth: '160px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                   <p style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--navy-800)', margin: 0, fontFamily: 'var(--font-body)' }}>{p.name}</p>
-                  <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '100px', fontFamily: 'var(--font-body)', fontWeight: 600, letterSpacing: '0.5px', background: p.status === 'active' ? 'rgba(30,111,106,0.12)' : 'rgba(199,166,106,0.15)', color: p.status === 'active' ? '#1e6f6a' : '#9c7a3c' }}>
+                  <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '100px', fontFamily: 'var(--font-body)', fontWeight: 600, letterSpacing: '0.5px', background: p.status === 'active' ? 'rgba(31,120,72,0.12)' : 'rgba(15,39,68,0.08)', color: p.status === 'active' ? '#1f7a48' : 'var(--navy-800)' }}>
                     {p.status}
                   </span>
                   {p.patient_code && (
-                    <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '100px', fontFamily: 'var(--font-body)', fontWeight: 600, letterSpacing: '0.5px', background: 'rgba(199,166,106,0.15)', color: '#9c7a3c' }}>
+                    <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '100px', fontFamily: 'var(--font-body)', fontWeight: 600, letterSpacing: '0.5px', background: 'rgba(199,166,106,0.18)', color: 'var(--navy-800)' }}>
                       {p.patient_code}
                     </span>
                   )}
