@@ -23,8 +23,17 @@ import AdminDevices, { recordSession, checkRevoked } from './admin/AdminDevices'
 const WHATSAPP_API = 'https://dr-suresh-whatsapp.onrender.com'
 const WHATSAPP_FOOTER = '\n\n*Book your appointment on www.ushadental.com*'
 
+// Blue = existing patient, gold = new person. Always paired with a text label.
+const EXISTING_BLUE = '#2563a8'
+
+function phoneKey(phone) {
+  const d = (phone || '').replace(/[^\d]/g, '')
+  return d.length >= 10 ? d.slice(-10) : ''
+}
+
 function AdminHeader() {
   const [pending, setPending] = useState([])
+  const [knownPatients, setKnownPatients] = useState([])
   const [followUps, setFollowUps] = useState([])
   const [showDropdown, setShowDropdown] = useState(false)
   const [showToast, setShowToast] = useState(null)
@@ -37,7 +46,7 @@ function AdminHeader() {
       .channel('admin-header-notif')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'appointments' }, (payload) => {
         fetchPending()
-        setShowToast({ name: payload.new.name, service: payload.new.service || 'General Consultation' })
+        setShowToast({ name: payload.new.name, service: payload.new.service || 'General Consultation', patient_id: payload.new.patient_id, phone: payload.new.phone })
         setTimeout(() => setShowToast(null), 6000)
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'appointments' }, () => {
@@ -60,6 +69,19 @@ function AdminHeader() {
       .order('created_at', { ascending: false })
       .limit(10)
     setPending(data || [])
+    const { data: pts } = await supabase.from('patients').select('id, name, phone, patient_code')
+    setKnownPatients(pts || [])
+  }
+
+  // Existing patient for an appointment (linked id first, else same mobile number)
+  function existingPatientFor(a) {
+    if (!a) return null
+    if (a.patient_id) {
+      const byId = knownPatients.find(p => p.id === a.patient_id)
+      if (byId) return byId
+    }
+    const k = phoneKey(a.phone)
+    return k ? knownPatients.find(p => phoneKey(p.phone) === k) || null : null
   }
 
   function cleanPhone(phone) {
@@ -204,15 +226,20 @@ function AdminHeader() {
                   <>
                   {pending.length > 0 && (
                   <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
-                    {pending.map((a, i) => (
-                      <div key={a.id} style={{ padding: '14px 16px', borderBottom: i < pending.length - 1 ? '1px solid rgba(15,39,68,0.06)' : 'none' }}>
+                    {pending.map((a, i) => {
+                      const existing = existingPatientFor(a)
+                      return (
+                      <div key={a.id} style={{ padding: '14px 16px', borderBottom: i < pending.length - 1 ? '1px solid rgba(15,39,68,0.06)' : 'none', borderLeft: `4px solid ${existing ? EXISTING_BLUE : 'var(--gold)'}`, background: existing ? 'rgba(37,99,168,0.06)' : 'transparent' }}>
                         {/* Patient info */}
                         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '10px' }}>
-                          <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'var(--gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '14px', fontFamily: 'var(--font-display)', flexShrink: 0 }}>
+                          <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: existing ? EXISTING_BLUE : 'var(--gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '14px', fontFamily: 'var(--font-display)', flexShrink: 0 }}>
                             {(a.name || '?')[0].toUpperCase()}
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <p style={{ fontWeight: 600, fontSize: '13px', color: 'var(--navy-800)', margin: '0 0 2px', fontFamily: 'var(--font-body)' }}>{a.name}</p>
+                            <p style={{ fontSize: '10.5px', fontWeight: 700, margin: '0 0 3px', fontFamily: 'var(--font-body)', color: existing ? EXISTING_BLUE : '#9c7a3c' }}>
+                              {existing ? `Existing patient · ${existing.patient_code}` : 'New patient'}
+                            </p>
                             <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '0 0 2px', fontFamily: 'var(--font-body)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                               {a.service || 'General'}{a.preferred_date ? ` · ${fmtDate(a.preferred_date)}` : ''}{a.preferred_time ? ` · ${a.preferred_time}` : ''}
                             </p>
@@ -231,9 +258,18 @@ function AdminHeader() {
                           <a href={`https://wa.me/${(a.phone || '').replace(/[^\d]/g, '')}`} target="_blank" rel="noreferrer" style={{ background: '#25d366', color: '#fff', border: 'none', borderRadius: '2px', padding: '9px 14px', fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-body)', cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             💬
                           </a>
+                          {existing && (
+                            <button onClick={async () => {
+                              if (!a.patient_id) await supabase.from('appointments').update({ patient_id: existing.id }).eq('id', a.id)
+                              navigate(`/admin/patients/${existing.id}`); setShowDropdown(false)
+                            }} style={{ background: EXISTING_BLUE, color: '#fff', border: 'none', borderRadius: '2px', padding: '9px 10px', fontSize: '11px', fontWeight: 600, fontFamily: 'var(--font-body)', cursor: 'pointer', flexShrink: 0 }}>
+                              Profile
+                            </button>
+                          )}
                         </div>
                       </div>
-                    ))}
+                      )
+                    })}
                   </div>
                   )}
 
@@ -278,11 +314,14 @@ function AdminHeader() {
       {/* Toast popup */}
       {showToast && (
         <div className="admin-toast-popup" style={{ position: 'fixed', bottom: '24px', right: '24px', background: 'var(--navy-800)', border: '1px solid rgba(199,166,106,0.3)', borderRadius: '4px', padding: '16px 20px', zIndex: 9999, boxShadow: '0 8px 32px rgba(7,15,28,0.35)', maxWidth: '320px', animation: 'popIn 0.3s ease' }}>
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'var(--gold)', borderRadius: '4px 4px 0 0' }} />
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: existingPatientFor(showToast) ? EXISTING_BLUE : 'var(--gold)', borderRadius: '4px 4px 0 0' }} />
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
             <span style={{ fontSize: '22px', flexShrink: 0 }}>🌿</span>
             <div style={{ flex: 1 }}>
               <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.95rem', fontWeight: 600, color: 'var(--gold-pale)', margin: '0 0 4px' }}>New Appointment!</p>
+              <p style={{ fontSize: '11px', fontWeight: 700, margin: '0 0 4px', fontFamily: 'var(--font-body)', color: existingPatientFor(showToast) ? '#8fb8e8' : 'var(--gold)' }}>
+                {existingPatientFor(showToast) ? `Existing patient · ${existingPatientFor(showToast).patient_code}` : 'New patient'}
+              </p>
               <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)', fontFamily: 'var(--font-body)', margin: '0 0 10px', lineHeight: 1.5 }}>
                 <strong style={{ color: 'rgba(255,255,255,0.85)' }}>{showToast.name}</strong> — {showToast.service}
               </p>

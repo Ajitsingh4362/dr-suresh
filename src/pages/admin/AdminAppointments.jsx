@@ -146,7 +146,7 @@ export default function AdminAppointments() {
                   )}
                 </div>
                 {matches.length > 0 ? (
-                  <p className="admin-appt-line" style={{ color: 'var(--teal)', fontWeight: 600 }}>
+                  <p className="admin-appt-line" style={{ color: '#2563a8', fontWeight: 600 }}>
                     ✅ Existing patient: {matches.map(p => `${p.name} (${p.patient_code})`).join(', ')}
                   </p>
                 ) : (
