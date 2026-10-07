@@ -549,8 +549,15 @@ export default function AdminPatientProfile() {
 
       // Welcome message
       if (patient.phone) {
-        const englishMsg = `Hi ${patient.name}, welcome to Usha Multi Speciality Dental Clinic! Your patient record has been created. We look forward to taking care of your dental health. \ud83e\uddf7`
-        const welcomeMsg = bilingual(`Namaste ${patient.name}, Usha Dental Clinic mein aapka swagat hai — aapka record ban gaya hai.`, englishMsg) + WHATSAPP_FOOTER
+        const pw = portalPassword(patient.phone)
+        const loginBlock = data.patient_code
+          ? `\n\n🔐 *Your Patient Dashboard login*\nPatient ID: *${data.patient_code}*${pw ? `\nPassword: *${pw}*` : ''}\nLogin here: www.ushadental.com/patient-login\n\nSee your medicines, bills and reports, and book your next appointment anytime.`
+          : ''
+        const englishMsg = `Hi ${patient.name}, welcome to Usha Multi Speciality Dental Clinic! Your patient record has been created. We look forward to taking care of your dental health. \ud83e\uddf7${loginBlock}`
+        const welcomeMsg = bilingual(
+          `Namaste ${patient.name}, Usha Dental Clinic mein aapka swagat hai — aapka record ban gaya hai.${data.patient_code ? ` Aapki Patient ID ${data.patient_code}${pw ? ` aur password ${pw} (mobile ke last 4 ank)` : ''} hai.` : ''}`,
+          englishMsg
+        ) + WHATSAPP_FOOTER
         const phoneToSend = cleanPhone(patient.phone)
         fetch(`${WHATSAPP_API}/notify`, {
           method: 'POST',
@@ -1025,6 +1032,21 @@ export default function AdminPatientProfile() {
                     style={{ cursor: 'pointer', fontSize: '10px', color: 'rgba(255,255,255,0.55)', textDecoration: 'underline', fontWeight: 500 }}
                   >
                     copy login details
+                  </span>
+                )}
+                {portalPassword(patient.phone) && (
+                  <span
+                    onClick={async () => {
+                      if (!window.confirm(`Send Patient Dashboard login (ID + password) to ${patient.name} on WhatsApp?`)) return
+                      const pw = portalPassword(patient.phone)
+                      const english = `Hi ${patient.name}, here is your Patient Dashboard login for Usha Multi Speciality Dental Clinic 🦷\n\nPatient ID: *${patient.patient_code}*\nPassword: *${pw}*\nLogin here: www.ushadental.com/patient-login\n\nSee your medicines, bills and reports, and book your next appointment anytime.`
+                      const text = bilingual(`Namaste ${patient.name}, aapki Patient ID ${patient.patient_code} aur password ${pw} (mobile ke last 4 ank) hai.`, english) + WHATSAPP_FOOTER
+                      const ok = await sendWhatsApp(cleanPhone(patient.phone), text, 'portal_login', patient.name)
+                      setMsg(ok ? 'Login details sent on WhatsApp ✓' : 'Could not send on WhatsApp — check the WhatsApp tab')
+                    }}
+                    style={{ cursor: 'pointer', fontSize: '10px', color: '#7fd99a', textDecoration: 'underline', fontWeight: 600 }}
+                  >
+                    send on WhatsApp
                   </span>
                 )}
                 <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 400 }}>(patient dashboard login · last 4 digits of mobile)</span>

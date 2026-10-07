@@ -38,7 +38,7 @@
 // idle (see README.md, "Render free tier & missed reminders").
 
 const makeWASocket = require('@whiskeysockets/baileys').default
-const { useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = require('@whiskeysockets/baileys')
+const { useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion, makeCacheableSignalKeyStore } = require('@whiskeysockets/baileys')
 const QRCode = require('qrcode')
 const express = require('express')
 const cors = require('cors')
@@ -54,6 +54,28 @@ const PORT = process.env.PORT || 3001
 const WHATSAPP_FOOTER = '\n\n*Book your appointment on www.ushadental.com*'
 let sock = null
 let clearAuthState = null // set once useSupabaseAuthState() resolves
+let authStore = null // the Supabase auth state helpers (flush, sent-message store)
+
+// Tiny TTL cache with the get/set/del/flushAll shape Baileys expects for
+// msgRetryCounterCache (how many times a patient's phone asked us to re-send
+// a message it couldn't decrypt). Kept across reconnects on purpose.
+class TtlCache {
+  constructor(ttlMs) { this.ttlMs = ttlMs; this.map = new Map() }
+  get(k) {
+    const e = this.map.get(k)
+    if (!e) return undefined
+    if (Date.now() > e.exp) { this.map.delete(k); return undefined }
+    return e.v
+  }
+  set(k, v) {
+    this.map.set(k, { v, exp: Date.now() + this.ttlMs })
+    if (this.map.size > 5000) this.map.delete(this.map.keys().next().value)
+    return true
+  }
+  del(k) { this.map.delete(k) }
+  flushAll() { this.map.clear() }
+}
+const msgRetryCounterCache = new TtlCache(60 * 60 * 1000)
 let isReady = false
 let isShuttingDown = false // set true during graceful shutdown so connection.update doesn't try to reconnect
 let consecutiveNoAckFailures = 0 // resets on any successful delivery ack
@@ -150,16 +172,38 @@ async function forceReconnectDueToStuckConnection() {
 async function startWhatsApp() {
   // Session is persisted in Supabase (not local disk) so it survives
   // Render free-tier restarts after the service spins down from inactivity.
-  const { state, saveCreds, clearAll } = await useSupabaseAuthState(supabase)
+  // If we're reconnecting, let the previous connection's key writes finish first.
+  if (authStore) await authStore.flush().catch(() => {})
+  authStore = await useSupabaseAuthState(supabase)
+  const { state, saveCreds, clearAll } = authStore
   clearAuthState = clearAll
+  authStore.pruneSentMessages().catch(() => {})
   const { version } = await fetchLatestBaileysVersion()
   console.log('Using WhatsApp Web version:', version.join('.'))
 
+  const logger = pino({ level: 'error' }) // shows real errors from inside Baileys itself
+  const store = authStore
   sock = makeWASocket({
-    auth: state,
+    auth: {
+      creds: state.creds,
+      // Keeps encryption keys in memory so every message uses the latest ones.
+      keys: makeCacheableSignalKeyStore(state.keys, logger),
+    },
     version,
-    logger: pino({ level: 'error' }), // shows real errors from inside Baileys itself
+    logger,
     markOnlineOnConnect: true,
+    // FIX for "Waiting for this message. This may take a while.":
+    // when a patient's phone can't decrypt a message, it asks us to send it
+    // again. Baileys can only do that if it can look up what we sent.
+    getMessage: async (key) => {
+      try {
+        return await store.loadSentMessage(key.id)
+      } catch (err) {
+        console.error('getMessage lookup failed:', err.message)
+        return undefined
+      }
+    },
+    msgRetryCounterCache,
   })
 
   sock.ev.on('connection.update', async (update) => {
@@ -335,6 +379,8 @@ async function sendOnce(number, message, mentionNumber, isRetry = false) {
 
   const sent = await sock.sendMessage(jid, payload)
   const msgId = sent?.key?.id
+  // Keep a copy so it can be re-sent if the patient's phone can't decrypt it.
+  if (msgId && sent?.message && authStore) authStore.saveSentMessage(msgId, sent.message)
 
   // Wait up to 8s for WhatsApp's server to actually acknowledge the message
   // (status >= 2). If it never does, WhatsApp likely dropped it — retry
@@ -1204,7 +1250,11 @@ function gracefulShutdown(signal) {
   } catch (err) {
     console.error('Error while closing WhatsApp socket:', err.message)
   }
-  setTimeout(() => process.exit(0), 1000) // give the close frame a moment to flush
+  // Make sure the latest encryption keys are saved before the process exits,
+  // otherwise the next start would use stale keys (-> "Waiting for this message").
+  const flushed = authStore ? authStore.flush().catch(() => {}) : Promise.resolve()
+  Promise.race([flushed, new Promise((r) => setTimeout(r, 8000))])
+    .finally(() => setTimeout(() => process.exit(0), 500))
 }
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
 process.on('SIGINT', () => gracefulShutdown('SIGINT'))
