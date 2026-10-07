@@ -1,518 +1,165 @@
-import { useState, useEffect } from 'react'
-import { Routes, Route, NavLink, Link, Navigate, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import SEO from '../components/SEO'
-import AdminBlogList from './admin/AdminBlogList'
-import AdminBlogEditor from './admin/AdminBlogEditor'
-import AdminGallery from './admin/AdminGallery'
-import AdminAppointments from './admin/AdminAppointments'
-import AdminSettings from './admin/AdminSettings'
-import AdminNotes from './admin/AdminNotes'
-import AdminPatients from './admin/AdminPatients'
-import AdminOldPatients from './admin/AdminOldPatients'
-import AdminPatientProfile from './admin/AdminPatientProfile'
-import AdminAnalytics from './admin/AdminAnalytics'
-import AdminCalendar from './admin/AdminCalendar'
-import AdminTestimonials from './admin/AdminTestimonials'
-import AdminPrescriptionTemplates from './admin/AdminPrescriptionTemplates'
-import AdminFAQ from './admin/AdminFAQ'
-import AdminWhatsApp from './admin/AdminWhatsApp'
-import AdminDevices, { recordSession, checkRevoked } from './admin/AdminDevices'
 
-// Same Render-hosted Baileys service used by the WhatsApp admin tab
-const WHATSAPP_API = 'https://dr-suresh-whatsapp.onrender.com'
-const WHATSAPP_FOOTER = '\n\n*Book your appointment on www.ushadental.com*'
-
-function AdminHeader() {
-  const [pending, setPending] = useState([])
-  const [followUps, setFollowUps] = useState([])
-  const [showDropdown, setShowDropdown] = useState(false)
-  const [showToast, setShowToast] = useState(null)
+export default function AdminPatients() {
+  const [patients, setPatients] = useState([])
+  const [oldPatientMap, setOldPatientMap] = useState({})
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+  const [filterStatus, setFilterStatus] = useState('all')
+  const [filterTag, setFilterTag] = useState('')
+  const [showAdd, setShowAdd] = useState(false)
+  const [stats, setStats] = useState({ total: 0, active: 0, new_this_month: 0 })
   const navigate = useNavigate()
 
-  useEffect(() => {
-    fetchPending()
-    fetchFollowUps()
-    const channel = supabase
-      .channel('admin-header-notif')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'appointments' }, (payload) => {
-        fetchPending()
-        setShowToast({ name: payload.new.name, service: payload.new.service || 'General Consultation' })
-        setTimeout(() => setShowToast(null), 6000)
-      })
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'appointments' }, () => {
-        fetchPending()
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'patient_consultations' }, () => {
-        fetchFollowUps()
-      })
-      .subscribe()
-    const onFocus = () => fetchFollowUps()
-    window.addEventListener('focus', onFocus)
-    return () => { supabase.removeChannel(channel); window.removeEventListener('focus', onFocus) }
-  }, [])
+  useEffect(() => { fetchPatients() }, [])
 
-  async function fetchPending() {
-    const { data } = await supabase
-      .from('appointments')
-      .select('*')
-      .eq('status', 'pending')
-      .order('created_at', { ascending: false })
-      .limit(10)
-    setPending(data || [])
+  async function fetchPatients() {
+    const { data } = await supabase.from('patients').select('*').order('created_at', { ascending: false })
+    const list = data || []
+    setPatients(list)
+
+    const { data: oldData } = await supabase
+      .from('patient_visit_history')
+      .select('patient_id, is_old_patient, visit_count, last_visit_date')
+
+    const map = {}
+    ;(oldData || []).forEach(row => {
+      if (row.is_old_patient) map[row.patient_id] = row
+    })
+    setOldPatientMap(map)
+
+    const now = new Date()
+    const thisMonth = list.filter(p => new Date(p.created_at).getMonth() === now.getMonth())
+    setStats({ total: list.length, active: list.filter(p => p.status === 'active').length, new_this_month: thisMonth.length })
+    setLoading(false)
   }
 
-  function cleanPhone(phone) {
-    let p = (phone || '').replace(/[^\d]/g, '')
-    if (p.length === 10) p = '91' + p
-    return p
+  const filtered = patients.filter(p => {
+    const q = search.toLowerCase()
+    const matchSearch = !search || p.name.toLowerCase().includes(q) || p.phone.includes(search) || (p.email || '').toLowerCase().includes(q) || (p.patient_code || '').toLowerCase().includes(q)
+    const matchStatus = filterStatus === 'all' || p.status === filterStatus
+    const matchTag = !filterTag || (p.tags || []).includes(filterTag)
+    return matchSearch && matchStatus && matchTag
+  })
+
+  async function deletePatient(id) {
+    if (!confirm('Delete this patient? All their data will be permanently removed.')) return
+    await supabase.from('patients').delete().eq('id', id)
+    fetchPatients()
   }
 
-  async function fetchFollowUps() {
-    const today = new Date()
-    const in2Days = new Date(today)
-    in2Days.setDate(in2Days.getDate() + 2)
-    const todayStr = today.toISOString().split('T')[0]
-    const in2DaysStr = in2Days.toISOString().split('T')[0]
-
-    const { data: rows, error: err1 } = await supabase
-      .from('patient_consultations')
-      .select('id, follow_up_date, follow_up_notes, patient_id, last_reminder_sent_date')
-      .not('follow_up_date', 'is', null)
-      .gte('follow_up_date', todayStr)
-      .lte('follow_up_date', in2DaysStr)
-      .order('follow_up_date', { ascending: true })
-
-    if (err1) { console.error('fetchFollowUps consultations error:', err1); setFollowUps([]); return }
-    if (!rows || rows.length === 0) { setFollowUps([]); return }
-
-    // Only hide it if it's already been sent TODAY — it comes back fresh tomorrow
-    const visible = rows.filter(r => r.last_reminder_sent_date !== todayStr)
-    if (visible.length === 0) { setFollowUps([]); return }
-
-    const patientIds = [...new Set(visible.map(r => r.patient_id))]
-    const { data: pts, error: err2 } = await supabase
-      .from('patients')
-      .select('id, name, phone')
-      .in('id', patientIds)
-
-    if (err2) console.error('fetchFollowUps patients error:', err2)
-    const ptMap = {}
-    ;(pts || []).forEach(p => { ptMap[p.id] = p })
-
-    setFollowUps(visible.map(r => ({ ...r, patients: ptMap[r.patient_id] || null })))
+  function exportCSV() {
+    const rows = filtered.length ? filtered : patients
+    if (!rows.length) { alert('No patients to export'); return }
+    const headers = ['Patient ID', 'Name', 'Phone', 'Email', 'Age', 'Gender', 'Status', 'Tags', 'Since']
+    const csvRows = rows.map(p => [
+      p.patient_code || '', p.name, p.phone, p.email || '', p.age || '', p.gender || '', p.status || '',
+      (p.tags || []).join('; '), new Date(p.created_at).toLocaleDateString('en-IN'),
+    ])
+    const csv = [headers, ...csvRows]
+      .map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
+      .join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `patients_${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
   }
-
-  async function sendFollowUpWhatsApp(f) {
-    if (!f.patients?.phone) return
-    const todayStr = new Date().toISOString().split('T')[0]
-    const daysAway = Math.round((new Date(f.follow_up_date) - new Date(todayStr)) / 86400000)
-    const dateStr = new Date(f.follow_up_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long' })
-
-    let line
-    if (daysAway <= 0) line = `Today is your follow-up date with Dr. Suresh Kumar at Usha Multi Speciality Dental Clinic.`
-    else if (daysAway === 1) line = `This is a reminder that your follow-up with Dr. Suresh Kumar is tomorrow, ${dateStr}.`
-    else line = `This is a reminder that your follow-up with Dr. Suresh Kumar is scheduled on ${dateStr}.`
-
-    const msg = encodeURIComponent(`Hi ${f.patients.name}, this is Usha Multi Speciality Dental Clinic. ${line} Please let us know if this works for you, or if you'd like to reschedule. 🦷${WHATSAPP_FOOTER}`)
-    window.open(`https://wa.me/${cleanPhone(f.patients.phone)}?text=${msg}`, '_blank')
-    // Remove from today's list, but it comes back tomorrow if the follow-up date hasn't passed yet
-    setFollowUps(prev => prev.filter(x => x.id !== f.id))
-    await supabase.from('patient_consultations').update({ last_reminder_sent_date: todayStr }).eq('id', f.id)
-  }
-
-  async function confirm(appt) {
-    // Turant UI se hatao
-    setPending(prev => prev.filter(a => a.id !== appt.id))
-
-    try {
-      const { error: updateErr } = await supabase.from('appointments').update({ status: 'confirmed' }).eq('id', appt.id)
-      if (updateErr) throw new Error('Database update failed: ' + updateErr.message)
-
-      const phone = cleanPhone(appt.phone)
-      if (!phone || phone.length < 12) throw new Error('Invalid phone number: "' + appt.phone + '"')
-
-      const msg = `Hi ${appt.name}, your appointment with Dr. Suresh Kumar has been confirmed${appt.preferred_date ? ` for ${new Date(appt.preferred_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long' })}` : ''}${appt.preferred_time ? ` at ${appt.preferred_time}` : ''}. Looking forward to seeing you! \ud83c\udf3f${WHATSAPP_FOOTER}`
-
-      const res = await fetch(`${WHATSAPP_API}/notify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ number: phone, message: msg }),
-      })
-      const data = await res.json()
-      if (!data.ok) throw new Error(data.error || ('HTTP ' + res.status))
-
-      console.log('WhatsApp confirmation sent to', phone)
-    } catch (err) {
-      console.error('confirm() failed:', err)
-      alert('Something went wrong confirming this appointment:\n\n' + err.message)
-    }
-  }
-
-  const fmtDate = d => d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : ''
 
   return (
-    <>
-      {/* Header bar */}
-      <div className="admin-topbar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '12px', marginBottom: '28px', paddingBottom: '16px', borderBottom: '1px solid rgba(15,39,68,0.08)', flexWrap: 'wrap' }}>
-        <span className="admin-topbar-date" style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', marginRight: 'auto' }}>
-          {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-        </span>
+    <div className="admin-panel">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '12px', marginBottom: '28px' }}>
+        {[
+          { label: 'Total Patients', value: stats.total, icon: '👥' },
+          { label: 'Active', value: stats.active, icon: '✅' },
+          { label: 'New This Month', value: stats.new_this_month, icon: '🆕' },
+        ].map((s, i) => (
+          <div key={i} style={{ background: 'var(--white)', border: '1px solid rgba(15,39,68,0.08)', borderRadius: '2px', padding: '18px 20px' }}>
+            <p style={{ fontSize: '22px', margin: '0 0 4px' }}>{s.icon}</p>
+            <p style={{ fontFamily: 'var(--font-display)', fontSize: '28px', fontWeight: 700, color: 'var(--navy-800)', margin: '0 0 4px' }}>{s.value}</p>
+            <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: 0, letterSpacing: '1px', textTransform: 'uppercase', fontFamily: 'var(--font-body)' }}>{s.label}</p>
+          </div>
+        ))}
+      </div>
 
-        {/* Bell with dropdown */}
-        <div style={{ position: 'relative' }}>
-          <button
-            onClick={() => setShowDropdown(p => !p)}
-            style={{ position: 'relative', background: (pending.length + followUps.length) > 0 ? 'rgba(192,57,43,0.08)' : 'var(--white)', border: `1px solid ${(pending.length + followUps.length) > 0 ? 'rgba(192,57,43,0.25)' : 'rgba(15,39,68,0.12)'}`, borderRadius: '2px', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }}>
-            <span style={{ fontSize: '18px' }}>🔔</span>
-            {(pending.length + followUps.length) > 0 && (
-              <span style={{ position: 'absolute', top: '-6px', right: '-6px', background: '#c0392b', color: '#fff', fontSize: '9px', fontWeight: 700, minWidth: '18px', height: '18px', borderRadius: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-body)', padding: '0 4px' }}>
-                {(pending.length + followUps.length) > 9 ? '9+' : (pending.length + followUps.length)}
-              </span>
-            )}
-          </button>
+      <div className="admin-panel-header">
+        <h1>Patient Profiles</h1>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button className="admin-btn-outline" onClick={exportCSV}>⬇️ Export CSV</button>
+          <button className="admin-btn-primary" onClick={() => navigate('/admin/patients/new')}>+ Add Patient</button>
+        </div>
+      </div>
 
-          {/* Dropdown */}
-          {showDropdown && (
-            <>
-              {/* Backdrop */}
-              <div style={{ position: 'fixed', inset: 0, zIndex: 998 }} onClick={() => setShowDropdown(false)} />
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
+        <input
+          placeholder="Search name, phone, email, patient ID..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          style={{ padding: '9px 14px', border: '1px solid rgba(15,39,68,0.12)', borderRadius: '2px', fontSize: '0.88rem', fontFamily: 'var(--font-body)', outline: 'none', flex: '1', minWidth: '200px' }}
+        />
+        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={{ padding: '9px 14px', border: '1px solid rgba(15,39,68,0.12)', borderRadius: '2px', fontSize: '0.88rem', fontFamily: 'var(--font-body)', outline: 'none' }}>
+          <option value="all">All Status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="completed">Completed</option>
+        </select>
+      </div>
 
-              <div style={{ position: 'fixed', top: '64px', right: '12px', left: '12px', maxWidth: '380px', marginLeft: 'auto', background: 'var(--white)', border: '1px solid rgba(15,39,68,0.1)', borderRadius: '4px', boxShadow: '0 12px 40px rgba(7,15,28,0.15)', zIndex: 999, overflow: 'hidden', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
-                {/* Dropdown header */}
-                <div style={{ background: 'var(--navy-800)', padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
-                  <div>
-                    <p style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', fontWeight: 600, color: 'var(--gold-pale)', margin: 0 }}>Notifications</p>
-                    <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-body)', margin: '2px 0 0' }}>{pending.length} pending · {followUps.length} follow-up{followUps.length !== 1 ? 's' : ''}</p>
-                  </div>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <button onClick={() => { navigate('/admin/appointments'); setShowDropdown(false) }} style={{ fontSize: '10px', color: 'var(--gold)', fontFamily: 'var(--font-body)', fontWeight: 600, background: 'none', border: '1px solid rgba(199,166,106,0.3)', borderRadius: '2px', padding: '4px 10px', cursor: 'pointer', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
-                      View All →
-                    </button>
-                    <button onClick={() => setShowDropdown(false)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', fontSize: '18px', padding: '0', lineHeight: 1 }}>✕</button>
-                  </div>
+      {loading ? <p className="admin-empty">Loading...</p> : filtered.length === 0 ? (
+        <p className="admin-empty">No patients found.</p>
+      ) : (
+        <div style={{ background: 'var(--white)', border: '1px solid rgba(15,39,68,0.08)', borderRadius: '2px', overflow: 'hidden' }}>
+          {filtered.map((p, i) => (
+            <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '14px 20px', borderBottom: i < filtered.length - 1 ? '1px solid rgba(15,39,68,0.06)' : 'none', flexWrap: 'wrap' }}>
+              <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: p.avatar_color || '#b9914f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700 }}>
+                {p.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)}
+              </div>
+
+              <div style={{ flex: 1, minWidth: '160px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                  <p style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--navy-800)', margin: 0, fontFamily: 'var(--font-body)' }}>{p.name}</p>
+                  <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '100px', fontFamily: 'var(--font-body)', fontWeight: 600, letterSpacing: '0.5px', background: p.status === 'active' ? 'rgba(31,120,72,0.12)' : 'rgba(15,39,68,0.08)', color: p.status === 'active' ? '#1f7a48' : 'var(--navy-800)' }}>
+                    {p.status}
+                  </span>
+                  {oldPatientMap[p.id] && (
+                    <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '100px', fontFamily: 'var(--font-body)', fontWeight: 700, letterSpacing: '0.5px', background: 'rgba(31,120,72,0.15)', color: '#1e6f6a' }}>
+                      Old Patient
+                    </span>
+                  )}
+                  {p.patient_code && (
+                    <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '100px', fontFamily: 'var(--font-body)', fontWeight: 600, letterSpacing: '0.5px', background: 'rgba(199,166,106,0.18)', color: 'var(--navy-800)' }}>
+                      {p.patient_code}
+                    </span>
+                  )}
                 </div>
-
-                {/* List */}
-                <div style={{ overflowY: 'auto' }}>
-                {pending.length === 0 && followUps.length === 0 ? (
-                  <div style={{ padding: '32px 16px', textAlign: 'center' }}>
-                    <p style={{ fontSize: '24px', margin: '0 0 8px' }}>✅</p>
-                    <p style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', margin: 0 }}>All caught up! No pending appointments or follow-ups.</p>
-                  </div>
-                ) : (
-                  <>
-                  {pending.length > 0 && (
-                  <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
-                    {pending.map((a, i) => (
-                      <div key={a.id} style={{ padding: '14px 16px', borderBottom: i < pending.length - 1 ? '1px solid rgba(15,39,68,0.06)' : 'none' }}>
-                        {/* Patient info */}
-                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '10px' }}>
-                          <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'var(--gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '14px', fontFamily: 'var(--font-display)', flexShrink: 0 }}>
-                            {(a.name || '?')[0].toUpperCase()}
-                          </div>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <p style={{ fontWeight: 600, fontSize: '13px', color: 'var(--navy-800)', margin: '0 0 2px', fontFamily: 'var(--font-body)' }}>{a.name}</p>
-                            <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '0 0 2px', fontFamily: 'var(--font-body)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                              {a.service || 'General'}{a.preferred_date ? ` · ${fmtDate(a.preferred_date)}` : ''}{a.preferred_time ? ` · ${a.preferred_time}` : ''}
-                            </p>
-                            <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: 0, fontFamily: 'var(--font-body)' }}>📞 {a.phone}</p>
-                          </div>
-                          <span style={{ fontSize: '10px', color: 'var(--text-light)', fontFamily: 'var(--font-body)', whiteSpace: 'nowrap', flexShrink: 0 }}>
-                            {new Date(a.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
-                          </span>
-                        </div>
-
-                        {/* Action buttons - full width on mobile */}
-                        <div style={{ display: 'flex', gap: '6px' }}>
-                          <button onClick={() => confirm(a)} style={{ flex: 1, background: '#1e6f6a', color: '#fff', border: 'none', borderRadius: '2px', padding: '9px 10px', fontSize: '11px', fontWeight: 600, fontFamily: 'var(--font-body)', cursor: 'pointer', letterSpacing: '0.3px' }}>
-                            ✅ Confirm & WhatsApp
-                          </button>
-                          <a href={`https://wa.me/${(a.phone || '').replace(/[^\d]/g, '')}`} target="_blank" rel="noreferrer" style={{ background: '#25d366', color: '#fff', border: 'none', borderRadius: '2px', padding: '9px 14px', fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-body)', cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            💬
-                          </a>
-                        </div>
-                      </div>
+                <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '3px 0 0', fontFamily: 'var(--font-body)' }}>
+                  📞 {p.phone} {p.email ? `· ✉️ ${p.email}` : ''} {p.age ? `· ${p.age}y` : ''} {p.gender ? `· ${p.gender}` : ''}
+                </p>
+                {(p.tags || []).length > 0 && (
+                  <div style={{ display: 'flex', gap: '4px', marginTop: '5px', flexWrap: 'wrap' }}>
+                    {p.tags.map(t => (
+                      <span key={t} style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '100px', background: 'rgba(15,39,68,0.06)', color: 'var(--navy-800)', fontFamily: 'var(--font-body)' }}>{t}</span>
                     ))}
                   </div>
-                  )}
-
-                  {followUps.length > 0 && (
-                    <div>
-                      {followUps.map(f => {
-                        const isToday = f.follow_up_date === new Date().toISOString().split('T')[0]
-                        const dateLabel = new Date(f.follow_up_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
-                        return (
-                          <div key={f.id} style={{ padding: '12px 16px', borderBottom: '1px solid rgba(15,39,68,0.06)' }}>
-                            <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--navy-800)', margin: '0 0 3px', fontFamily: 'var(--font-body)' }}>
-                              🦷 Follow-up: {f.patients?.name || 'Patient'}
-                            </p>
-                            <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '0 0 8px', fontFamily: 'var(--font-body)' }}>
-                              {isToday ? 'Today' : `On ${dateLabel}`}
-                            </p>
-                            <button
-                              onClick={() => sendFollowUpWhatsApp(f)}
-                              disabled={!f.patients?.phone}
-                              style={{ fontSize: '11px', fontWeight: 600, padding: '6px 12px', borderRadius: '2px', border: 'none', background: '#25D366', color: '#fff', cursor: f.patients?.phone ? 'pointer' : 'not-allowed', opacity: f.patients?.phone ? 1 : 0.5, fontFamily: 'var(--font-body)' }}>
-                              💬 Send Reminder & Dismiss
-                            </button>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  )}
-                  </>
                 )}
-                </div>
               </div>
-            </>
-          )}
-        </div>
 
-        {/* View Site */}
-        <a href="/" target="_blank" rel="noreferrer" style={{ background: 'var(--white)', border: '1px solid rgba(15,39,68,0.12)', borderRadius: '2px', padding: '8px 14px', fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 600, textDecoration: 'none', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          🌐 View Site
-        </a>
-      </div>
-
-      {/* Toast popup */}
-      {showToast && (
-        <div className="admin-toast-popup" style={{ position: 'fixed', bottom: '24px', right: '24px', background: 'var(--navy-800)', border: '1px solid rgba(199,166,106,0.3)', borderRadius: '4px', padding: '16px 20px', zIndex: 9999, boxShadow: '0 8px 32px rgba(7,15,28,0.35)', maxWidth: '320px', animation: 'popIn 0.3s ease' }}>
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'var(--gold)', borderRadius: '4px 4px 0 0' }} />
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-            <span style={{ fontSize: '22px', flexShrink: 0 }}>🌿</span>
-            <div style={{ flex: 1 }}>
-              <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.95rem', fontWeight: 600, color: 'var(--gold-pale)', margin: '0 0 4px' }}>New Appointment!</p>
-              <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)', fontFamily: 'var(--font-body)', margin: '0 0 10px', lineHeight: 1.5 }}>
-                <strong style={{ color: 'rgba(255,255,255,0.85)' }}>{showToast.name}</strong> — {showToast.service}
+              <p style={{ fontSize: '11px', color: 'var(--text-light)', fontFamily: 'var(--font-body)', whiteSpace: 'nowrap' }}>
+                Since {new Date(p.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
               </p>
-              <button onClick={() => { setShowDropdown(true); setShowToast(null) }} style={{ fontSize: '11px', color: 'var(--gold)', fontFamily: 'var(--font-body)', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', padding: 0, letterSpacing: '0.5px' }}>
-                View Details →
-              </button>
-            </div>
-            <button onClick={() => setShowToast(null)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: '14px', padding: 0, flexShrink: 0 }}>✕</button>
-          </div>
-        </div>
-      )}
-    </>
-  )
-}
 
-export default function Admin() {
-  const [authed, setAuthed] = useState(false)
-  const [email, setEmail] = useState('admin@ushamultispecialitydentalclinic.com')
-  const [pw, setPw] = useState('')
-  const [error, setError] = useState('')
-  const [loggingIn, setLoggingIn] = useState(false)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [checked, setChecked] = useState(false)
-  const [installPrompt, setInstallPrompt] = useState(null)
-  const [isStandalone, setIsStandalone] = useState(false)
-  const [showIosHelp, setShowIosHelp] = useState(false)
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setAuthed(!!session)
-      setChecked(true)
-    })
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setAuthed(!!session)
-    })
-    return () => subscription.unsubscribe()
-  }, [])
-
-  // PWA install: Android/Chrome apna prompt deta hai (beforeinstallprompt),
-  // iOS pe koi prompt nahi aata, isliye wahan manual instructions dikhayenge.
-  useEffect(() => {
-    const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true
-    setIsStandalone(standalone)
-
-    const onBeforeInstall = (e) => {
-      e.preventDefault()
-      setInstallPrompt(e)
-    }
-    window.addEventListener('beforeinstallprompt', onBeforeInstall)
-    return () => window.removeEventListener('beforeinstallprompt', onBeforeInstall)
-  }, [])
-
-  const isIos = /iphone|ipad|ipod/i.test(window.navigator.userAgent)
-
-  async function installApp() {
-    if (installPrompt) {
-      installPrompt.prompt()
-      await installPrompt.userChoice
-      setInstallPrompt(null)
-    } else if (isIos) {
-      setShowIosHelp(true)
-    }
-  }
-
-  // Every 15s, check if this device's session was remotely logged out.
-  useEffect(() => {
-    if (!authed) return
-    const interval = setInterval(() => { checkRevoked() }, 15000)
-    return () => clearInterval(interval)
-  }, [authed])
-
-  async function login() {
-    setLoggingIn(true)
-    setError('')
-    const { error } = await supabase.auth.signInWithPassword({ email, password: pw })
-    if (error) {
-      setError('Incorrect email or password')
-    } else {
-      recordSession()
-    }
-    setLoggingIn(false)
-  }
-
-  async function logout() {
-    await supabase.auth.signOut()
-    localStorage.removeItem('admin_session_id')
-    setPw('')
-  }
-
-  if (!checked) return null
-
-  if (!authed) {
-    return (
-      <div className="admin-login">
-        <SEO title="Admin Login" noindex />
-        <div className="admin-login-box">
-          <img src="/usha-dental-logo.png" alt="Usha Multi Speciality Dental Clinic" style={{ height: '70px', width: 'auto', display: 'block', margin: '0 auto 12px' }} />
-          <p className="admin-login-logo">Usha Multi Speciality Dental Clinic</p>
-          <h2>Admin Login</h2>
-          <input
-            type="email"
-            placeholder="Admin email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            autoFocus
-          />
-          <input
-            type="password"
-            placeholder="Enter admin password"
-            value={pw}
-            onChange={e => setPw(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && login()}
-            className={error ? 'error' : ''}
-          />
-          {error && <p className="admin-error-text">{error}</p>}
-          <button className="admin-btn-primary admin-login-btn" onClick={login} disabled={loggingIn}>
-            {loggingIn ? 'Logging in...' : 'Login'}
-          </button>
-          <Link to="/" className="admin-back-to-site">← Back to website</Link>
-        </div>
-      </div>
-    )
-  }
-
-  const navGroups = [
-    {
-      label: 'Overview',
-      items: [
-        { to: '/admin/analytics', label: 'Analytics', icon: '📈' },
-        { to: '/admin/calendar', label: 'Calendar', icon: '📅' },
-      ],
-    },
-    {
-      label: 'Patient Care',
-      items: [
-        { to: '/admin/patients', label: 'Patients', icon: '👥', end: true },
-        { to: '/admin/patients/new', label: 'Add Patient', icon: '➕' },
-        { to: '/admin/old-patients', label: 'Old Patients', icon: '🗂️' },
-        { to: '/admin/appointments', label: 'Appointments', icon: '📋' },
-        { to: '/admin/templates', label: 'Rx Templates', icon: '💊' },
-      ],
-    },
-    {
-      label: 'Website',
-      items: [
-        { to: '/admin/testimonials', label: 'Testimonials', icon: '⭐' },
-        { to: '/admin/posts', label: 'Blog Posts', icon: '📝' },
-        { to: '/admin/gallery', label: 'Gallery', icon: '🖼️' },
-        { to: '/admin/faq', label: 'FAQ Manager', icon: '❓' },
-      ],
-    },
-    {
-      label: 'Settings',
-      items: [
-        { to: '/admin/settings', label: 'Popup Settings', icon: '⚙️' },
-        { to: '/admin/notes', label: 'My Notes', icon: '🗒️' },
-        { to: '/admin/whatsapp', label: 'WhatsApp', icon: '💬' },
-        { to: '/admin/devices', label: 'Devices', icon: '🖥️' },
-      ],
-    },
-  ]
-
-  return (
-    <div className="admin-shell">
-      <SEO title="Admin Panel" noindex />
-      <button className="admin-mobile-toggle" onClick={() => setSidebarOpen(p => !p)}>
-        {sidebarOpen ? '✕' : '☰'} Menu
-      </button>
-
-      <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
-        <Link to="/admin" className="admin-sidebar-brand" onClick={() => setSidebarOpen(false)}>
-          <img src="/usha-dental-logo.png" alt="Usha Multi Speciality Dental Clinic" className="admin-sidebar-logo-img" />
-          <p className="admin-sidebar-logo">Usha Multi Speciality Dental Clinic</p>
-        </Link>
-        <nav className="admin-nav">
-          {navGroups.map(group => (
-            <div className="admin-nav-group" key={group.label}>
-              <p className="admin-nav-group-label"><span className="admin-nav-group-tick" />{group.label}</p>
-              {group.items.map(item => (
-                <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `admin-nav-link ${isActive ? 'active' : ''}`} onClick={() => setSidebarOpen(false)}>
-                  <span className="admin-nav-icon">{item.icon}</span> {item.label}
-                </NavLink>
-              ))}
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <Link to={`/admin/patients/${p.id}`} className="admin-btn-outline admin-btn-sm">View Profile</Link>
+                <button className="admin-btn-danger admin-btn-sm" onClick={() => deletePatient(p.id)}>Delete</button>
+              </div>
             </div>
           ))}
-        </nav>
-        <div className="admin-sidebar-footer">
-          {!isStandalone && (installPrompt || isIos) && (
-            <button className="admin-nav-link admin-nav-install" onClick={installApp}>📲 Install App</button>
-          )}
-          <button className="admin-nav-link admin-nav-logout" onClick={logout}>🚪 Logout</button>
-        </div>
-      </aside>
-
-      {showIosHelp && (
-        <div className="admin-ios-help-backdrop" onClick={() => setShowIosHelp(false)}>
-          <div className="admin-ios-help-box" onClick={e => e.stopPropagation()}>
-            <p className="admin-ios-help-title">📲 Install this app on iPhone</p>
-            <ol className="admin-ios-help-steps">
-              <li>Safari ke bottom bar mein <strong>Share</strong> icon (□↑) par tap karein</li>
-              <li>Neeche scroll karke <strong>"Add to Home Screen"</strong> par tap karein</li>
-              <li><strong>"Add"</strong> par tap karein — icon home screen pe aa jayega</li>
-            </ol>
-            <button className="admin-btn-primary" onClick={() => setShowIosHelp(false)}>Got it</button>
-          </div>
         </div>
       )}
-
-      <main className="admin-main">
-        <AdminHeader />
-        <Routes>
-          <Route index element={<Navigate to="analytics" replace />} />
-          <Route path="analytics" element={<AdminAnalytics />} />
-          <Route path="calendar" element={<AdminCalendar />} />
-          <Route path="patients" element={<AdminPatients />} />
-          <Route path="patients/:id" element={<AdminPatientProfile />} />
-          <Route path="old-patients" element={<AdminOldPatients />} />
-          <Route path="posts" element={<AdminBlogList />} />
-          <Route path="posts/:id" element={<AdminBlogEditor />} />
-          <Route path="gallery" element={<AdminGallery />} />
-          <Route path="appointments" element={<AdminAppointments />} />
-          <Route path="templates" element={<AdminPrescriptionTemplates />} />
-          <Route path="faq" element={<AdminFAQ />} />
-          <Route path="testimonials" element={<AdminTestimonials />} />
-          <Route path="settings" element={<AdminSettings />} />
-          <Route path="notes" element={<AdminNotes />} />
-          <Route path="whatsapp" element={<AdminWhatsApp />} />
-          <Route path="devices" element={<AdminDevices />} />
-        </Routes>
-      </main>
     </div>
   )
 }

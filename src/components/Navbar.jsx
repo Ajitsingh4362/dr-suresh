@@ -15,7 +15,6 @@ export default function Navbar() {
   useEffect(() => {
     setMenuOpen(false)
     if (location.hash) {
-      // Give the new page a moment to render before we look for the anchor.
       const id = location.hash.slice(1)
       const timer = setTimeout(() => {
         const el = document.getElementById(id)
@@ -35,6 +34,7 @@ export default function Navbar() {
     { to: '/blog', label: 'Blog' },
     { to: '/faq', label: 'FAQ' },
     { to: '/social-service', label: 'Social Service' },
+    { to: '/patient-login', label: 'Patient Portal' },
     { to: '/contact', label: 'Contact' },
   ]
 
@@ -77,8 +77,6 @@ export default function Navbar() {
         transition: 'all 0.4s ease',
       }}>
         <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-
-          {/* Logo Only — No Text */}
           <NavLink to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
             <img
               src="/usha-dental-logo.png"
@@ -92,7 +90,6 @@ export default function Navbar() {
             />
           </NavLink>
 
-          {/* Desktop Links */}
           <div className="desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
             {links.map(link => (
               <NavLink key={link.to} to={link.to} end={link.to === '/'}
@@ -109,13 +106,12 @@ export default function Navbar() {
               </NavLink>
             ))}
             <NavLink to="/contact">
-              <button className="btn-primary cta-pulse" style={{ padding: "10px 20px", fontSize: "11px" }}>
+              <button className="btn-primary cta-pulse" style={{ padding: '10px 20px', fontSize: '11px' }}>
                 Book Consultation
               </button>
             </NavLink>
           </div>
 
-          {/* Mobile Hamburger */}
           <button onClick={() => setMenuOpen(!menuOpen)} className="hamburger"
             style={{ display: 'none', background: 'none', border: 'none', flexDirection: 'column', gap: '5px', padding: '4px', cursor: 'pointer' }}
             aria-label="Toggle menu">
@@ -133,7 +129,6 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile Menu */}
       <div style={{
         position: 'fixed', inset: 0, background: 'var(--ivory)',
         zIndex: 999, display: 'flex', flexDirection: 'column',
@@ -141,7 +136,6 @@ export default function Navbar() {
         transition: 'opacity 0.3s, visibility 0.3s',
         opacity: menuOpen ? 1 : 0, visibility: menuOpen ? 'visible' : 'hidden',
       }}>
-        {/* Mobile Logo */}
         <img
           src="/usha-dental-logo.png"
           alt="Usha Multi Speciality Dental Clinic"
