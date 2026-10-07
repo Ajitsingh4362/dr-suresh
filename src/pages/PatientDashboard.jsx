@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate, Link } from 'react-router-dom'
 import SEO from '../components/SEO'
 import {
@@ -10,12 +11,27 @@ import { generateInvoicePDF } from '../lib/generateInvoicePDF'
 const WHATSAPP_API = 'https://dr-suresh-whatsapp.onrender.com'
 const WHATSAPP_FOOTER = '\n\n*Book your appointment on www.ushadental.com*'
 
+const ICON_PATHS = {
+  overview: <><path d="M3 11l9-7 9 7" /><path d="M5 10v10h14V10" /></>,
+  medicines: <><rect x="3" y="9" width="18" height="6" rx="3" transform="rotate(-45 12 12)" /><path d="M9.5 9.5l5 5" /></>,
+  bills: <><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z" /><path d="M9 8h6M9 12h6" /></>,
+  reports: <><path d="M14 3H6v18h12V7z" /><path d="M14 3v4h4M9 13h6M9 17h4" /></>,
+  appointments: <><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></>,
+}
+function TabIcon({ id }) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      {ICON_PATHS[id]}
+    </svg>
+  )
+}
+
 const TABS = [
-  { id: 'overview', label: 'Overview' },
-  { id: 'medicines', label: 'Medicines' },
-  { id: 'bills', label: 'Bills' },
-  { id: 'reports', label: 'Reports' },
-  { id: 'appointments', label: 'Appointments' },
+  { id: 'overview', label: 'Overview', short: 'Home' },
+  { id: 'medicines', label: 'Medicines', short: 'Medicines' },
+  { id: 'bills', label: 'Bills', short: 'Bills' },
+  { id: 'reports', label: 'Reports', short: 'Reports' },
+  { id: 'appointments', label: 'Appointments', short: 'Visits' },
 ]
 
 const TREATMENTS = [
@@ -82,10 +98,18 @@ function MedicineList({ text }) {
     <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
       {lines.map((line, i) => {
         const [name, ...rest] = line.split(' — ')
+        const parts = rest.join(' — ').split(',').map(x => x.trim()).filter(Boolean)
         return (
-          <li key={i} style={{ padding: '10px 0', borderTop: i ? '1px solid rgba(15,39,68,0.07)' : 'none' }}>
-            <span style={{ display: 'block', fontWeight: 600, color: 'var(--navy-800)', fontSize: '15px' }}>{name}</span>
-            {rest.length > 0 && <span style={{ display: 'block', color: 'var(--text-muted)', fontSize: '14px', marginTop: '2px' }}>{rest.join(' — ')}</span>}
+          <li key={i} className="pd-med">
+            <span className="pd-med-dot" aria-hidden="true" />
+            <div style={{ minWidth: 0 }}>
+              <span style={{ display: 'block', fontWeight: 600, color: 'var(--navy-800)', fontSize: '15px', lineHeight: 1.4 }}>{name}</span>
+              {parts.length > 0 && (
+                <span className="pd-chips">
+                  {parts.map((part, k) => <span key={k} className={`pd-chip pd-chip-${k}`}>{part}</span>)}
+                </span>
+              )}
+            </div>
           </li>
         )
       })}
@@ -124,6 +148,18 @@ export default function PatientDashboard() {
     setLoadError('')
     setData(res)
     setLoading(false)
+  }
+
+  function goTab(id) {
+    setTab(id)
+    // Bring the start of the new tab into view, just below the fixed site header.
+    const top = document.getElementById('pd-top')
+    const header = document.querySelector('nav')
+    const headerBottom = header ? header.getBoundingClientRect().bottom : 0
+    if (top) {
+      const target = top.getBoundingClientRect().top + window.scrollY - headerBottom
+      if (window.scrollY > target) window.scrollTo({ top: target, behavior: 'smooth' })
+    }
   }
 
   async function logout() {
@@ -260,21 +296,24 @@ export default function PatientDashboard() {
       <section className="pd-head">
         <div className="container">
           <div className="pd-head-row">
-            <div>
-              <h1 className="pd-title">Namaste, {firstName}</h1>
-              <p className="pd-sub">
-                Patient ID <strong style={{ color: 'var(--gold-pale)', letterSpacing: '0.5px' }}>{patient.patient_code}</strong>
-                {patient.created_at && <> &nbsp;|&nbsp; With us since {fmtDate(patient.created_at)}</>}
-              </p>
+            <div className="pd-hello">
+              <div className="pd-avatar" aria-hidden="true">{(patient.name || 'P').trim()[0].toUpperCase()}</div>
+              <div style={{ minWidth: 0 }}>
+                <h1 className="pd-title">Namaste, {firstName}</h1>
+                <p className="pd-sub">
+                  <span className="pd-idchip">{patient.patient_code}</span>
+                  {patient.created_at && <span className="pd-since">With us since {fmtDate(patient.created_at)}</span>}
+                </p>
+              </div>
             </div>
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-              <button className="btn-primary" onClick={() => { setTab('appointments'); setShowBook(true); setBookMsg(null) }}>Book appointment</button>
+            <div className="pd-head-actions">
+              <button className="btn-primary pd-book-btn" onClick={() => { goTab('appointments'); setShowBook(true); setBookMsg(null) }}>Book appointment</button>
               <button className="pd-logout" onClick={logout}>Log out</button>
             </div>
           </div>
           <nav className="pd-tabs" aria-label="Dashboard sections">
             {TABS.map(t => (
-              <button key={t.id} onClick={() => setTab(t.id)} className={tab === t.id ? 'active' : ''} aria-current={tab === t.id ? 'page' : undefined}>
+              <button key={t.id} onClick={() => goTab(t.id)} className={tab === t.id ? 'active' : ''} aria-current={tab === t.id ? 'page' : undefined}>
                 {t.label}
               </button>
             ))}
@@ -282,7 +321,18 @@ export default function PatientDashboard() {
         </div>
       </section>
 
-      <section style={{ background: 'var(--ivory)', padding: '32px 0 80px', minHeight: '50vh' }}>
+      {/* Rendered into <body> so position:fixed isn't broken by the page's entry animation */}
+      {createPortal(
+      <nav className="pd-bottomnav" aria-label="Dashboard sections">
+        {TABS.map(t => (
+          <button key={t.id} onClick={() => goTab(t.id)} className={tab === t.id ? 'active' : ''} aria-current={tab === t.id ? 'page' : undefined}>
+            <TabIcon id={t.id} />
+            <span>{t.short}</span>
+          </button>
+        ))}
+      </nav>, document.body)}
+
+      <section id="pd-top" className="pd-body">
         <div className="container">
           {bookMsg?.ok && <p className="pd-success">{bookMsg.text}</p>}
 
@@ -290,23 +340,34 @@ export default function PatientDashboard() {
           {tab === 'overview' && (
             <>
               <div className="pd-stats">
-                <button className="pd-stat" onClick={() => setTab('bills')}>
+                <button className="pd-stat" onClick={() => goTab('bills')}>
                   <span className="pd-stat-label">Balance due</span>
                   <span className="pd-stat-value" style={{ color: due > 0 ? 'var(--maroon)' : 'var(--medical-green-dark)' }}>{money(due)}</span>
                   <span className="pd-stat-note">{due > 0 ? `of ${money(totalBilled)} billed` : 'All bills paid'}</span>
                 </button>
-                <button className="pd-stat" onClick={() => setTab('appointments')}>
+                <button className="pd-stat" onClick={() => goTab('appointments')}>
                   <span className="pd-stat-label">Next visit</span>
                   <span className="pd-stat-value">{upcomingAppt ? fmtDate(upcomingAppt.preferred_date) : nextFollowUp ? fmtDate(nextFollowUp) : '—'}</span>
                   <span className="pd-stat-note">
                     {upcomingAppt ? (STATUS_STYLE[upcomingAppt.status]?.text || upcomingAppt.status) : nextFollowUp ? 'Follow-up advised by doctor' : 'No visit planned'}
                   </span>
                 </button>
-                <button className="pd-stat" onClick={() => setTab('reports')}>
+                <button className="pd-stat pd-stat-reports" onClick={() => goTab('reports')}>
                   <span className="pd-stat-label">Reports</span>
                   <span className="pd-stat-value">{documents.length + 1}</span>
                   <span className="pd-stat-note">Clinic report{documents.length ? ` + ${documents.length} file${documents.length > 1 ? 's' : ''}` : ''}</span>
                 </button>
+              </div>
+
+              <div className="pd-help">
+                <a href="tel:+918987367274">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2" /></svg>
+                  Call clinic
+                </a>
+                <a href={`https://wa.me/918987367274?text=${encodeURIComponent(`Namaste, I am ${patient.name} (${patient.patient_code}).`)}`} target="_blank" rel="noreferrer">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 20l1.3-3.9A8 8 0 1112 20a8 8 0 01-3.9-1z" /></svg>
+                  WhatsApp
+                </a>
               </div>
 
               <div className="pd-two">
@@ -316,7 +377,7 @@ export default function PatientDashboard() {
                     <>
                       <p className="pd-meta">Prescribed on {fmtDate(withMedicines[0].date)}{withMedicines[0].chief_complaint ? ` for ${withMedicines[0].chief_complaint}` : ''}</p>
                       <MedicineList text={withMedicines[0].prescription} />
-                      <button className="pd-link" onClick={() => setTab('medicines')}>See all prescriptions</button>
+                      <button className="pd-link" onClick={() => goTab('medicines')}>See all prescriptions</button>
                     </>
                   ) : <p className="pd-meta">No medicines prescribed yet.</p>}
                 </Panel>
@@ -361,7 +422,7 @@ export default function PatientDashboard() {
           {/* BILLS */}
           {tab === 'bills' && (
             <>
-              <div className="pd-stats" style={{ marginBottom: '20px' }}>
+              <div className="pd-stats pd-bills-stats" style={{ marginBottom: '20px' }}>
                 <div className="pd-stat static"><span className="pd-stat-label">Total billed</span><span className="pd-stat-value">{money(totalBilled)}</span></div>
                 <div className="pd-stat static"><span className="pd-stat-label">Paid</span><span className="pd-stat-value" style={{ color: 'var(--medical-green-dark)' }}>{money(totalPaid)}</span></div>
                 <div className="pd-stat static"><span className="pd-stat-label">Balance due</span><span className="pd-stat-value" style={{ color: due > 0 ? 'var(--maroon)' : 'var(--medical-green-dark)' }}>{money(due)}</span></div>
@@ -469,7 +530,7 @@ export default function PatientDashboard() {
             </>
           )}
 
-          <p style={{ marginTop: '40px', fontSize: '13px', color: 'var(--text-light)', textAlign: 'center' }}>
+          <p className="pd-footer-help" style={{ marginTop: '40px', fontSize: '13px', color: 'var(--text-light)', textAlign: 'center' }}>
             Need help? <a href="tel:+918987367274" style={{ color: 'var(--gold-deep)', fontWeight: 600 }}>Call the clinic</a> or <Link to="/contact" style={{ color: 'var(--gold-deep)', fontWeight: 600 }}>visit the contact page</Link>.
           </p>
         </div>
@@ -478,8 +539,21 @@ export default function PatientDashboard() {
       <style>{`
         .pd-head { background: var(--maroon-dark); padding: 168px 0 0; color: var(--white); }
         .pd-head-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; padding-bottom: 28px; }
+        .pd-hello { display: flex; align-items: center; gap: 16px; min-width: 0; }
+        .pd-avatar { width: 58px; height: 58px; border-radius: 50%; background: var(--gold); color: var(--maroon-dark); font-family: var(--font-display); font-weight: 700; font-size: 26px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 2px solid rgba(240,221,181,0.5); }
+        .pd-head-actions { display: flex; gap: 10px; flex-wrap: wrap; }
         .pd-title { font-size: clamp(30px, 5vw, 46px); color: var(--white); font-weight: 600; margin: 0 0 8px; }
-        .pd-sub { color: rgba(255,255,255,0.72); font-size: 14px; margin: 0; }
+        .pd-sub { color: rgba(255,255,255,0.72); font-size: 14px; margin: 0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .pd-idchip { background: rgba(240,221,181,0.14); border: 1px solid rgba(240,221,181,0.35); color: var(--gold-pale); font-weight: 600; letter-spacing: 0.5px; padding: 3px 10px; border-radius: 100px; font-size: 13px; }
+        .pd-body { background: var(--ivory); padding: 32px 0 80px; min-height: 50vh; }
+        .pd-bottomnav { display: none; }
+        .pd-help { display: none; }
+        .pd-med { display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid rgba(15,39,68,0.07); }
+        .pd-med:first-child { border-top: none; }
+        .pd-med-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); margin-top: 8px; flex-shrink: 0; }
+        .pd-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+        .pd-chip { font-size: 12.5px; padding: 3px 10px; border-radius: 100px; background: var(--ivory-dark); color: var(--navy-700); font-weight: 500; }
+        .pd-chip-0 { background: var(--teal-pale); color: var(--teal); font-weight: 600; }
         .pd-logout { background: transparent; color: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.3); padding: 13px 22px; border-radius: 2px; font-size: 13px; font-weight: 500; }
         .pd-logout:hover { border-color: var(--gold-light); color: var(--gold-light); }
         .pd-tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
@@ -522,10 +596,47 @@ export default function PatientDashboard() {
           .pd-two { grid-template-columns: 1fr; }
           .pd-form-grid { grid-template-columns: 1fr; }
         }
-        @media (max-width: 600px) {
-          .pd-stats { grid-template-columns: 1fr; gap: 10px; }
+        @media (max-width: 700px) {
+          /* App-style layout on phones */
+          .pd-head { padding-top: 138px; }
+          .pd-head .container { position: relative; }
+          .pd-head-row { padding-bottom: 20px; gap: 16px; }
+          .pd-avatar { width: 48px; height: 48px; font-size: 21px; }
+          .pd-title { font-size: 26px; margin-bottom: 6px; }
+          .pd-sub { font-size: 12.5px; gap: 8px; }
+          .pd-idchip { font-size: 12px; }
+          .pd-since { color: rgba(255,255,255,0.6); }
+          .pd-head-actions { width: 100%; }
+          .pd-book-btn { flex: 1; justify-content: center; }
+          .pd-logout { padding: 12px 16px; }
+          .pd-tabs { display: none; }
+          .pd-body { padding: 18px 0 calc(96px + env(safe-area-inset-bottom, 0px)); }
+          .pd-bottomnav {
+            display: grid; grid-template-columns: repeat(5, 1fr);
+            position: fixed; left: 0; right: 0; bottom: 0; z-index: 900;
+            background: var(--white); border-top: 1px solid rgba(15,39,68,0.1);
+            box-shadow: 0 -6px 24px rgba(15,39,68,0.08);
+            padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px));
+          }
+          .pd-bottomnav button { background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 0; color: var(--text-light); font-size: 11px; font-weight: 600; font-family: var(--font-body); position: relative; }
+          .pd-bottomnav button.active { color: var(--maroon); }
+          .pd-bottomnav button.active::before { content: ''; position: absolute; top: -7px; left: 30%; right: 30%; height: 3px; border-radius: 0 0 3px 3px; background: var(--maroon); }
+          .pd-stats { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+          .pd-stat { padding: 14px; }
+          .pd-stat-value { font-size: 22px; }
+          .pd-stat-note { font-size: 11.5px; }
+          .pd-stat-reports { display: none; }
+          .pd-bills-stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+          .pd-bills-stats .pd-stat { padding: 12px 10px; }
+          .pd-bills-stats .pd-stat-value { font-size: 18px; }
+          .pd-bills-stats .pd-stat-label { font-size: 12px; }
+          .pd-help { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+          .pd-help a { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: var(--white); border: 1px solid rgba(15,39,68,0.1); border-radius: 2px; font-size: 14px; font-weight: 600; color: var(--navy-800); }
+          .pd-help a:last-child { color: #128c4a; }
           .pd-panel { padding: 18px 16px; }
+          .pd-h3 { font-size: 18px; }
           .pd-doc { padding: 14px 16px; }
+          .pd-footer-help { display: none; }
         }
       `}</style>
     </div>
