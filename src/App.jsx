@@ -23,12 +23,12 @@ import PatientDashboard from './pages/PatientDashboard'
 function Layout() {
   const loc = useLocation()
   const isAdmin = loc.pathname.startsWith('/admin')
-  // Dashboard has its own Call/WhatsApp buttons and a bottom tab bar on phones
+  // Patient dashboard is a standalone app screen: no website header, footer or floating buttons
   const isDashboard = loc.pathname.startsWith('/patient-dashboard')
 
   return (
     <>
-      {!isAdmin && <Navbar />}
+      {!isAdmin && !isDashboard && <Navbar />}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
@@ -46,7 +46,7 @@ function Layout() {
         <Route path="/patient-dashboard" element={<PatientDashboard />} />
         <Route path="/admin/*" element={<Admin />} />
       </Routes>
-      {!isAdmin && <Footer />}
+      {!isAdmin && !isDashboard && <Footer />}
       {!isAdmin && !isDashboard && <WhatsAppFloat />}
       {!isAdmin && !isDashboard && <CallFloat />}
     </>

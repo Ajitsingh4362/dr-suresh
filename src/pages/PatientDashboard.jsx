@@ -57,6 +57,10 @@ const STATUS_STYLE = {
   completed: { bg: '#e6eef7', fg: '#1c3d6a', text: 'Completed' },
 }
 
+const CENTER_CSS = `
+  .pd-center { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 24px; text-align: center; background: var(--ivory); color: var(--text-muted); font-size: 15px; }
+`
+
 const money = n => '₹' + Number(n || 0).toLocaleString('en-IN')
 const fmtDate = d => d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'
 const todayISO = () => {
@@ -132,6 +136,7 @@ export default function PatientDashboard() {
   const [booking, setBooking] = useState(false)
 
   useEffect(() => {
+    window.scrollTo(0, 0)
     if (!session?.token) { navigate('/patient-login', { replace: true }); return }
     load()
   }, [])
@@ -152,12 +157,12 @@ export default function PatientDashboard() {
 
   function goTab(id) {
     setTab(id)
-    // Bring the start of the new tab into view, just below the fixed site header.
+    // Bring the start of the new section into view (below the phone app bar).
     const top = document.getElementById('pd-top')
-    const header = document.querySelector('nav')
-    const headerBottom = header ? header.getBoundingClientRect().bottom : 0
+    const bar = document.querySelector('.pd-appbar')
+    const barH = bar && getComputedStyle(bar).display !== 'none' ? bar.offsetHeight : 0
     if (top) {
-      const target = top.getBoundingClientRect().top + window.scrollY - headerBottom
+      const target = top.getBoundingClientRect().top + window.scrollY - barH - 12
       if (window.scrollY > target) window.scrollTo({ top: target, behavior: 'smooth' })
     }
   }
@@ -222,19 +227,21 @@ export default function PatientDashboard() {
 
   if (loading && !data) {
     return (
-      <div className="page-hero" style={{ minHeight: '70vh' }}>
-        <div className="container page-hero-inner"><p>Loading your details…</p></div>
+      <div className="pd-center">
+        <img src="/usha-dental-logo.png" alt="" style={{ height: '64px', width: 'auto' }} />
+        <p>Loading your details…</p>
+        <style>{CENTER_CSS}</style>
       </div>
     )
   }
 
   if (loadError && !data) {
     return (
-      <div className="page-hero" style={{ minHeight: '70vh' }}>
-        <div className="container page-hero-inner">
-          <p style={{ marginBottom: '20px' }}>{loadError}</p>
-          <button className="btn-primary" onClick={load}>Try again</button>
-        </div>
+      <div className="pd-center">
+        <img src="/usha-dental-logo.png" alt="" style={{ height: '64px', width: 'auto' }} />
+        <p>{loadError}</p>
+        <button className="btn-primary" onClick={load}>Try again</button>
+        <style>{CENTER_CSS}</style>
       </div>
     )
   }
@@ -288,52 +295,82 @@ export default function PatientDashboard() {
     </form>
   )
 
+  const initial = (patient.name || 'P').trim()[0].toUpperCase()
+  const waLink = `https://wa.me/918987367274?text=${encodeURIComponent(`Namaste, I am ${patient.name} (${patient.patient_code}).`)}`
+  const currentTab = TABS.find(t => t.id === tab)
+  const openBooking = () => { goTab('appointments'); setShowBook(true); setBookMsg(null) }
+
   return (
-    <div className="page-enter">
+    <div className="pd-shell">
       <SEO title="My Dashboard" description="Your patient dashboard" path="/patient-dashboard" noindex />
 
-      {/* Header */}
-      <section className="pd-head">
-        <div className="container">
-          <div className="pd-head-row">
-            <div className="pd-hello">
-              <div className="pd-avatar" aria-hidden="true">{(patient.name || 'P').trim()[0].toUpperCase()}</div>
-              <div style={{ minWidth: 0 }}>
-                <h1 className="pd-title">Namaste, {firstName}</h1>
-                <p className="pd-sub">
-                  <span className="pd-idchip">{patient.patient_code}</span>
-                  {patient.created_at && <span className="pd-since">With us since {fmtDate(patient.created_at)}</span>}
-                </p>
-              </div>
-            </div>
-            <div className="pd-head-actions">
-              <button className="btn-primary pd-book-btn" onClick={() => { goTab('appointments'); setShowBook(true); setBookMsg(null) }}>Book appointment</button>
-              <button className="pd-logout" onClick={logout}>Log out</button>
+      {/* Laptop: left sidebar */}
+      <aside className="pd-side">
+        <Link to="/" className="pd-brand" title="Clinic website">
+          <img src="/usha-dental-logo.png" alt="" />
+          <span>Usha Multi Speciality<br />Dental Clinic</span>
+        </Link>
+        <nav className="pd-sidenav" aria-label="Dashboard sections">
+          {TABS.map(t => (
+            <button key={t.id} onClick={() => goTab(t.id)} className={tab === t.id ? 'active' : ''} aria-current={tab === t.id ? 'page' : undefined}>
+              <TabIcon id={t.id} />
+              {t.label}
+            </button>
+          ))}
+        </nav>
+        <div className="pd-side-foot">
+          <a href="tel:+918987367274" className="pd-side-link">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2" /></svg>
+            Call clinic
+          </a>
+          <a href={waLink} target="_blank" rel="noreferrer" className="pd-side-link">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 20l1.3-3.9A8 8 0 1112 20a8 8 0 01-3.9-1z" /></svg>
+            WhatsApp
+          </a>
+          <Link to="/" className="pd-side-link">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
+            Clinic website
+          </Link>
+          <div className="pd-side-user">
+            <div className="pd-avatar sm" aria-hidden="true">{initial}</div>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <p className="pd-side-name">{patient.name}</p>
+              <button className="pd-side-logout" onClick={logout}>Log out</button>
             </div>
           </div>
-          <nav className="pd-tabs" aria-label="Dashboard sections">
-            {TABS.map(t => (
-              <button key={t.id} onClick={() => goTab(t.id)} className={tab === t.id ? 'active' : ''} aria-current={tab === t.id ? 'page' : undefined}>
-                {t.label}
-              </button>
-            ))}
-          </nav>
         </div>
-      </section>
+      </aside>
 
-      {/* Rendered into <body> so position:fixed isn't broken by the page's entry animation */}
-      {createPortal(
-      <nav className="pd-bottomnav" aria-label="Dashboard sections">
-        {TABS.map(t => (
-          <button key={t.id} onClick={() => goTab(t.id)} className={tab === t.id ? 'active' : ''} aria-current={tab === t.id ? 'page' : undefined}>
-            <TabIcon id={t.id} />
-            <span>{t.short}</span>
+      <div className="pd-main">
+        {/* Phone: top app bar */}
+        <header className="pd-appbar">
+          <Link to="/" className="pd-appbar-brand" aria-label="Clinic website">
+            <img src="/usha-dental-logo.png" alt="" />
+            <span>Usha Dental</span>
+          </Link>
+          <button className="pd-appbar-logout" onClick={logout}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10" /></svg>
+            Log out
           </button>
-        ))}
-      </nav>, document.body)}
+        </header>
 
-      <section id="pd-top" className="pd-body">
-        <div className="container">
+        <section className={`pd-hero ${tab !== 'overview' ? 'pd-hero-inner-tab' : ''}`}>
+          <div className="pd-hello">
+            <div className="pd-avatar" aria-hidden="true">{initial}</div>
+            <div style={{ minWidth: 0 }}>
+              <p className="pd-greet">Namaste,</p>
+              <h1 className="pd-title">{patient.name}</h1>
+              <p className="pd-sub">
+                <span className="pd-idchip">{patient.patient_code}</span>
+                {patient.created_at && <span className="pd-since">With us since {fmtDate(patient.created_at)}</span>}
+              </p>
+            </div>
+          </div>
+          <button className="btn-primary pd-book-btn" onClick={openBooking}>Book appointment</button>
+        </section>
+
+        <div id="pd-top" className="pd-content">
+          {tab !== 'overview' && <h2 className="pd-section-title">{currentTab?.label}</h2>}
           {bookMsg?.ok && <p className="pd-success">{bookMsg.text}</p>}
 
           {/* OVERVIEW */}
@@ -530,49 +567,65 @@ export default function PatientDashboard() {
             </>
           )}
 
-          <p className="pd-footer-help" style={{ marginTop: '40px', fontSize: '13px', color: 'var(--text-light)', textAlign: 'center' }}>
-            Need help? <a href="tel:+918987367274" style={{ color: 'var(--gold-deep)', fontWeight: 600 }}>Call the clinic</a> or <Link to="/contact" style={{ color: 'var(--gold-deep)', fontWeight: 600 }}>visit the contact page</Link>.
-          </p>
         </div>
-      </section>
+      </div>
+
+      {/* Phone: bottom tab bar (portal keeps position:fixed reliable) */}
+      {createPortal(
+        <nav className="pd-bottomnav" aria-label="Dashboard sections">
+          {TABS.map(t => (
+            <button key={t.id} onClick={() => goTab(t.id)} className={tab === t.id ? 'active' : ''} aria-current={tab === t.id ? 'page' : undefined}>
+              <TabIcon id={t.id} />
+              <span>{t.short}</span>
+            </button>
+          ))}
+        </nav>, document.body)}
 
       <style>{`
-        .pd-head { background: var(--maroon-dark); padding: 168px 0 0; color: var(--white); }
-        .pd-head-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; padding-bottom: 28px; }
-        .pd-hello { display: flex; align-items: center; gap: 16px; min-width: 0; }
-        .pd-avatar { width: 58px; height: 58px; border-radius: 50%; background: var(--gold); color: var(--maroon-dark); font-family: var(--font-display); font-weight: 700; font-size: 26px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 2px solid rgba(240,221,181,0.5); }
-        .pd-head-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-        .pd-title { font-size: clamp(30px, 5vw, 46px); color: var(--white); font-weight: 600; margin: 0 0 8px; }
-        .pd-sub { color: rgba(255,255,255,0.72); font-size: 14px; margin: 0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-        .pd-idchip { background: rgba(240,221,181,0.14); border: 1px solid rgba(240,221,181,0.35); color: var(--gold-pale); font-weight: 600; letter-spacing: 0.5px; padding: 3px 10px; border-radius: 100px; font-size: 13px; }
-        .pd-body { background: var(--ivory); padding: 32px 0 80px; min-height: 50vh; }
+        /* ── App shell: no website header/footer ── */
+        .pd-shell { min-height: 100vh; background: var(--ivory); display: grid; grid-template-columns: 264px 1fr; }
+        .pd-side { position: sticky; top: 0; height: 100vh; background: var(--maroon-dark); color: var(--white); display: flex; flex-direction: column; padding: 22px 16px 18px; overflow-y: auto; }
+        .pd-brand { display: flex; align-items: center; gap: 12px; padding: 4px 8px 22px; border-bottom: 1px solid rgba(240,221,181,0.15); margin-bottom: 18px; }
+        .pd-brand img { width: 52px; height: 52px; object-fit: contain; flex-shrink: 0; }
+        .pd-brand span { font-family: var(--font-display); font-size: 15px; line-height: 1.3; color: var(--gold-pale); font-weight: 600; }
+        .pd-sidenav { display: flex; flex-direction: column; gap: 4px; }
+        .pd-sidenav button { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: none; border: none; color: rgba(255,255,255,0.72); padding: 12px 14px; font-size: 15px; font-weight: 500; border-radius: 6px; transition: background 0.15s, color 0.15s; }
+        .pd-sidenav button:hover { background: rgba(255,255,255,0.06); color: var(--white); }
+        .pd-sidenav button.active { background: rgba(227,192,121,0.16); color: var(--gold-light); font-weight: 600; box-shadow: inset 3px 0 0 var(--gold); }
+        .pd-side-foot { margin-top: auto; padding-top: 18px; display: flex; flex-direction: column; gap: 2px; }
+        .pd-side-link { display: flex; align-items: center; gap: 10px; padding: 9px 14px; font-size: 14px; color: rgba(255,255,255,0.65); border-radius: 6px; }
+        .pd-side-link:hover { color: var(--white); background: rgba(255,255,255,0.06); }
+        .pd-side-user { display: flex; align-items: center; gap: 12px; margin-top: 14px; padding: 14px 10px 0; border-top: 1px solid rgba(240,221,181,0.15); }
+        .pd-side-name { margin: 0; font-size: 14px; font-weight: 600; color: var(--white); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .pd-side-logout { background: none; border: none; padding: 0; color: var(--gold-light); font-size: 13px; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; }
+        .pd-sidenav button:focus-visible, .pd-side-link:focus-visible, .pd-side-logout:focus-visible, .pd-stat:focus-visible, .pd-link:focus-visible, .pd-bottomnav button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+        .pd-main { min-width: 0; }
+        .pd-appbar { display: none; }
+        .pd-hero { max-width: 1120px; margin: 0 auto; padding: 40px 44px 8px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+        .pd-hello { display: flex; align-items: center; gap: 18px; min-width: 0; }
+        .pd-avatar { width: 64px; height: 64px; border-radius: 50%; background: var(--maroon); color: var(--gold-pale); font-family: var(--font-display); font-weight: 700; font-size: 28px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .pd-avatar.sm { width: 38px; height: 38px; font-size: 16px; background: var(--gold); color: var(--maroon-dark); }
+        .pd-greet { margin: 0; font-size: 14px; color: var(--text-muted); }
+        .pd-title { font-size: clamp(26px, 3.4vw, 38px); color: var(--navy-800); font-weight: 600; margin: 0 0 8px; line-height: 1.15; }
+        .pd-sub { color: var(--text-muted); font-size: 13.5px; margin: 0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .pd-idchip { background: rgba(122,35,49,0.08); color: var(--maroon); font-weight: 700; letter-spacing: 0.5px; padding: 3px 10px; border-radius: 100px; font-size: 13px; }
+        .pd-content { max-width: 1120px; margin: 0 auto; padding: 24px 44px 64px; }
+        .pd-section-title { font-size: 24px; color: var(--navy-800); font-weight: 600; margin: 0 0 18px; }
+
         .pd-bottomnav { display: none; }
         .pd-help { display: none; }
-        .pd-med { display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid rgba(15,39,68,0.07); }
-        .pd-med:first-child { border-top: none; }
-        .pd-med-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); margin-top: 8px; flex-shrink: 0; }
-        .pd-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-        .pd-chip { font-size: 12.5px; padding: 3px 10px; border-radius: 100px; background: var(--ivory-dark); color: var(--navy-700); font-weight: 500; }
-        .pd-chip-0 { background: var(--teal-pale); color: var(--teal); font-weight: 600; }
-        .pd-logout { background: transparent; color: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.3); padding: 13px 22px; border-radius: 2px; font-size: 13px; font-weight: 500; }
-        .pd-logout:hover { border-color: var(--gold-light); color: var(--gold-light); }
-        .pd-tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-        .pd-tabs::-webkit-scrollbar { display: none; }
-        .pd-tabs button { background: transparent; border: none; color: rgba(255,255,255,0.7); padding: 14px 18px; font-size: 14px; font-weight: 500; white-space: nowrap; border-radius: 2px 2px 0 0; }
-        .pd-tabs button:hover { color: var(--white); }
-        .pd-tabs button.active { background: var(--ivory); color: var(--navy-800); font-weight: 600; }
-        .pd-tabs button:focus-visible, .pd-stat:focus-visible, .pd-link:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
-        .pd-panel { background: var(--white); border: 1px solid rgba(15,39,68,0.08); border-radius: 2px; padding: 22px 24px; }
+        .pd-panel { background: var(--white); border: 1px solid rgba(15,39,68,0.07); border-radius: 10px; padding: 22px 24px; box-shadow: 0 1px 2px rgba(15,39,68,0.04); }
         .pd-h3 { font-size: 20px; color: var(--navy-800); font-weight: 600; margin: 0 0 12px; }
         .pd-meta { color: var(--text-muted); font-size: 14px; margin: 0 0 10px; }
         .pd-link { background: none; border: none; color: var(--gold-deep); font-weight: 600; font-size: 14px; padding: 0; margin-top: 14px; text-decoration: underline; text-underline-offset: 3px; }
-        .pd-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
-        .pd-stat { text-align: left; background: var(--white); border: 1px solid rgba(15,39,68,0.08); border-radius: 2px; padding: 18px 20px; display: flex; flex-direction: column; gap: 4px; transition: border-color 0.2s; }
+        .pd-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 16px; }
+        .pd-stat { text-align: left; background: var(--white); border: 1px solid rgba(15,39,68,0.07); border-radius: 10px; padding: 18px 20px; display: flex; flex-direction: column; gap: 4px; transition: border-color 0.2s; box-shadow: 0 1px 2px rgba(15,39,68,0.04); }
         .pd-stat:not(.static):hover { border-color: var(--gold); }
         .pd-stat-label { font-size: 13px; color: var(--text-muted); }
         .pd-stat-value { font-family: var(--font-display); font-size: 28px; font-weight: 600; color: var(--navy-800); line-height: 1.2; }
         .pd-stat-note { font-size: 12.5px; color: var(--text-light); }
-        .pd-two { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; }
+        .pd-two { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; align-items: start; }
         .pd-dl { display: grid; grid-template-columns: auto 1fr; gap: 8px 18px; margin: 0; font-size: 14px; }
         .pd-dl dt { color: var(--text-muted); }
         .pd-dl dd { margin: 0; color: var(--navy-800); font-weight: 500; }
@@ -587,30 +640,51 @@ export default function PatientDashboard() {
         .pd-doc { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 16px 22px; }
         .pd-form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 14px; }
         .pd-field span { display: block; font-size: 13px; font-weight: 600; color: var(--navy-800); margin-bottom: 6px; }
-        .pd-field input, .pd-field select, .pd-field textarea { width: 100%; padding: 12px 14px; border: 1px solid rgba(15,39,68,0.18); border-radius: 2px; font-family: var(--font-body); font-size: 16px; color: var(--navy-800); background: var(--white); outline: none; color-scheme: light; }
+        .pd-field input, .pd-field select, .pd-field textarea { width: 100%; padding: 12px 14px; border: 1px solid rgba(15,39,68,0.18); border-radius: 6px; font-family: var(--font-body); font-size: 16px; color: var(--navy-800); background: var(--white); outline: none; color-scheme: light; }
         .pd-field input:focus, .pd-field select:focus, .pd-field textarea:focus { border-color: var(--gold); }
-        .pd-alert { background: #fbeeee; color: #8f2d2d; font-size: 14px; padding: 10px 12px; border-radius: 2px; }
-        .pd-success { background: #e7f3ec; color: #2c5943; font-size: 14px; padding: 12px 14px; border-radius: 2px; margin: 0 0 20px; font-weight: 500; }
-        @media (max-width: 860px) {
-          .pd-head { padding-top: 150px; }
+        .pd-alert { background: #fbeeee; color: #8f2d2d; font-size: 14px; padding: 10px 12px; border-radius: 6px; }
+        .pd-success { background: #e7f3ec; color: #2c5943; font-size: 14px; padding: 12px 14px; border-radius: 6px; margin: 0 0 18px; font-weight: 500; }
+        .pd-med { display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid rgba(15,39,68,0.07); }
+        .pd-med:first-child { border-top: none; }
+        .pd-med-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); margin-top: 8px; flex-shrink: 0; }
+        .pd-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+        .pd-chip { font-size: 12.5px; padding: 3px 10px; border-radius: 100px; background: var(--ivory-dark); color: var(--navy-700); font-weight: 500; }
+        .pd-chip-0 { background: var(--teal-pale); color: var(--teal); font-weight: 600; }
+
+        @media (max-width: 1100px) {
+          .pd-shell { grid-template-columns: 228px 1fr; }
+          .pd-hero, .pd-content { padding-left: 28px; padding-right: 28px; }
           .pd-two { grid-template-columns: 1fr; }
-          .pd-form-grid { grid-template-columns: 1fr; }
+          .pd-form-grid { grid-template-columns: 1fr 1fr; }
         }
-        @media (max-width: 700px) {
-          /* App-style layout on phones */
-          .pd-head { padding-top: 138px; }
-          .pd-head .container { position: relative; }
-          .pd-head-row { padding-bottom: 20px; gap: 16px; }
-          .pd-avatar { width: 48px; height: 48px; font-size: 21px; }
-          .pd-title { font-size: 26px; margin-bottom: 6px; }
+
+        /* ── Phones & small tablets: app bar on top, tab bar at bottom ── */
+        @media (max-width: 860px) {
+          .pd-shell { display: block; }
+          .pd-side { display: none; }
+          .pd-appbar {
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+            position: sticky; top: 0; z-index: 50;
+            background: var(--maroon-dark); color: var(--white);
+            padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px 12px;
+            box-shadow: 0 2px 12px rgba(92,26,37,0.25);
+          }
+          .pd-appbar-brand { display: flex; align-items: center; gap: 10px; }
+          .pd-appbar-brand img { width: 38px; height: 38px; object-fit: contain; }
+          .pd-appbar-brand span { font-family: var(--font-display); font-weight: 600; font-size: 17px; color: var(--gold-pale); }
+          .pd-appbar-logout { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 500; padding: 8px 12px; border-radius: 100px; }
+          .pd-hero { padding: 20px 16px 4px; gap: 16px; }
+          .pd-avatar { width: 52px; height: 52px; font-size: 22px; }
+          .pd-title { font-size: 24px; margin-bottom: 6px; }
+          .pd-greet { font-size: 13px; }
           .pd-sub { font-size: 12.5px; gap: 8px; }
           .pd-idchip { font-size: 12px; }
-          .pd-since { color: rgba(255,255,255,0.6); }
-          .pd-head-actions { width: 100%; }
-          .pd-book-btn { flex: 1; justify-content: center; }
-          .pd-logout { padding: 12px 16px; }
-          .pd-tabs { display: none; }
-          .pd-body { padding: 18px 0 calc(96px + env(safe-area-inset-bottom, 0px)); }
+          .pd-book-btn { width: 100%; justify-content: center; }
+          .pd-content { padding: 16px 16px calc(96px + env(safe-area-inset-bottom, 0px)); }
+          .pd-hero-inner-tab { display: none; }
+          .pd-hero-inner-tab + .pd-content { padding-top: 20px; }
+          .pd-section-title { font-size: 21px; margin-bottom: 14px; }
+          .pd-form-grid { grid-template-columns: 1fr; }
           .pd-bottomnav {
             display: grid; grid-template-columns: repeat(5, 1fr);
             position: fixed; left: 0; right: 0; bottom: 0; z-index: 900;
@@ -631,12 +705,11 @@ export default function PatientDashboard() {
           .pd-bills-stats .pd-stat-value { font-size: 18px; }
           .pd-bills-stats .pd-stat-label { font-size: 12px; }
           .pd-help { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-          .pd-help a { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: var(--white); border: 1px solid rgba(15,39,68,0.1); border-radius: 2px; font-size: 14px; font-weight: 600; color: var(--navy-800); }
+          .pd-help a { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: var(--white); border: 1px solid rgba(15,39,68,0.08); border-radius: 10px; font-size: 14px; font-weight: 600; color: var(--navy-800); }
           .pd-help a:last-child { color: #128c4a; }
           .pd-panel { padding: 18px 16px; }
           .pd-h3 { font-size: 18px; }
           .pd-doc { padding: 14px 16px; }
-          .pd-footer-help { display: none; }
         }
       `}</style>
     </div>
