@@ -6,6 +6,12 @@ const TABS = ['all', 'pending', 'confirmed', 'cancelled']
 const WHATSAPP_API = 'https://dr-suresh-whatsapp.onrender.com'
 const WHATSAPP_FOOTER = '\n\n*Book your appointment on www.ushadental.com*'
 
+// Last 10 digits — so "+91 98765 43210", "098765 43210" and "9876543210" all match.
+function phoneKey(phone) {
+  const d = (phone || '').replace(/[^\d]/g, '')
+  return d.length >= 10 ? d.slice(-10) : ''
+}
+
 function cleanPhone(phone) {
   let p = (phone || '').replace(/[^\d]/g, '')
   if (p.length === 10) p = '91' + p
@@ -22,6 +28,7 @@ export default function AdminAppointments() {
   const [appts, setAppts] = useState([])
   const [tab, setTab] = useState('all')
   const [loading, setLoading] = useState(true)
+  const [patients, setPatients] = useState([])
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -43,8 +50,12 @@ export default function AdminAppointments() {
   }, [])
 
   async function fetchAppts() {
-    const { data } = await supabase.from('appointments').select('*').order('created_at', { ascending: false })
+    const [{ data }, { data: pts }] = await Promise.all([
+      supabase.from('appointments').select('*').order('created_at', { ascending: false }),
+      supabase.from('patients').select('id, name, phone, patient_code'),
+    ])
     setAppts(data || [])
+    setPatients(pts || [])
     setLoading(false)
   }
 
@@ -77,6 +88,29 @@ export default function AdminAppointments() {
     await supabase.from('appointments').update({ admin_notes: notes }).eq('id', id)
   }
 
+  // Which existing patient(s) does this appointment belong to? Linked
+  // appointments (booked from the Patient Dashboard, or already added) use
+  // patient_id; website-form bookings are matched by mobile number.
+  const patientsById = Object.fromEntries(patients.map(p => [p.id, p]))
+  const patientsByPhone = {}
+  patients.forEach(p => {
+    const k = phoneKey(p.phone)
+    if (k) (patientsByPhone[k] = patientsByPhone[k] || []).push(p)
+  })
+  function matchesFor(a) {
+    if (a.patient_id && patientsById[a.patient_id]) return [patientsById[a.patient_id]]
+    return patientsByPhone[phoneKey(a.phone)] || []
+  }
+  const isPortal = a => (a.message || '').startsWith('Booked from Patient Dashboard')
+
+  async function openProfile(a, p) {
+    // Link this appointment to the patient so it shows in their profile too.
+    if (!a.patient_id) {
+      await supabase.from('appointments').update({ patient_id: p.id }).eq('id', a.id)
+    }
+    navigate(`/admin/patients/${p.id}`)
+  }
+
   const shown = tab === 'all' ? appts : appts.filter(a => a.status === tab)
   const counts = { all: appts.length, pending: appts.filter(a => a.status === 'pending').length, confirmed: appts.filter(a => a.status === 'confirmed').length, cancelled: appts.filter(a => a.status === 'cancelled').length }
   const fmt = d => d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'
@@ -99,13 +133,25 @@ export default function AdminAppointments() {
         <p className="admin-empty">No appointments here.</p>
       ) : (
         <div className="admin-appt-list">
-          {shown.map(a => (
+          {shown.map(a => {
+            const matches = matchesFor(a)
+            return (
             <div key={a.id} className="admin-appt-card">
               <div className="admin-appt-main">
                 <div className="admin-appt-top">
                   <p className="admin-appt-name">{a.name}</p>
                   <span className={`admin-badge admin-badge-${a.status}`}>{a.status}</span>
+                  {isPortal(a) && (
+                    <span className="admin-badge" style={{ background: 'rgba(122,35,49,0.1)', color: 'var(--maroon)' }}>Patient Dashboard</span>
+                  )}
                 </div>
+                {matches.length > 0 ? (
+                  <p className="admin-appt-line" style={{ color: 'var(--teal)', fontWeight: 600 }}>
+                    ✅ Existing patient: {matches.map(p => `${p.name} (${p.patient_code})`).join(', ')}
+                  </p>
+                ) : (
+                  <p className="admin-appt-line" style={{ color: '#9c7a3c', fontWeight: 600 }}>🆕 New patient — not in records yet</p>
+                )}
                 <p className="admin-appt-line">📞 {a.phone}{a.email ? ` · ✉️ ${a.email}` : ''}</p>
                 <p className="admin-appt-line">🩺 {a.service || 'General consultation'}</p>
                 <p className="admin-appt-line">📅 {fmt(a.preferred_date)} {a.preferred_time ? `· ${a.preferred_time}` : ''}</p>
@@ -138,21 +184,33 @@ export default function AdminAppointments() {
                 <a className="admin-btn-outline admin-btn-sm" href={`https://wa.me/${cleanPhone(a.phone)}`} target="_blank" rel="noreferrer">
                   WhatsApp
                 </a>
-                <button className="admin-btn-primary admin-btn-sm" onClick={() => {
-                  const params = new URLSearchParams({
-                    name: a.name || '',
-                    phone: a.phone || '',
-                    email: a.email || '',
-                    service: a.service || '',
-                    message: a.message || '',
-                  })
-                  navigate(`/admin/patients/new?${params.toString()}`)
-                }}>
-                  + Add as Patient
-                </button>
+                {matches.map(p => (
+                  <button key={p.id} className="admin-btn-primary admin-btn-sm" onClick={() => openProfile(a, p)}>
+                    Open {matches.length > 1 ? p.name.split(' ')[0] + "'s" : ''} Profile
+                  </button>
+                ))}
+                {!a.patient_id && (
+                  <button className={matches.length ? 'admin-btn-outline admin-btn-sm' : 'admin-btn-primary admin-btn-sm'} onClick={() => {
+                    if (matches.length && !window.confirm(
+                      `This mobile number already belongs to: ${matches.map(p => `${p.name} (${p.patient_code})`).join(', ')}.\n\nOnly create a NEW patient if this is a different person (e.g. a family member). Continue?`
+                    )) return
+                    const params = new URLSearchParams({
+                      name: a.name || '',
+                      phone: a.phone || '',
+                      email: a.email || '',
+                      service: a.service || '',
+                      message: a.message || '',
+                      appointment_id: a.id,
+                    })
+                    navigate(`/admin/patients/new?${params.toString()}`)
+                  }}>
+                    {matches.length ? '+ New (family member)' : '+ Add as Patient'}
+                  </button>
+                )}
               </div>
             </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>

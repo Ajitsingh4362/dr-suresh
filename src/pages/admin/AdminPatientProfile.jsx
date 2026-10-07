@@ -518,9 +518,33 @@ export default function AdminPatientProfile() {
     let patientId = id
 
     if (isNew) {
+      // Duplicate guard: same mobile number already in records?
+      const key = (patient.phone || '').replace(/[^\d]/g, '').slice(-10)
+      if (key.length === 10) {
+        const { data: existing } = await supabase.from('patients').select('id, name, phone, patient_code')
+        const same = (existing || []).filter(p => (p.phone || '').replace(/[^\d]/g, '').slice(-10) === key)
+        if (same.length) {
+          const list = same.map(p => `• ${p.name} (${p.patient_code})`).join('\n')
+          const createAnyway = window.confirm(
+            `This mobile number is already registered:\n${list}\n\nPress OK only if this is a DIFFERENT person (e.g. a family member).\nPress Cancel to open the existing profile instead.`
+          )
+          if (!createAnyway) {
+            if (prefill.appointment_id) await supabase.from('appointments').update({ patient_id: same[0].id }).eq('id', prefill.appointment_id)
+            setSaving(false)
+            navigate(`/admin/patients/${same[0].id}`, { replace: true })
+            return
+          }
+        }
+      }
+
       const { data, error } = await supabase.from('patients').insert({ ...patient, age: patient.age ? parseInt(patient.age) : null, date_of_birth: patient.date_of_birth || null }).select().single()
       if (error) { setMsg('Error: ' + error.message); setSaving(false); return }
       patientId = data.id
+      // Link the appointment this patient was created from, so it isn't
+      // offered as "Add as Patient" again and shows in their profile.
+      if (prefill.appointment_id) {
+        await supabase.from('appointments').update({ patient_id: patientId }).eq('id', prefill.appointment_id)
+      }
       navigate(`/admin/patients/${patientId}`, { replace: true })
 
       // Welcome message
