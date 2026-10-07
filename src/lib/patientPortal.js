@@ -104,3 +104,22 @@ export async function portalDocumentUrl(doc) {
   const { data } = await docClient.storage.from('patient-documents').createSignedUrl(doc.file_url, 600)
   return data?.signedUrl || null
 }
+
+const PAY_ERRORS = {
+  already_paid: 'This bill is already fully paid.',
+  not_found: 'Bill not found. Please refresh the page.',
+  session_expired: 'Your session has expired. Please log in again.',
+}
+
+// Asks the server for a UPI payment link for one of this patient's own
+// unpaid bills. The clinic's UPI ID is never stored in the website code.
+export async function portalPaymentLink(invoiceId) {
+  const s = getPortalSession()
+  const { data, error } = await supabase.rpc('patient_portal_payment_link', {
+    p_token: s?.token,
+    p_invoice_id: invoiceId,
+  })
+  if (error) return { ok: false, message: 'Online payment is not available right now. You can pay at the clinic.' }
+  if (!data?.ok) return { ok: false, error: data?.error, message: PAY_ERRORS[data?.error] || 'Could not start the payment.' }
+  return data
+}

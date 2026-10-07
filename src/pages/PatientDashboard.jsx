@@ -3,8 +3,9 @@ import { createPortal } from 'react-dom'
 import { useNavigate, Link } from 'react-router-dom'
 import SEO from '../components/SEO'
 import {
-  getPortalSession, portalFetchData, portalLogout, portalBookAppointment, portalDocumentUrl,
+  getPortalSession, portalFetchData, portalLogout, portalBookAppointment, portalDocumentUrl, portalPaymentLink,
 } from '../lib/patientPortal'
+import QRCode from 'qrcode'
 import { generatePatientPDF } from '../lib/generatePatientPDF'
 import { generateInvoicePDF } from '../lib/generateInvoicePDF'
 
@@ -67,6 +68,10 @@ const todayISO = () => {
   const d = new Date()
   return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().split('T')[0]
 }
+const CLINIC_WHATSAPP = '918987367274'
+// Phones open the UPI app directly; laptops get a QR code to scan instead.
+const isPhone = () => /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '')
+
 const cleanPhone = phone => {
   let p = (phone || '').replace(/[^\d]/g, '')
   if (p.length === 10) p = '91' + p
@@ -133,6 +138,8 @@ export default function PatientDashboard() {
   const [showBook, setShowBook] = useState(false)
   const [book, setBook] = useState({ service: 'General Consultation', preferred_date: '', preferred_time: '', message: '' })
   const [bookMsg, setBookMsg] = useState(null)
+  // UPI payment sheet: { invoice, amount, url, qr, stage: 'loading'|'ready'|'error', message, appTried }
+  const [pay, setPay] = useState(null)
   const [booking, setBooking] = useState(false)
 
   useEffect(() => {
@@ -196,6 +203,34 @@ export default function PatientDashboard() {
     if (win) win.close()
     if (url) { window.location.href = url; return }
     alert('This file could not be opened. Please ask the clinic to share it on WhatsApp.')
+  }
+
+  async function startPayment(inv) {
+    setPay({ invoice: inv, stage: 'loading' })
+    const res = await portalPaymentLink(inv.id)
+    if (!res.ok) {
+      if (res.error === 'session_expired') { navigate('/patient-login', { replace: true }); return }
+      setPay({ invoice: inv, stage: 'error', message: res.message })
+      return
+    }
+    let qr = null
+    try { qr = await QRCode.toDataURL(res.upi_url, { width: 260, margin: 1, color: { dark: '#0d2340', light: '#ffffff' } }) } catch (_) {}
+    const next = { invoice: inv, amount: res.amount, url: res.upi_url, qr, stage: 'ready', appTried: false }
+    // Apps are opened from the sheet's button (a direct tap), since browsers
+    // block opening an app automatically after a network wait.
+    setPay(next)
+  }
+
+  function openUpiApp(p) {
+    setPay({ ...p, appTried: true })
+    window.location.href = p.url
+  }
+
+  function paidMessageLink() {
+    if (!pay) return '#'
+    const p = data.patient
+    const text = `Namaste, I am ${p.name} (${p.patient_code}). I have paid ${money(pay.amount)} by UPI for bill ${pay.invoice.invoice_number || ''}. Please update my account. Thank you.`
+    return `https://wa.me/${CLINIC_WHATSAPP}?text=${encodeURIComponent(text)}`
   }
 
   async function submitBooking(e) {
@@ -381,6 +416,7 @@ export default function PatientDashboard() {
                   <span className="pd-stat-label">Balance due</span>
                   <span className="pd-stat-value" style={{ color: due > 0 ? 'var(--maroon)' : 'var(--medical-green-dark)' }}>{money(due)}</span>
                   <span className="pd-stat-note">{due > 0 ? `of ${money(totalBilled)} billed` : 'All bills paid'}</span>
+                  {due > 0 && <span className="pd-stat-pay">Pay now</span>}
                 </button>
                 <button className="pd-stat" onClick={() => goTab('appointments')}>
                   <span className="pd-stat-label">Next visit</span>
@@ -498,9 +534,16 @@ export default function PatientDashboard() {
                         </ul>
                       </details>
                     )}
-                    <button className="pd-link" onClick={() => downloadInvoice(inv)} disabled={busy === 'inv-' + inv.id}>
-                      {busy === 'inv-' + inv.id ? 'Preparing PDF…' : 'Download bill (PDF)'}
-                    </button>
+                    <div className="pd-bill-actions">
+                      {invDue > 0 && (
+                        <button className="pd-paybtn" onClick={() => startPayment(inv)}>
+                          Pay {money(invDue)} now
+                        </button>
+                      )}
+                      <button className="pd-link" onClick={() => downloadInvoice(inv)} disabled={busy === 'inv-' + inv.id}>
+                        {busy === 'inv-' + inv.id ? 'Preparing PDF…' : 'Download bill (PDF)'}
+                      </button>
+                    </div>
                   </Panel>
                 )
               })}
@@ -569,6 +612,66 @@ export default function PatientDashboard() {
 
         </div>
       </div>
+
+      {pay && createPortal(
+        <div className="pd-sheet-backdrop" onClick={() => setPay(null)}>
+          <div className="pd-sheet" role="dialog" aria-modal="true" aria-label="Pay bill" onClick={e => e.stopPropagation()}>
+            <button className="pd-sheet-close" onClick={() => setPay(null)} aria-label="Close">✕</button>
+            <p className="pd-meta" style={{ margin: '0 0 4px' }}>Bill {pay.invoice.invoice_number}</p>
+
+            {pay.stage === 'loading' && <p style={{ padding: '24px 0' }}>Preparing payment…</p>}
+
+            {pay.stage === 'error' && (
+              <>
+                <p className="pd-alert" style={{ marginTop: '12px' }}>{pay.message}</p>
+                <a className="btn-outline-dark" href="tel:+918987367274" style={{ marginTop: '8px' }}>Call clinic</a>
+              </>
+            )}
+
+            {pay.stage === 'ready' && (
+              <>
+                <p className="pd-sheet-amount">{money(pay.amount)}</p>
+                <p className="pd-meta" style={{ marginBottom: '18px' }}>Usha Dental Clinic</p>
+
+                {isPhone() ? (
+                  <>
+                    <button className="btn-primary" style={{ width: '100%', justifyContent: 'center' }} onClick={() => openUpiApp(pay)}>
+                      Pay with UPI app
+                    </button>
+                    <p className="pd-meta" style={{ marginTop: '10px', fontSize: '13px' }}>
+                      Opens PhonePe, Google Pay, Paytm or your bank app with the amount filled in.
+                    </p>
+                    {pay.appTried && pay.qr && (
+                      <details className="pd-details" style={{ marginTop: '6px' }}>
+                        <summary>App didn't open? Show QR code</summary>
+                        <img src={pay.qr} alt="UPI QR code for this bill" className="pd-qr" />
+                      </details>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {pay.qr
+                      ? <img src={pay.qr} alt="UPI QR code for this bill" className="pd-qr" />
+                      : <p className="pd-alert">Could not create the QR code. Please open this page on your phone to pay.</p>}
+                    <p className="pd-meta" style={{ marginTop: '10px', fontSize: '13px' }}>
+                      Scan with PhonePe, Google Pay, Paytm or any UPI app. The amount is filled in.
+                    </p>
+                  </>
+                )}
+
+                <div className="pd-sheet-after">
+                  <p style={{ margin: '0 0 10px', fontSize: '14px', color: 'var(--navy-800)', fontWeight: 600 }}>Paid already?</p>
+                  <a href={paidMessageLink()} target="_blank" rel="noreferrer" className="pd-paid-btn">
+                    Tell the clinic on WhatsApp
+                  </a>
+                  <p className="pd-meta" style={{ marginTop: '10px', fontSize: '12.5px', marginBottom: 0 }}>
+                    Your bill shows "Paid" once the clinic confirms the payment.
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
+        </div>, document.body)}
 
       {/* Phone: bottom tab bar (portal keeps position:fixed reliable) */}
       {createPortal(
@@ -650,6 +753,19 @@ export default function PatientDashboard() {
         .pd-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
         .pd-chip { font-size: 12.5px; padding: 3px 10px; border-radius: 100px; background: var(--ivory-dark); color: var(--navy-700); font-weight: 500; }
         .pd-chip-0 { background: var(--teal-pale); color: var(--teal); font-weight: 600; }
+        .pd-stat-pay { align-self: flex-start; margin-top: 6px; font-size: 12px; font-weight: 700; color: var(--white); background: var(--maroon); padding: 4px 12px; border-radius: 100px; }
+        .pd-bill-actions { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: 14px; }
+        .pd-bill-actions .pd-link { margin-top: 0; }
+        .pd-paybtn { background: var(--maroon); color: var(--white); border: none; border-radius: 6px; padding: 12px 22px; font-size: 15px; font-weight: 700; }
+        .pd-paybtn:hover { background: var(--maroon-dark); }
+        .pd-paybtn:focus-visible, .pd-paid-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+        .pd-sheet-backdrop { position: fixed; inset: 0; z-index: 2000; background: rgba(5,12,23,0.55); display: flex; align-items: center; justify-content: center; padding: 16px; }
+        .pd-sheet { position: relative; width: 100%; max-width: 380px; background: var(--white); border-radius: 14px; padding: 26px 24px 22px; text-align: center; box-shadow: 0 20px 60px rgba(5,12,23,0.3); max-height: 92vh; overflow-y: auto; }
+        .pd-sheet-close { position: absolute; top: 10px; right: 10px; width: 40px; height: 40px; border: none; background: none; font-size: 18px; color: var(--text-muted); }
+        .pd-sheet-amount { font-family: var(--font-display); font-size: 40px; font-weight: 600; color: var(--navy-800); margin: 6px 0 2px; line-height: 1.1; }
+        .pd-qr { width: 220px; height: 220px; margin: 6px auto 0; display: block; border: 1px solid rgba(15,39,68,0.1); border-radius: 10px; padding: 6px; }
+        .pd-sheet-after { margin-top: 20px; padding-top: 18px; border-top: 1px solid rgba(15,39,68,0.08); }
+        .pd-paid-btn { display: flex; justify-content: center; padding: 12px; border-radius: 6px; border: 1px solid #128c4a; color: #128c4a; font-weight: 700; font-size: 14px; }
 
         @media (max-width: 1100px) {
           .pd-shell { grid-template-columns: 228px 1fr; }
@@ -710,6 +826,9 @@ export default function PatientDashboard() {
           .pd-panel { padding: 18px 16px; }
           .pd-h3 { font-size: 18px; }
           .pd-doc { padding: 14px 16px; }
+          .pd-sheet-backdrop { align-items: flex-end; padding: 0; }
+          .pd-sheet { max-width: none; border-radius: 16px 16px 0 0; padding-bottom: calc(22px + env(safe-area-inset-bottom, 0px)); }
+          .pd-paybtn { flex: 1; }
         }
       `}</style>
     </div>
