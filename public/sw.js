@@ -1,8 +1,13 @@
 // ---- PWA app-shell caching ----
-// Lets the admin dashboard install like a native app and open instantly on
-// mobile. Supabase/API calls always go straight to the network — only the
-// static app shell (icons, manifest) is cached, so data is never stale.
-const CACHE_NAME = 'usha-admin-shell-v1'
+// Lets the site/admin install like a native app on mobile.
+//
+// Rules (fixed): every PAGE load goes to the network first, so a refresh
+// always shows the latest deployed version. The old version served most
+// pages (e.g. /patient-dashboard, /about) from cache forever, so visitors
+// kept seeing an old build after every deploy. Only Vite's hashed build
+// files (/assets/*, which never change once built) are cache-first; other
+// static files are refreshed in the background.
+const CACHE_NAME = 'usha-shell-v2'
 const SHELL_ASSETS = [
   '/manifest.json',
   '/usha-dental-logo.png',
@@ -11,8 +16,18 @@ const SHELL_ASSETS = [
   '/icons/apple-touch-icon.png',
 ]
 
-function isNetworkFirst(url) {
-  return url.pathname === '/' || url.pathname.startsWith('/admin') || url.pathname.endsWith('.html')
+function isPageRequest(req, url) {
+  return req.mode === 'navigate' ||
+    (req.headers.get('accept') || '').includes('text/html') ||
+    url.pathname.endsWith('.html')
+}
+
+function putInCache(req, res) {
+  if (res && res.ok && res.type === 'basic') {
+    const copy = res.clone()
+    caches.open(CACHE_NAME).then(function (cache) { cache.put(req, copy) })
+  }
+  return res
 }
 
 self.addEventListener('fetch', function(event) {
@@ -21,32 +36,35 @@ self.addEventListener('fetch', function(event) {
 
   // Never intercept Supabase / third-party API calls or non-GET requests.
   if (req.method !== 'GET' || url.origin !== self.location.origin) return
+  // Let the browser fetch the service worker itself normally.
+  if (url.pathname === '/sw.js') return
 
-  if (isNetworkFirst(url)) {
+  // Pages: network first (always fresh), cached copy only when offline.
+  if (isPageRequest(req, url)) {
     event.respondWith(
-      fetch(req).then(function (res) {
-        if (res.ok) {
-          const copy = res.clone()
-          caches.open(CACHE_NAME).then(function (cache) { cache.put(req, copy) })
-        }
-        return res
-      }).catch(function () {
-        return caches.match(req).then(function (cached) { return cached || caches.match('/index.html') })
+      fetch(req).then(function (res) { return putInCache(req, res) }).catch(function () {
+        return caches.match(req).then(function (cached) { return cached || caches.match('/') })
       })
     )
     return
   }
 
+  // Hashed build files never change -> cache first is safe and fast.
+  if (url.pathname.startsWith('/assets/')) {
+    event.respondWith(
+      caches.match(req).then(function (cached) {
+        return cached || fetch(req).then(function (res) { return putInCache(req, res) })
+      })
+    )
+    return
+  }
+
+  // Everything else (images, manifest, icons): serve cached copy if any,
+  // but always refresh it in the background.
   event.respondWith(
     caches.match(req).then(function (cached) {
-      if (cached) return cached
-      return fetch(req).then(function (res) {
-        if (res.ok) {
-          const copy = res.clone()
-          caches.open(CACHE_NAME).then(function (cache) { cache.put(req, copy) })
-        }
-        return res
-      })
+      const network = fetch(req).then(function (res) { return putInCache(req, res) }).catch(function () { return cached })
+      return cached || network
     })
   )
 })
