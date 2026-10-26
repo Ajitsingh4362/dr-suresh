@@ -437,6 +437,67 @@ function cleanPhone(phone) {
   return p
 }
 
+// A proper Indian mobile number after cleanPhone(): 91 + 10 digits starting 6-9.
+// Anything else (e.g. a 9-digit typo) can never be delivered, so we don't try.
+function isValidIndianMobile(p) {
+  return /^91[6-9]\d{9}$/.test(p)
+}
+
+// Errors that will fail the same way every time (number not on WhatsApp,
+// wrong format). These are NOT retried — retrying them every 30 minutes
+// filled the log and kept hitting WhatsApp with the same bad numbers.
+function isPermanentSendError(err) {
+  const m = (err && err.message) || ''
+  return m.includes('does not appear to be a valid WhatsApp number') || m.includes('invalid number format')
+}
+
+// Groups due consultation rows so each person gets ONE message, even if they
+// have several consultation entries (or two patient records with the same
+// mobile number). Returns [{ phone, patient, rowIds }].
+function groupDueRowsByPhone(rows, ptMap) {
+  const groups = new Map()
+  for (const row of rows) {
+    const patient = ptMap[row.patient_id]
+    if (!patient?.phone) continue
+    const phone = cleanPhone(patient.phone)
+    if (!groups.has(phone)) groups.set(phone, { phone, patient, rowIds: [] })
+    groups.get(phone).rowIds.push(row.id)
+  }
+  return [...groups.values()]
+}
+
+// Sends one consultation-based automatic message per person and records it.
+// - Claims all of that person's due rows first, so two overlapping runs
+//   can't both send.
+// - Permanent failures (not on WhatsApp / bad number) stay marked as done.
+// - Temporary failures (connection dropped etc.) are released for a retry;
+//   the age window in the query stops those retries after a while.
+async function sendConsultationNotice({ group, column, type, msg }) {
+  const { phone, patient, rowIds } = group
+  const { data: claimed, error: claimErr } = await supabase
+    .from('patient_consultations')
+    .update({ [column]: new Date().toISOString() })
+    .in('id', rowIds)
+    .is(column, null)
+    .select('id')
+  if (claimErr) throw claimErr
+  if (!claimed || claimed.length === 0) return false // another run already handled it
+
+  try {
+    if (!isValidIndianMobile(phone)) {
+      logMessage({ number: phone, name: patient.name, type, status: 'failed', reason: `${phone} - invalid number format (please correct the patient's mobile number)` })
+      throw new Error('invalid number format')
+    }
+    await sendWhatsAppMessage(phone, msg, undefined, { name: patient.name, type })
+    return true
+  } catch (err) {
+    if (!isPermanentSendError(err)) {
+      await supabase.from('patient_consultations').update({ [column]: null }).in('id', claimed.map(r => r.id))
+    }
+    throw err
+  }
+}
+
 // ─── Automatic follow-up reminder check ──────────────────
 // Mirrors the logic that used to be a manual button in the admin panel:
 // finds patients with a follow-up date within the next 2 days that haven't
@@ -535,11 +596,15 @@ async function checkFeedbackRequestsAndNotify() {
   }
 
   const cutoff = new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString()
+  // Only visits from the last 2 days. Older entries (old data, imported
+  // records) must not get a "how was your visit?" message weeks later.
+  const oldest = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()
 
   const { data: rows, error: err1 } = await supabase
     .from('patient_consultations')
     .select('id, patient_id, created_at')
     .lte('created_at', cutoff)
+    .gte('created_at', oldest)
     .is('feedback_sent_at', null)
 
   if (err1) {
@@ -564,37 +629,26 @@ async function checkFeedbackRequestsAndNotify() {
   ;(patients || []).forEach(p => { ptMap[p.id] = p })
 
   let sentCount = 0
-  for (const row of rows) {
-    const patient = ptMap[row.patient_id]
-    if (!patient?.phone) continue
+  const groups = groupDueRowsByPhone(rows, ptMap)
+  for (const group of groups) {
+    const patient = group.patient
 
     const englishMsg = `Hi ${patient.name}, thank you for visiting Usha Multi Speciality Dental Clinic. We'd love your feedback on your visit with Dr. Suresh Kumar — how was your experience?`
     const msg = bilingual(`Namaste ${patient.name}, Usha Dental Clinic mein aapki visit kaisi rahi? Hume feedback bataiye.`, englishMsg) + WHATSAPP_FOOTER
 
     try {
-      // Mark as sent FIRST — if two overnight checks ever overlap, this row
-      // is claimed before the message goes out, so it can't send twice.
-      const { error: claimErr } = await supabase
-        .from('patient_consultations')
-        .update({ feedback_sent_at: new Date().toISOString() })
-        .eq('id', row.id)
-        .is('feedback_sent_at', null)
-      if (claimErr) throw claimErr
-
-      await sendWhatsAppMessage(cleanPhone(patient.phone), msg, undefined, { name: patient.name, type: 'feedback_request' })
+      const sent = await sendConsultationNotice({ group, column: 'feedback_sent_at', type: 'feedback_request', msg })
+      if (!sent) continue
       sentCount++
       console.log(`  Sent feedback request to ${patient.name} (${patient.phone})`)
       await new Promise(r => setTimeout(r, 2000))
     } catch (err) {
       console.error(`  Failed to send to ${patient.name}:`, err.message)
-      // Undo the claim above if the send itself failed, so this doesn't
-      // permanently look "already sent" — a later run can retry it.
-      await supabase.from('patient_consultations').update({ feedback_sent_at: null }).eq('id', row.id)
     }
   }
 
-  console.log(`Feedback check done. ${sentCount}/${rows.length} requests sent.`)
-  return { checked: rows.length, sent: sentCount }
+  console.log(`Feedback check done. ${sentCount}/${groups.length} requests sent.`)
+  return { checked: groups.length, sent: sentCount }
 }
 
 // ─── Automatic resolution follow-up (7 days after entry) ────────────────
@@ -613,11 +667,14 @@ async function checkResolutionFollowupsAndNotify() {
   }
 
   const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+  // Only visits that are 7-10 days old, so old records never get this message.
+  const oldest = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString()
 
   const { data: rows, error: err1 } = await supabase
     .from('patient_consultations')
     .select('id, patient_id, created_at')
     .lte('created_at', cutoff)
+    .gte('created_at', oldest)
     .is('resolution_followup_sent_at', null)
 
   if (err1) {
@@ -642,34 +699,26 @@ async function checkResolutionFollowupsAndNotify() {
   ;(patients || []).forEach(p => { ptMap[p.id] = p })
 
   let sentCount = 0
-  for (const row of rows) {
-    const patient = ptMap[row.patient_id]
-    if (!patient?.phone) continue
+  const groups = groupDueRowsByPhone(rows, ptMap)
+  for (const group of groups) {
+    const patient = group.patient
 
     const englishMsg = `This is Usha Multi Speciality Dental Clinic. It's been a week since your last visit — has your problem been resolved? Let us know if you're still facing any issue.`
     const msg = bilingual(`Namaste ${patient.name}, aapki visit ko ek hafta ho gaya — kya aapki problem thik ho gayi?`, englishMsg) + WHATSAPP_FOOTER
 
     try {
-      const { error: claimErr } = await supabase
-        .from('patient_consultations')
-        .update({ resolution_followup_sent_at: new Date().toISOString() })
-        .eq('id', row.id)
-        .is('resolution_followup_sent_at', null)
-      if (claimErr) throw claimErr
-
-      await sendWhatsAppMessage(cleanPhone(patient.phone), msg, undefined, { name: patient.name, type: 'resolution_followup' })
+      const sent = await sendConsultationNotice({ group, column: 'resolution_followup_sent_at', type: 'resolution_followup', msg })
+      if (!sent) continue
       sentCount++
       console.log(`  Sent resolution follow-up to ${patient.name} (${patient.phone})`)
       await new Promise(r => setTimeout(r, 2000))
     } catch (err) {
       console.error(`  Failed to send to ${patient.name}:`, err.message)
-      // Undo the claim above if the send itself failed, so a later run can retry it.
-      await supabase.from('patient_consultations').update({ resolution_followup_sent_at: null }).eq('id', row.id)
     }
   }
 
-  console.log(`Resolution follow-up check done. ${sentCount}/${rows.length} sent.`)
-  return { checked: rows.length, sent: sentCount }
+  console.log(`Resolution follow-up check done. ${sentCount}/${groups.length} sent.`)
+  return { checked: groups.length, sent: sentCount }
 }
 
 // ─── Automatic appointment reminders (1 day before) ──────
