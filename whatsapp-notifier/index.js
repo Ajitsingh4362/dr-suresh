@@ -78,9 +78,6 @@ class TtlCache {
 const msgRetryCounterCache = new TtlCache(60 * 60 * 1000)
 let isReady = false
 let isShuttingDown = false // set true during graceful shutdown so connection.update doesn't try to reconnect
-let consecutiveNoAckFailures = 0 // resets on any successful delivery ack
-const NO_ACK_RECONNECT_THRESHOLD = 3 // this many failures in a row -> connection is probably "stuck", force a fresh reconnect
-let forcingReconnect = false // guards against overlapping forced-reconnect attempts
 let currentQrDataUrl = null // base64 PNG data URL of the latest QR
 const contactsCache = {} // jid -> { id, name, notify }
 const pendingSends = {} // messageId -> { resolve } — waiting for delivery ack
@@ -96,6 +93,9 @@ const SUPABASE_URL = process.env.SUPABASE_URL || 'https://scihrslohphuakyczrkv.s
 // the service role key isn't set, so this still boots without it.
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjaWhyc2xvaHBodWFreWN6cmt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0NTY1NjAsImV4cCI6MjEwMDAzMjU2MH0.v3sAY8Gm6N94h1MdzQabHevm7Fy8COEKLgUsX74LKBs'
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  console.warn('WARNING: SUPABASE_SERVICE_ROLE_KEY is not set. Using the public key: patient data may be hidden from this service, and the WhatsApp tables must stay unlocked. Set it in Render -> Environment.')
+}
 
 // Optional shared secret that lets an external scheduler (e.g. a free
 // cron-job.org task) call the /check-* endpoints directly as a backup to
@@ -139,34 +139,6 @@ async function releaseNotificationSlot(entityType, entityId, notificationType, d
   } catch (err) {
     console.error(`  Failed to release notification slot for ${entityType}:${entityId} (${notificationType}):`, err.message)
   }
-}
-
-// Recovers from a "zombie" connection: sock.ev still says isReady=true and
-// never fires connection.update('close'), so the normal reconnect logic in
-// startWhatsApp()'s connection.update handler never gets a chance to run —
-// yet nothing is actually getting delivered. sendOnce() calls this once too
-// many messages in a row (across different, previously-working numbers)
-// all get no delivery ack. Best-effort: closing the stuck socket usually
-// does trigger a normal close+reconnect on its own; the extra setTimeout
-// below is just a safety net in case even that doesn't fire.
-async function forceReconnectDueToStuckConnection() {
-  if (forcingReconnect) return
-  forcingReconnect = true
-  console.log(`${NO_ACK_RECONNECT_THRESHOLD} sends in a row got no delivery ack — connection looks stuck. Forcing a fresh reconnect...`)
-  consecutiveNoAckFailures = 0
-  isReady = false
-  try {
-    sock?.end(new Error('Forced reconnect: connection appeared stuck (no delivery acks)'))
-  } catch (err) {
-    console.error('Error while closing stuck socket:', err.message)
-  }
-  setTimeout(() => {
-    if (!isReady) {
-      console.log('No reconnect happened on its own after forced close — starting a fresh connection directly.')
-      startWhatsApp().catch((err) => console.error('Forced restart failed:', err.message))
-    }
-    forcingReconnect = false
-  }, 6000)
 }
 
 async function startWhatsApp() {
@@ -238,6 +210,8 @@ async function startWhatsApp() {
       isReady = true
       currentQrDataUrl = null
       console.log('WhatsApp connected and ready.')
+      // Catch up anything missed while we were asleep/disconnected.
+      setTimeout(() => runDueJobs('connected').catch(() => {}), 60 * 1000)
     }
   })
 
@@ -382,49 +356,27 @@ async function sendOnce(number, message, mentionNumber, isRetry = false) {
   // Keep a copy so it can be re-sent if the patient's phone can't decrypt it.
   if (msgId && sent?.message && authStore) authStore.saveSentMessage(msgId, sent.message)
 
-  // Wait up to 8s for WhatsApp's server to actually acknowledge the message
-  // (status >= 2). If it never does, WhatsApp likely dropped it — retry
-  // once, since a second attempt a few seconds later often goes through.
+  // IMPORTANT: we never send the same message a second time.
+  // The old code re-sent the message if no delivery receipt came back within
+  // 8 seconds. But a receipt only comes when the patient's phone is online —
+  // if it was off or on weak network, the patient later got the SAME message
+  // twice (and the second copy, encrypted while the first was still pending,
+  // was a common cause of "Waiting for this message"). WhatsApp delivers on
+  // its own once the phone comes online, so one send is enough.
+  // We still watch for the receipt briefly, only to log whether it arrived.
   if (msgId) {
     const status = await new Promise((resolve) => {
       pendingSends[msgId] = { resolve }
       setTimeout(() => {
         if (pendingSends[msgId]) {
           delete pendingSends[msgId]
-          resolve(null) // timed out — no ack seen
+          resolve(null)
         }
-      }, 8000)
+      }, 3000)
     })
-
-    if (status === null && !isRetry) {
-      console.log(`No delivery ack for message to ${jid}, retrying once...`)
-      await wait(2000)
-      return sendOnce(number, message, mentionNumber, true)
-    }
     if (status === null) {
-      console.log(`Still no delivery ack for ${jid} after retry — WhatsApp may be silently blocking this number.`)
-      // A single number never getting an ack can genuinely be WhatsApp
-      // blocking that number. But if MANY different numbers in a row all
-      // get no ack (including numbers that normally deliver fine, like our
-      // own test number) — that's not a per-number block, that's the
-      // socket itself being "stuck": Baileys still reports isReady=true and
-      // never fires a connection.update('close'), so the normal reconnect
-      // logic never kicks in on its own. Force a fresh connection once this
-      // has happened too many times in a row.
-      consecutiveNoAckFailures++
-      if (consecutiveNoAckFailures >= NO_ACK_RECONNECT_THRESHOLD) {
-        forceReconnectDueToStuckConnection()
-      }
-      // Previously this just logged and returned normally, so the message
-      // got marked 'sent' in whatsapp_message_log even though WhatsApp
-      // never actually delivered it (no ack after 2 attempts). Throwing
-      // here makes it correctly log as 'failed' and lets callers retry
-      // (they already release the day's dedup slot on failure).
-      throw new Error(`No delivery ack from WhatsApp for ${jid} after retry — message was likely not delivered.`)
+      console.log(`Sent to ${jid}; no delivery receipt yet (phone may be offline) — WhatsApp will deliver when it comes online.`)
     }
-    // A real ack came through — the connection is genuinely working, so
-    // any earlier string of failures no longer indicates a stuck socket.
-    consecutiveNoAckFailures = 0
   }
 
   // Small gap before the next queued message goes out.
@@ -994,42 +946,72 @@ async function checkMonthlyPromoAndNotify() {
   return { checked: (patients || []).length, sent: sentCount }
 }
 
-// Runs every day at 9:00 AM India time
-cron.schedule('0 9 * * *', () => {
-  checkAppointmentRemindersAndNotify()
-}, { timezone: 'Asia/Kolkata' })
+// ─── Scheduler ─────────────────────────────────────────
+// OLD problem: each daily job ran exactly once, at 9:00 AM. If at that
+// moment the server was asleep (Render free tier), restarting, or WhatsApp
+// was reconnecting, that day's reminders/birthday wishes were simply lost.
+//
+// NOW: one "run whatever is due" pass every 15 minutes between 9 AM and
+// 8 PM India time, plus right after WhatsApp connects, plus whenever an
+// outside scheduler calls POST /run-due. Each daily job records "done for
+// today" once it completes, so running the pass many times a day never
+// sends anything twice — it just catches up whatever was missed.
 
-// Runs every day at 9:05 AM India time (a few minutes after, to avoid overlap)
-cron.schedule('5 9 * * *', () => {
-  checkFollowUpsAndNotify()
-}, { timezone: 'Asia/Kolkata' })
+const IST = 'Asia/Kolkata'
+function todayIST() {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: IST }).format(new Date()) // YYYY-MM-DD
+}
 
-// Runs every day at 9:10 AM India time
-cron.schedule('10 9 * * *', () => {
-  checkBirthdaysAndNotify()
-}, { timezone: 'Asia/Kolkata' })
+const DAILY_JOBS = [
+  { name: 'appointment_reminders', run: () => checkAppointmentRemindersAndNotify() },
+  { name: 'follow_up_reminders', run: () => checkFollowUpsAndNotify() },
+  { name: 'birthdays', run: () => checkBirthdaysAndNotify() },
+  { name: 'festivals', run: () => checkFestivalsAndNotify() },
+  { name: 'monthly_promo', run: () => checkMonthlyPromoAndNotify(), onDays: [1, 15] },
+]
 
-// Runs every day at 9:15 AM India time — last, since it can send to many
-// patients and takes the longest to finish.
-cron.schedule('15 9 * * *', () => {
-  checkFestivalsAndNotify()
-}, { timezone: 'Asia/Kolkata' })
+async function jobDoneToday(name) {
+  const { data, error } = await supabase.from('whatsapp_notification_log').select('entity_id')
+    .eq('entity_type', 'job').eq('entity_id', name).eq('notification_type', 'daily_job').eq('sent_date', todayIST())
+    .limit(1)
+  if (error) { console.error(`  Could not check job status for ${name}:`, error.message); return false }
+  return (data || []).length > 0
+}
 
-// Runs at 9:20 AM India time, only on the 1st and 15th of the month.
-cron.schedule('20 9 1,15 * *', () => {
-  checkMonthlyPromoAndNotify()
-}, { timezone: 'Asia/Kolkata' })
+let dueRunInProgress = false
+async function runDueJobs(trigger = 'timer') {
+  if (dueRunInProgress) return { skipped: 'already_running' }
+  if (!isWithinSendingHours()) return { skipped: 'outside_sending_hours' }
+  if (!isReady) return { skipped: 'not_connected' }
+  dueRunInProgress = true
+  const summary = {}
+  try {
+    console.log(`Running due jobs (${trigger})...`)
+    const dayOfMonth = parseInt(todayIST().slice(8), 10)
+    for (const job of DAILY_JOBS) {
+      if (job.onDays && !job.onDays.includes(dayOfMonth)) continue
+      if (await jobDoneToday(job.name)) { summary[job.name] = 'done earlier today'; continue }
+      if (!isReady) break
+      const result = await job.run().catch(err => ({ error: err.message }))
+      summary[job.name] = result
+      // Mark done only if it really ran with WhatsApp connected the whole time.
+      if (result && !result.skipped && !result.error && isReady) {
+        await claimNotificationSlot('job', job.name, 'daily_job', todayIST())
+      }
+    }
+    // These two work per visit (5 hours / 7 days after), not once a day.
+    summary.feedback_requests = await checkFeedbackRequestsAndNotify().catch(err => ({ error: err.message }))
+    summary.resolution_followups = await checkResolutionFollowupsAndNotify().catch(err => ({ error: err.message }))
+    console.log('Due jobs finished.')
+    return summary
+  } finally {
+    dueRunInProgress = false
+  }
+}
 
-// Runs every 30 minutes, all day — unlike the checks above, these two
-// aren't tied to a fixed clock time (they fire "N hours/days after entry",
-// which could be any time of day), so they need to be checked frequently.
-cron.schedule('10,40 * * * *', () => {
-  checkFeedbackRequestsAndNotify()
-}, { timezone: 'Asia/Kolkata' })
-
-cron.schedule('20,50 * * * *', () => {
-  checkResolutionFollowupsAndNotify()
-}, { timezone: 'Asia/Kolkata' })
+cron.schedule('*/15 * * * *', () => {
+  runDueJobs('timer').catch(err => console.error('Due jobs failed:', err.message))
+}, { timezone: IST })
 
 // ─── Small HTTP server your app / admin panel can call ────
 const app = express()
@@ -1082,6 +1064,20 @@ const notifyLimiter = rateLimit({
   message: { ok: false, error: 'Too many requests — please wait a minute and try again.' },
 })
 
+const recentNotifies = new Map() // "number|message" -> time sent
+const DUPLICATE_WINDOW_MS = 10 * 60 * 1000
+function isRecentDuplicate(number, message) {
+  const now = Date.now()
+  for (const [k, t] of recentNotifies) if (now - t > DUPLICATE_WINDOW_MS) recentNotifies.delete(k)
+  const key = `${number.replace(/\D/g, '')}|${message.trim()}`
+  if (recentNotifies.has(key)) return true
+  recentNotifies.set(key, now)
+  return false
+}
+function forgetNotify(number, message) {
+  recentNotifies.delete(`${number.replace(/\D/g, '')}|${message.trim()}`)
+}
+
 app.get('/status', (req, res) => {
   res.json({ connected: isReady })
 })
@@ -1107,10 +1103,17 @@ app.post('/notify', notifyLimiter, async (req, res) => {
   if (!number || !message) {
     return res.status(400).json({ ok: false, error: 'number and message are required' })
   }
+  // Same text to the same number within 10 minutes = an accidental repeat
+  // (double click, form sent twice, browser retry). Answer OK, send nothing.
+  if (isRecentDuplicate(String(number), String(message))) {
+    logMessage({ number, name, type, status: 'skipped', reason: 'duplicate within 10 minutes — not sent again' })
+    return res.json({ ok: true, duplicate: true })
+  }
   try {
     await sendWhatsAppMessage(number, message, mentionNumber, { name, type: type || 'notify' })
     res.json({ ok: true })
   } catch (err) {
+    forgetNotify(String(number), String(message)) // failed, so allow a retry right away
     res.status(500).json({ ok: false, error: err.message })
   }
 })
@@ -1169,6 +1172,15 @@ app.get('/db-contacts', requireAdminAuth, async (req, res) => {
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message })
   }
+})
+
+// Runs everything that is due right now (safe to call as often as you like;
+// nothing is ever sent twice). Called by the Supabase scheduler — see
+// sql/whatsapp_scheduler.sql — which also wakes this service up if Render
+// put it to sleep.
+app.post('/run-due', requireAdminOrCron, async (req, res) => {
+  res.json({ ok: true, started: true, connected: isReady })
+  runDueJobs('external').catch(err => console.error('Due jobs failed:', err.message))
 })
 
 app.post('/check-followups', requireAdminOrCron, async (req, res) => {

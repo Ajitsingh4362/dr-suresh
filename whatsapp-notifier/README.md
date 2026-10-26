@@ -1,5 +1,16 @@
 # WhatsApp Task Notifier (Baileys)
 
+> **Current setup (read this first)**
+> - This service runs on **Render** (`dr-suresh-whatsapp.onrender.com`). Run it in **one place only**.
+>   Do NOT also run `start-hidden.vbs` on a PC: two copies sharing one WhatsApp login
+>   corrupt the encryption keys, and patients see *"Waiting for this message"*.
+> - Scheduling: a pass runs every 15 min (9 AM-8 PM IST) and sends whatever is due;
+>   each daily job is marked done for the day, so nothing is sent twice and nothing
+>   missed is lost. Supabase wakes the service and triggers these passes:
+>   run `sql/whatsapp_scheduler.sql` once (instructions inside).
+> - Render environment variables needed: `SUPABASE_SERVICE_ROLE_KEY`, `CRON_SECRET`.
+
+
 Auto-sends a WhatsApp message when a task is assigned, rejected, completed —
 whatever event triggers it. This folder lives inside the main `dr-suresh`
 repo now, but it's a completely separate, standalone Node.js service — it
