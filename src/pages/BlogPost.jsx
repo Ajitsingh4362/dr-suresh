@@ -36,6 +36,7 @@ export default function BlogPost() {
         title={post.title}
         description={post.excerpt || post.title + ' — Usha Multi Speciality Dental Clinic, Sitamarhi.'}
         path={`/blog/${post.slug}`}
+        type="article"
         image={post.cover_image}
         keywords={`${post.title}, dentist Sitamarhi, dental clinic Sitamarhi, ${post.category || ''}`}
         jsonLd={[

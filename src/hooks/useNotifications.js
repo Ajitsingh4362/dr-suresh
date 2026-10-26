@@ -17,8 +17,8 @@ export function useNotifications() {
     navigator.serviceWorker.ready.then(reg => {
       reg.showNotification(title, {
         body,
-        icon: '/usha-dental-logo.png',
-        badge: '/usha-dental-logo.png',
+        icon: '/usha-dental-logo-sm.png',
+        badge: '/usha-dental-logo-sm.png',
         vibrate: [200, 100, 200],
         data: { url },
         requireInteraction: true,

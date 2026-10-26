@@ -10,7 +10,7 @@
 const CACHE_NAME = 'usha-shell-v2'
 const SHELL_ASSETS = [
   '/manifest.json',
-  '/usha-dental-logo.png',
+  '/usha-dental-logo-sm.png',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   '/icons/apple-touch-icon.png',
@@ -73,8 +73,8 @@ self.addEventListener('push', function(event) {
   const data = event.data ? event.data.json() : {}
   const options = {
     body: data.body || 'New appointment request',
-    icon: '/usha-dental-logo.png',
-    badge: '/usha-dental-logo.png',
+    icon: '/usha-dental-logo-sm.png',
+    badge: '/usha-dental-logo-sm.png',
     vibrate: [200, 100, 200],
     data: { url: data.url || '/admin/appointments' },
     actions: [

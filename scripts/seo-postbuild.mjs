@@ -1,0 +1,247 @@
+// Runs after `vite build` (see package.json "build").
+//
+// The site is a single-page app: every URL used to get the same index.html,
+// so WhatsApp/Facebook link previews and Google's first crawl saw the Home
+// page title and description on every page (and a canonical pointing at
+// Home). This script fixes that without changing how the app works:
+//
+//   1. For every public page it writes dist/<page>/index.html, a copy of the
+//      built index.html with that page's own title, description, keywords,
+//      canonical, Open Graph and Twitter tags. The values are read straight
+//      from the <SEO ... /> props in each page file, so there is only one
+//      place to edit them.
+//   2. It fetches published blog posts from Supabase and does the same for
+//      each /blog/<slug> (title, excerpt, cover image as the preview).
+//   3. It regenerates dist/sitemap.xml with every public page and blog post.
+//
+// Vercel serves a real file before applying the SPA rewrite, so these files
+// are picked up automatically; React then loads and takes over as before.
+// If anything here fails (e.g. Supabase unreachable), the build still
+// succeeds and the site behaves exactly as it did before.
+
+import fs from 'node:fs'
+import path from 'node:path'
+import { execSync } from 'node:child_process'
+
+const ROOT = process.cwd()
+const DIST = path.join(ROOT, 'dist')
+const SITE_URL = 'https://www.ushadental.com'
+const SITE_NAME = 'Usha Multi Speciality Dental Clinic'
+const SITE_NAME_SHORT = 'Usha Dental Clinic'
+const DEFAULT_IMAGE = `${SITE_URL}/og-image.jpg`
+const DEFAULT_DESC = 'Usha Multi Speciality Dental Clinic — the leading dental clinic in Sitamarhi, Bihar. Root canal, dental implants, braces, cosmetic & pediatric dentistry by Dr. Suresh Kumar & Dr. Preeti Rajguru.'
+
+// URL -> page file. Keep in sync with the routes in src/App.jsx.
+// sitemap: include in sitemap.xml (pages marked noindex are never included).
+const PAGES = [
+  { url: '/', file: 'src/pages/Home.jsx', priority: '1.0', changefreq: 'weekly' },
+  { url: '/about', file: 'src/pages/About.jsx', priority: '0.8', changefreq: 'monthly' },
+  { url: '/specializations', file: 'src/pages/Specializations.jsx', priority: '0.9', changefreq: 'monthly' },
+  { url: '/contact', file: 'src/pages/Contact.jsx', priority: '0.9', changefreq: 'monthly' },
+  { url: '/blog', file: 'src/pages/Blog.jsx', priority: '0.8', changefreq: 'weekly' },
+  { url: '/gallery', file: 'src/pages/Gallery.jsx', priority: '0.6', changefreq: 'monthly' },
+  { url: '/faq', file: 'src/pages/FAQ.jsx', priority: '0.7', changefreq: 'monthly' },
+  { url: '/social-service', file: 'src/pages/SocialService.jsx', priority: '0.6', changefreq: 'monthly' },
+  { url: '/privacy-policy', file: 'src/pages/PrivacyPolicy.jsx' },
+  { url: '/terms-conditions', file: 'src/pages/TermsConditions.jsx' },
+  { url: '/refund-policy', file: 'src/pages/RefundPolicy.jsx' },
+  { url: '/patient-login', file: 'src/pages/PatientLogin.jsx', sitemap: false },
+  { url: '/patient-dashboard', file: 'src/pages/PatientDashboard.jsx', sitemap: false },
+]
+
+const log = (...a) => console.log('[seo]', ...a)
+
+function esc(v) {
+  return String(v ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+}
+
+// ---- Read <SEO ... /> props from a page file --------------------------------
+function readSeoProps(file) {
+  const src = fs.readFileSync(path.join(ROOT, file), 'utf8')
+  const start = src.indexOf('<SEO')
+  if (start === -1) return null
+  const block = src.slice(start, src.indexOf('/>', start))
+  const consts = {}
+  for (const m of src.matchAll(/const\s+([A-Z_][A-Z0-9_]*)\s*=\s*(['"])((?:\\.|(?!\2).)*)\2/g)) consts[m[1]] = m[3]
+  const prop = name => {
+    let m = block.match(new RegExp(`\\b${name}=(["'])((?:(?!\\1).)*)\\1`))
+    if (m) return m[2]
+    m = block.match(new RegExp(`\\b${name}=\\{\\s*([A-Z_][A-Z0-9_]*)\\s*\\}`))
+    if (m && consts[m[1]] != null) return consts[m[1]]
+    m = block.match(new RegExp(`\\b${name}=\\{\\s*(['"])((?:(?!\\1).)*)\\1\\s*\\}`))
+    return m ? m[2] : undefined
+  }
+  return {
+    title: prop('title'),
+    description: prop('description'),
+    keywords: prop('keywords'),
+    noindex: /\bnoindex\b(?!\s*=\s*\{\s*false)/.test(block),
+  }
+}
+
+// ---- Build the head tags for one page (mirrors src/components/SEO.jsx) -----
+function seoBlock({ title, description, url, keywords, image, noindex, type = 'website' }) {
+  const fullTitle = title ? `${title} | ${SITE_NAME_SHORT}` : `Best Dentist in Sitamarhi | ${SITE_NAME_SHORT}`
+  const canonical = `${SITE_URL}${url === '/' ? '/' : url}`
+  const desc = description || DEFAULT_DESC
+  const img = image || DEFAULT_IMAGE
+  const robots = noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1'
+  const t = (attrs) => `    <meta data-rh="true" ${attrs} />`
+  return [
+    '    <!-- SEO:START (generated by scripts/seo-postbuild.mjs) -->',
+    `    <title>${esc(fullTitle)}</title>`,
+    t(`name="description" content="${esc(desc)}"`),
+    keywords ? t(`name="keywords" content="${esc(keywords)}"`) : null,
+    t(`name="robots" content="${robots}"`),
+    `    <link data-rh="true" rel="canonical" href="${esc(canonical)}" />`,
+    t(`property="og:type" content="${type}"`),
+    t(`property="og:site_name" content="${esc(SITE_NAME)}"`),
+    t(`property="og:title" content="${esc(fullTitle)}"`),
+    t(`property="og:description" content="${esc(desc)}"`),
+    t(`property="og:url" content="${esc(canonical)}"`),
+    t(`property="og:image" content="${esc(img)}"`),
+    t(`property="og:image:alt" content="${esc(fullTitle)}"`),
+    t('property="og:locale" content="en_IN"'),
+    t('name="twitter:card" content="summary_large_image"'),
+    t(`name="twitter:title" content="${esc(fullTitle)}"`),
+    t(`name="twitter:description" content="${esc(desc)}"`),
+    t(`name="twitter:image" content="${esc(img)}"`),
+    t('name="geo.region" content="IN-BR"'),
+    t('name="geo.placename" content="Sitamarhi"'),
+    '    <!-- SEO:END -->',
+  ].filter(Boolean).join('\n')
+}
+
+function writePage(template, url, meta) {
+  const marker = /[ \t]*<!-- SEO:START[\s\S]*?<!-- SEO:END -->/
+  if (!marker.test(template)) throw new Error('SEO markers not found in dist/index.html')
+  const html = template.replace(marker, seoBlock({ ...meta, url }))
+  const out = url === '/' ? path.join(DIST, 'index.html') : path.join(DIST, url.replace(/^\//, ''), 'index.html')
+  fs.mkdirSync(path.dirname(out), { recursive: true })
+  fs.writeFileSync(out, html)
+}
+
+function gitDate(file) {
+  try {
+    const d = execSync(`git log -1 --format=%cs -- "${file}"`, { cwd: ROOT, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim()
+    return /^\d{4}-\d{2}-\d{2}$/.test(d) ? d : null
+  } catch (_) {
+    return null
+  }
+}
+
+// ---- Blog posts from Supabase -------------------------------------------
+function supabaseConfig() {
+  let url = process.env.VITE_SUPABASE_URL
+  let key = process.env.VITE_SUPABASE_ANON_KEY
+  if (!url || !key) {
+    // Same fallbacks the app itself uses (src/lib/supabase.js)
+    try {
+      const src = fs.readFileSync(path.join(ROOT, 'src/lib/supabase.js'), 'utf8')
+      url = url || src.match(/VITE_SUPABASE_URL\s*\|\|\s*'([^']+)'/)?.[1]
+      key = key || src.match(/VITE_SUPABASE_ANON_KEY\s*\|\|\s*'([^']+)'/)?.[1]
+    } catch (_) {}
+  }
+  return url && key ? { url, key } : null
+}
+
+async function fetchBlogPosts() {
+  const cfg = supabaseConfig()
+  if (!cfg) return null
+  const endpoint = `${cfg.url}/rest/v1/blog_posts?select=*&published=eq.true&order=published_at.desc`
+  const ctrl = new AbortController()
+  const timer = setTimeout(() => ctrl.abort(), 10000)
+  try {
+    const res = await fetch(endpoint, { headers: { apikey: cfg.key, Authorization: `Bearer ${cfg.key}` }, signal: ctrl.signal })
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const rows = await res.json()
+    return Array.isArray(rows) ? rows.filter(p => p && p.slug) : null
+  } catch (e) {
+    log(`could not fetch blog posts (${e.message}); keeping blog URLs from the existing sitemap`)
+    return null
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
+// Blog URLs already listed in public/sitemap.xml, used if Supabase is unreachable
+function existingBlogUrls() {
+  try {
+    const xml = fs.readFileSync(path.join(ROOT, 'public/sitemap.xml'), 'utf8')
+    return [...xml.matchAll(/<loc>https?:\/\/[^<]*?(\/blog\/[^<]+)<\/loc>/g)].map(m => m[1])
+  } catch (_) {
+    return []
+  }
+}
+
+function plainText(html, max = 160) {
+  const txt = String(html || '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim()
+  return txt.length > max ? txt.slice(0, max - 1).replace(/\s+\S*$/, '') + '…' : txt
+}
+
+function toDate(v) {
+  const d = v ? new Date(v) : null
+  return d && !isNaN(d) ? d.toISOString().slice(0, 10) : null
+}
+
+// ---- Main ----------------------------------------------------------------
+async function main() {
+  const templatePath = path.join(DIST, 'index.html')
+  if (!fs.existsSync(templatePath)) { log('dist/index.html not found, skipping'); return }
+  const template = fs.readFileSync(templatePath, 'utf8')
+  const today = new Date().toISOString().slice(0, 10)
+  const sitemap = []
+
+  for (const page of PAGES) {
+    let meta
+    try { meta = readSeoProps(page.file) } catch (e) { meta = null }
+    if (!meta || !meta.title) { log(`no <SEO> props found in ${page.file}, skipped`); continue }
+    writePage(template, page.url, meta)
+    if (!meta.noindex && page.sitemap !== false) {
+      sitemap.push({ loc: page.url, lastmod: gitDate(page.file), changefreq: page.changefreq || 'monthly', priority: page.priority || '0.5' })
+    }
+  }
+
+  const posts = await fetchBlogPosts()
+  if (posts) {
+    for (const p of posts) {
+      writePage(template, `/blog/${p.slug}`, {
+        title: p.title,
+        description: p.excerpt || plainText(p.content) || `${p.title} — Usha Multi Speciality Dental Clinic, Sitamarhi.`,
+        keywords: `${p.title}, dentist Sitamarhi, dental clinic Sitamarhi${p.category ? ', ' + p.category : ''}`,
+        image: p.cover_image || undefined,
+        type: 'article',
+      })
+      sitemap.push({ loc: `/blog/${p.slug}`, lastmod: toDate(p.updated_at || p.published_at), changefreq: 'monthly', priority: '0.7' })
+    }
+    log(`blog posts: ${posts.length}`)
+  } else {
+    for (const loc of existingBlogUrls()) sitemap.push({ loc, lastmod: null, changefreq: 'monthly', priority: '0.7' })
+  }
+
+  const xml = [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ...sitemap.map(u => [
+      '  <url>',
+      `    <loc>${esc(SITE_URL + (u.loc === '/' ? '/' : u.loc))}</loc>`,
+      `    <lastmod>${u.lastmod || today}</lastmod>`,
+      `    <changefreq>${u.changefreq}</changefreq>`,
+      `    <priority>${u.priority}</priority>`,
+      '  </url>',
+    ].join('\n')),
+    '</urlset>',
+    '',
+  ].join('\n')
+  fs.writeFileSync(path.join(DIST, 'sitemap.xml'), xml)
+  log(`pages written, sitemap.xml has ${sitemap.length} URLs`)
+}
+
+main().catch(e => {
+  // Never fail the deploy because of SEO extras
+  log('skipped:', e.message)
+})

@@ -19,7 +19,7 @@ export default function AutoSwipe({ images, interval = 2000, height, fullBleed =
       display: 'block', lineHeight: 0,
     }}>
       {images.map((img, i) => (
-        <img key={img} src={img} alt="" style={{
+        <img key={img} src={img} alt="" loading="lazy" decoding="async" style={{
           width: '100%', height: height || 'auto', objectFit: height ? 'cover' : undefined,
           display: i === index ? 'block' : 'none',
         }} />

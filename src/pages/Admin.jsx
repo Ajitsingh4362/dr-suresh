@@ -1,23 +1,26 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { Routes, Route, NavLink, Link, Navigate, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import SEO from '../components/SEO'
-import AdminBlogList from './admin/AdminBlogList'
-import AdminBlogEditor from './admin/AdminBlogEditor'
-import AdminGallery from './admin/AdminGallery'
-import AdminAppointments from './admin/AdminAppointments'
-import AdminSettings from './admin/AdminSettings'
-import AdminNotes from './admin/AdminNotes'
-import AdminPatients from './admin/AdminPatients'
-import AdminOldPatients from './admin/AdminOldPatients'
-import AdminPatientProfile from './admin/AdminPatientProfile'
-import AdminAnalytics from './admin/AdminAnalytics'
-import AdminCalendar from './admin/AdminCalendar'
-import AdminTestimonials from './admin/AdminTestimonials'
-import AdminPrescriptionTemplates from './admin/AdminPrescriptionTemplates'
-import AdminFAQ from './admin/AdminFAQ'
-import AdminWhatsApp from './admin/AdminWhatsApp'
+import lazyWithRetry from '../lib/lazyWithRetry'
+// Devices stays a normal import: its helpers run at login time.
 import AdminDevices, { recordSession, checkRevoked } from './admin/AdminDevices'
+// Each admin section is code-split and downloads only when opened.
+const AdminBlogList = lazyWithRetry(() => import('./admin/AdminBlogList'))
+const AdminBlogEditor = lazyWithRetry(() => import('./admin/AdminBlogEditor'))
+const AdminGallery = lazyWithRetry(() => import('./admin/AdminGallery'))
+const AdminAppointments = lazyWithRetry(() => import('./admin/AdminAppointments'))
+const AdminSettings = lazyWithRetry(() => import('./admin/AdminSettings'))
+const AdminNotes = lazyWithRetry(() => import('./admin/AdminNotes'))
+const AdminPatients = lazyWithRetry(() => import('./admin/AdminPatients'))
+const AdminOldPatients = lazyWithRetry(() => import('./admin/AdminOldPatients'))
+const AdminPatientProfile = lazyWithRetry(() => import('./admin/AdminPatientProfile'))
+const AdminAnalytics = lazyWithRetry(() => import('./admin/AdminAnalytics'))
+const AdminCalendar = lazyWithRetry(() => import('./admin/AdminCalendar'))
+const AdminTestimonials = lazyWithRetry(() => import('./admin/AdminTestimonials'))
+const AdminPrescriptionTemplates = lazyWithRetry(() => import('./admin/AdminPrescriptionTemplates'))
+const AdminFAQ = lazyWithRetry(() => import('./admin/AdminFAQ'))
+const AdminWhatsApp = lazyWithRetry(() => import('./admin/AdminWhatsApp'))
 
 // Same Render-hosted Baileys service used by the WhatsApp admin tab
 const WHATSAPP_API = 'https://dr-suresh-whatsapp.onrender.com'
@@ -418,7 +421,7 @@ export default function Admin() {
       <div className="admin-login">
         <SEO title="Admin Login" noindex />
         <div className="admin-login-box">
-          <img src="/usha-dental-logo.png" alt="Usha Multi Speciality Dental Clinic" style={{ height: '70px', width: 'auto', display: 'block', margin: '0 auto 12px' }} />
+          <img src="/usha-dental-logo-sm.webp" alt="Usha Multi Speciality Dental Clinic" style={{ height: '70px', width: 'auto', display: 'block', margin: '0 auto 12px' }} />
           <p className="admin-login-logo">Usha Multi Speciality Dental Clinic</p>
           <h2>Admin Login</h2>
           <input
@@ -493,7 +496,7 @@ export default function Admin() {
 
       <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
         <Link to="/admin" className="admin-sidebar-brand" onClick={() => setSidebarOpen(false)}>
-          <img src="/usha-dental-logo.png" alt="Usha Multi Speciality Dental Clinic" className="admin-sidebar-logo-img" />
+          <img src="/usha-dental-logo-sm.webp" alt="Usha Multi Speciality Dental Clinic" className="admin-sidebar-logo-img" />
           <p className="admin-sidebar-logo">Usha Multi Speciality Dental Clinic</p>
         </Link>
         <nav className="admin-nav">
@@ -532,6 +535,7 @@ export default function Admin() {
 
       <main className="admin-main">
         <AdminHeader />
+        <Suspense fallback={<div className="admin-loading" style={{ padding: '48px', textAlign: 'center', color: 'var(--text-muted, #888)' }}>Loading…</div>}>
         <Routes>
           <Route index element={<Navigate to="analytics" replace />} />
           <Route path="analytics" element={<AdminAnalytics />} />
@@ -551,6 +555,7 @@ export default function Admin() {
           <Route path="whatsapp" element={<AdminWhatsApp />} />
           <Route path="devices" element={<AdminDevices />} />
         </Routes>
+        </Suspense>
       </main>
     </div>
   )

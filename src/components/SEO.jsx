@@ -6,7 +6,7 @@ const SITE_NAME = 'Usha Multi Speciality Dental Clinic'
 // ~60 characters, so the full name (used everywhere else: OG tags, schema,
 // footer, body copy) is too long to also append to every page title.
 const SITE_NAME_SHORT = 'Usha Dental Clinic'
-const DEFAULT_IMAGE = `${SITE_URL}/clinic-banner.png`
+const DEFAULT_IMAGE = `${SITE_URL}/og-image.jpg`
 
 // Clinic identity — reused across every page's LocalBusiness/Dentist schema
 export const CLINIC = {
@@ -31,7 +31,7 @@ export const CLINIC = {
  *
  * jsonLd: a single schema.org object, or an array of them.
  */
-export default function SEO({ title, description, path = '/', keywords, image, jsonLd, noindex = false }) {
+export default function SEO({ title, description, path = '/', keywords, image, jsonLd, noindex = false, type = 'website' }) {
   const fullTitle = title ? `${title} | ${SITE_NAME_SHORT}` : `Best Dentist in Sitamarhi | ${SITE_NAME_SHORT}`
   const canonical = `${SITE_URL}${path === '/' ? '' : path}`
   const desc = description || 'Usha Multi Speciality Dental Clinic — the leading dental clinic in Sitamarhi, Bihar. Root canal, dental implants, braces, cosmetic & pediatric dentistry by Dr. Suresh Kumar & Dr. Preeti Rajguru.'
@@ -44,15 +44,18 @@ export default function SEO({ title, description, path = '/', keywords, image, j
       <meta name="description" content={desc} />
       {keywords && <meta name="keywords" content={keywords} />}
       <link rel="canonical" href={canonical} />
-      {noindex && <meta name="robots" content="noindex, nofollow" />}
+      {noindex
+        ? <meta name="robots" content="noindex, nofollow" />
+        : <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />}
 
       {/* Open Graph */}
-      <meta property="og:type" content="website" />
+      <meta property="og:type" content={type} />
       <meta property="og:site_name" content={SITE_NAME} />
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={desc} />
       <meta property="og:url" content={canonical} />
       <meta property="og:image" content={img} />
+      <meta property="og:image:alt" content={fullTitle} />
       <meta property="og:locale" content="en_IN" />
 
       {/* Twitter */}
@@ -77,11 +80,24 @@ export function dentistSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'Dentist',
+    '@id': `${SITE_URL}/#dentist`,
     name: CLINIC.name,
     image: CLINIC.image,
+    logo: `${SITE_URL}/usha-dental-logo.png`,
     url: CLINIC.url,
     telephone: CLINIC.telephone,
     priceRange: CLINIC.priceRange,
+    currenciesAccepted: 'INR',
+    paymentAccepted: 'Cash, UPI, Card',
+    hasMap: 'https://maps.google.com/maps?q=Usha%20Multi%20Speciality%20Dental%20Clinic%2C%20Bhavdepur%2C%20Sitamarhi%2C%20Bihar%20843302',
+    // Same as the OPD timings shown on the Contact page
+    openingHoursSpecification: [
+      { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday'], opens: '10:00', closes: '14:00' },
+      { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday'], opens: '16:00', closes: '19:00' },
+      { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Thursday', 'Friday'], opens: '10:00', closes: '14:00' },
+      { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Thursday', 'Friday'], opens: '16:00', closes: '18:00' },
+      { '@type': 'OpeningHoursSpecification', dayOfWeek: 'Saturday', opens: '09:00', closes: '13:00' },
+    ],
     address: {
       '@type': 'PostalAddress',
       streetAddress: CLINIC.streetAddress,
@@ -96,6 +112,22 @@ export function dentistSchema() {
       { '@type': 'Physician', name: 'Dr. Suresh Kumar', medicalSpecialty: 'Dentistry' },
       { '@type': 'Physician', name: 'Dr. Preeti Rajguru', medicalSpecialty: 'Dentistry' },
     ],
+    ...(CLINIC.sameAs.length ? { sameAs: CLINIC.sameAs } : {}),
+  }
+}
+
+// WebSite schema — helps Google show the clinic's name (instead of the bare
+// domain) above search results. Use once on the Home page.
+export function websiteSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${SITE_URL}/#website`,
+    name: SITE_NAME,
+    alternateName: [SITE_NAME_SHORT, 'Usha Dental'],
+    url: `${SITE_URL}/`,
+    inLanguage: 'en-IN',
+    publisher: { '@id': `${SITE_URL}/#dentist` },
   }
 }
 
@@ -157,7 +189,7 @@ export function articleSchema(post) {
     image: post.cover_image || DEFAULT_IMAGE,
     datePublished: post.published_at,
     dateModified: post.updated_at || post.published_at,
-    author: { '@type': 'Organization', name: SITE_NAME },
+    author: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
     publisher: {
       '@type': 'Organization',
       name: SITE_NAME,

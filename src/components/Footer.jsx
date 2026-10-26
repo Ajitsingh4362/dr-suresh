@@ -10,7 +10,9 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <img
-              src="/usha-dental-logo.png"
+              src="/usha-dental-logo-sm.webp"
+              loading="lazy"
+              decoding="async"
               alt="Usha Multi Speciality Dental Clinic"
               style={{ height: '96px', width: 'auto', marginBottom: '16px', objectFit: 'contain' }}
             />

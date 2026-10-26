@@ -60,7 +60,7 @@ export default function Blog() {
               <div className="blog-grid">
                 {shown.map(p => (
                   <Link to={`/blog/${p.slug}`} key={p.id} className="blog-card">
-                    {p.cover_image && <div className="blog-card-img"><img src={p.cover_image} alt={p.title} /></div>}
+                    {p.cover_image && <div className="blog-card-img"><img src={p.cover_image} alt={p.title} loading="lazy" decoding="async" /></div>}
                     <div className="blog-card-body">
                       <p className="blog-card-date">{fmt(p.published_at)}</p>
                       <h3>{p.title}</h3>

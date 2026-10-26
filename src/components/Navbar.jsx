@@ -97,7 +97,7 @@ export default function Navbar() {
           {/* Logo Only — No Text */}
           <NavLink to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
             <img
-              src="/usha-dental-logo.png"
+              src="/usha-dental-logo-sm.webp"
               alt="Usha Multi Speciality Dental Clinic"
               style={{
                 height: scrolled ? '62px' : '76px',
@@ -172,7 +172,7 @@ export default function Navbar() {
         {...(!menuOpen ? { inert: '' } : {})}
       >
         <div className="mnav-top">
-          <img src="/usha-dental-logo.png" alt="Usha Multi Speciality Dental Clinic" style={{ height: '52px', width: 'auto' }} />
+          <img src="/usha-dental-logo-sm.webp" alt="Usha Multi Speciality Dental Clinic" style={{ height: '52px', width: 'auto' }} />
           <button className="mnav-close" onClick={() => setMenuOpen(false)} aria-label="Close menu">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
           </button>

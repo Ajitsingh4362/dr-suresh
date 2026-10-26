@@ -47,7 +47,7 @@ export default function Tilt3D({ image, alt = '', maxTilt = 14 }) {
           position: 'relative',
         }}
       >
-        <img src={image} alt={alt} style={{ width: '100%', height: 'auto', display: 'block' }} />
+        <img src={image} alt={alt} loading="lazy" decoding="async" style={{ width: '100%', height: 'auto', display: 'block' }} />
         <div style={{
           position: 'absolute', inset: 0,
           background: 'linear-gradient(135deg, rgba(199,166,106,0.12), transparent 50%)',

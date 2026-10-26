@@ -100,7 +100,7 @@ export default function Contact() {
       currency: 'INR',
       name: 'Usha Multi Speciality Dental Clinic',
       description: data.program || 'Consultation Fee',
-      image: '/usha-dental-logo.png',
+      image: '/usha-dental-logo-sm.png',
       prefill: {
         name: data.name,
         email: data.email,

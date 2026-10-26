@@ -7,7 +7,7 @@ import BlogPreview from '../components/BlogPreview'
 import GalleryPreview from '../components/GalleryPreview'
 import ConsultationPopup from '../components/ConsultationPopup'
 import TestimonialsSection from '../components/TestimonialsSection'
-import SEO, { dentistSchema } from '../components/SEO'
+import SEO, { dentistSchema, websiteSchema } from '../components/SEO'
 
 const HOME_KEYWORDS = 'dentist in Sitamarhi, best dentist in Sitamarhi, dental clinic in Sitamarhi, dental clinic Sitamarhi, root canal treatment in Sitamarhi, dental implants in Sitamarhi, braces in Sitamarhi, orthodontist in Sitamarhi, cosmetic dentist in Sitamarhi, pediatric dentist Sitamarhi, child dentist Sitamarhi, tooth extraction Sitamarhi, smile makeover Sitamarhi, teeth whitening Sitamarhi, dental clinic Bhavdepur, Dr Suresh Kumar dentist, Dr Preeti Rajguru dentist, Usha Dental Clinic Sitamarhi, emergency dentist Sitamarhi'
 
@@ -233,7 +233,7 @@ export default function Home() {
         description="Usha Multi Speciality Dental Clinic — Sitamarhi's top-rated dentist for root canal, implants, braces, cosmetic & pediatric dentistry. Book today."
         path="/"
         keywords={HOME_KEYWORDS}
-        jsonLd={dentistSchema()}
+        jsonLd={[dentistSchema(), websiteSchema()]}
       />
       {showPopup && <ConsultationPopup onClose={() => setShowPopup(false)} />}
       <div ref={ref} style={{ overflowX: 'hidden' }}>
@@ -293,7 +293,7 @@ export default function Home() {
 
       {/* TOP HERO — blank, full-width image only */}
       <section style={{ background: 'var(--ivory)', overflow: 'hidden', lineHeight: 0 }}>
-        <img src="/clinic-banner.png" alt="Usha Multi Speciality Dental Clinic — Premium Care for Healthy Smiles" style={{ width: '100%', height: 'auto', display: 'block' }} />
+        <img src="/clinic-banner.webp" alt="Usha Multi Speciality Dental Clinic — Premium Care for Healthy Smiles" style={{ width: '100%', height: 'auto', display: 'block' }} />
       </section>
 
       {/* HERO */}
@@ -460,7 +460,7 @@ export default function Home() {
                 boxShadow: '0 30px 60px -20px rgba(0,0,0,0.5)',
                 aspectRatio: '1 / 1',
               }}>
-                <img src="/dental-consultation.jpg" alt="Usha Multi Speciality Dental Clinic — patient consultation" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                <img src="/dental-consultation.webp" loading="lazy" decoding="async" alt="Usha Multi Speciality Dental Clinic — patient consultation" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
               </div>
             </div>
           </div>
@@ -484,7 +484,7 @@ export default function Home() {
 
       {/* PROMO BANNER */}
       <section style={{ background: 'var(--white)', padding: '0', margin: 0, lineHeight: 0 }}>
-        <AutoSwipe images={['/smile-closeup.png', '/natures-care.png']} interval={2000} height="440px" fullBleed />
+        <AutoSwipe images={['/smile-closeup.webp', '/natures-care.webp']} interval={2000} height="440px" fullBleed />
       </section>
 
       {/* INTRO STRIP */}
@@ -724,7 +724,7 @@ export default function Home() {
               Move your cursor over the image for a closer look at Usha Multi Speciality Dental Clinic.
             </p>
           </div>
-          <Tilt3D image="/clinic-banner-2.png" alt="Usha Multi Speciality Dental Clinic" />
+          <Tilt3D image="/clinic-banner-2.webp" alt="Usha Multi Speciality Dental Clinic" />
           <div className="mobile-book-cta-wrap" style={{ padding: '32px 0 0', background: 'transparent', textAlign: 'center' }}>
             <Link to="/contact"><button className="btn-primary cta-pulse">Book an Appointment</button></Link>
           </div>

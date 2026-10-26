@@ -55,7 +55,7 @@ export default function Gallery() {
 
       {/* Featured Banner */}
       <section style={{ padding: '0' }}>
-        <img src="/clinic-banner-2.png" alt="Usha Multi Speciality Dental Clinic — Premium Care for Healthy Smiles" style={{ width: '100%', height: 'auto', display: 'block' }} />
+        <img src="/clinic-banner-2.webp" alt="Usha Multi Speciality Dental Clinic — Premium Care for Healthy Smiles" style={{ width: '100%', height: 'auto', display: 'block' }} />
       </section>
 
       {/* Gallery thank you strip */}

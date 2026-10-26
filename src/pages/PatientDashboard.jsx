@@ -263,7 +263,7 @@ export default function PatientDashboard() {
   if (loading && !data) {
     return (
       <div className="pd-center">
-        <img src="/usha-dental-logo.png" alt="" style={{ height: '64px', width: 'auto' }} />
+        <img src="/usha-dental-logo-sm.webp" alt="" style={{ height: '64px', width: 'auto' }} />
         <p>Loading your details…</p>
         <style>{CENTER_CSS}</style>
       </div>
@@ -273,7 +273,7 @@ export default function PatientDashboard() {
   if (loadError && !data) {
     return (
       <div className="pd-center">
-        <img src="/usha-dental-logo.png" alt="" style={{ height: '64px', width: 'auto' }} />
+        <img src="/usha-dental-logo-sm.webp" alt="" style={{ height: '64px', width: 'auto' }} />
         <p>{loadError}</p>
         <button className="btn-primary" onClick={load}>Try again</button>
         <style>{CENTER_CSS}</style>
@@ -342,7 +342,7 @@ export default function PatientDashboard() {
       {/* Laptop: left sidebar */}
       <aside className="pd-side">
         <Link to="/" className="pd-brand" title="Clinic website">
-          <img src="/usha-dental-logo.png" alt="" />
+          <img src="/usha-dental-logo-sm.webp" alt="" />
           <span>Usha Multi Speciality<br />Dental Clinic</span>
         </Link>
         <nav className="pd-sidenav" aria-label="Dashboard sections">
@@ -380,7 +380,7 @@ export default function PatientDashboard() {
         {/* Phone: top app bar */}
         <header className="pd-appbar">
           <Link to="/" className="pd-appbar-brand" aria-label="Clinic website">
-            <img src="/usha-dental-logo.png" alt="" />
+            <img src="/usha-dental-logo-sm.webp" alt="" />
             <span>Usha Dental</span>
           </Link>
           <button className="pd-appbar-logout" onClick={logout}>

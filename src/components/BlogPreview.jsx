@@ -28,7 +28,7 @@ export default function BlogPreview() {
         <div className="blog-preview-grid">
           {posts.map((p, i) => (
             <Link to={`/blog/${p.slug}`} key={p.id} className={`blog-card ${i === 0 ? 'featured' : ''}`}>
-              {p.cover_image && <div className="blog-card-img"><img src={p.cover_image} alt={p.title} /></div>}
+              {p.cover_image && <div className="blog-card-img"><img src={p.cover_image} alt={p.title} loading="lazy" decoding="async" /></div>}
               <div className="blog-card-body">
                 <p className="blog-card-date">{fmt(p.published_at)}</p>
                 <h3>{p.title}</h3>

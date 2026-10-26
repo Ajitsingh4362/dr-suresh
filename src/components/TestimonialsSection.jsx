@@ -87,7 +87,7 @@ export default function TestimonialsSection() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
               <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: t.avatar_color, overflow: 'hidden', border: '2px solid rgba(199,166,106,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 {t.photo_url
-                  ? <img src={t.photo_url} alt={t.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ? <img src={t.photo_url} alt={t.name} loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   : <span style={{ color: '#fff', fontWeight: 700, fontSize: '18px', fontFamily: 'var(--font-display)' }}>{initials(t.name)}</span>
                 }
               </div>
@@ -120,7 +120,7 @@ export default function TestimonialsSection() {
                 onMouseLeave={e => { if (i !== active) e.currentTarget.style.background = 'var(--white)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
                   <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: t2.avatar_color, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    {t2.photo_url ? <img src={t2.photo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ color: '#fff', fontSize: '11px', fontWeight: 700, fontFamily: 'var(--font-display)' }}>{initials(t2.name)}</span>}
+                    {t2.photo_url ? <img src={t2.photo_url} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ color: '#fff', fontSize: '11px', fontWeight: 700, fontFamily: 'var(--font-display)' }}>{initials(t2.name)}</span>}
                   </div>
                   <div>
                     <p style={{ fontSize: '12px', fontWeight: 600, color: i === active ? 'var(--navy-800)' : 'var(--charcoal)', fontFamily: 'var(--font-body)', margin: 0 }}>{t2.name}</p>

@@ -6,7 +6,7 @@ const SPECS = [
   {
     id: 'root-canal-treatment',
     icon: '🦷',
-    image: '/svc-rct.png',
+    image: '/svc-rct.webp',
     title: 'Root Canal Treatment (RCT)',
     tagline: 'Save the Tooth, Relieve the Pain',
     desc: 'When decay or infection reaches the inner pulp of a tooth, root canal treatment in Sitamarhi removes the damage and saves the natural tooth — done with modern, painless techniques.',
@@ -17,7 +17,7 @@ const SPECS = [
   {
     id: 'cosmetic-dentistry',
     icon: '✨',
-    image: '/svc-cosmetic.png',
+    image: '/svc-cosmetic.webp',
     title: 'Cosmetic Dentistry',
     tagline: 'Smile Makeovers Designed Around You',
     desc: 'From teeth whitening to veneers and bonding, cosmetic dentistry at our Sitamarhi clinic is about giving you a smile you feel confident showing off — without compromising on tooth health.',
@@ -28,7 +28,7 @@ const SPECS = [
   {
     id: 'dental-implants',
     icon: '🦴',
-    image: '/svc-implants.png',
+    image: '/svc-implants.webp',
     title: 'Dental Implants',
     tagline: 'A Permanent, Natural-Looking Replacement',
     desc: 'Missing teeth affect both function and confidence. Our dental implants in Sitamarhi offer a long-term, natural-feeling replacement — planned and placed with precision.',
@@ -38,7 +38,7 @@ const SPECS = [
   {
     id: 'orthodontics',
     icon: '📐',
-    image: '/svc-ortho.png',
+    image: '/svc-ortho.webp',
     title: 'Orthodontics',
     tagline: 'Straighter Teeth, Better Bite',
     desc: 'Braces and aligners for children and adults in Sitamarhi — correcting crowding, gaps, and bite issues for a healthier, more confident smile.',
@@ -48,7 +48,7 @@ const SPECS = [
   {
     id: 'pediatric-dentistry',
     icon: '🧒',
-    image: '/svc-pediatric.png',
+    image: '/svc-pediatric.webp',
     title: 'Pediatric Dentistry',
     tagline: 'Gentle, Friendly Care for Kids',
     desc: 'Children need a dentist who understands them. Our child dentistry team in Sitamarhi focuses on comfort, patience, and building healthy habits early.',
@@ -116,10 +116,10 @@ export default function Specializations() {
             <div className="specs-hero-visual" style={{ position: 'relative', height: '400px' }}>
               <div style={{ position: 'absolute', top: '10%', left: '10%', width: '75%', height: '75%', background: 'radial-gradient(circle, rgba(199,166,106,0.22) 0%, transparent 70%)', filter: 'blur(20px)', pointerEvents: 'none' }} />
               {[
-                { img: '/svc-rct.png', top: '0%', left: '6%', w: '46%', rot: '-3deg', z: 2 },
-                { img: '/svc-cosmetic.png', top: '4%', left: '52%', w: '44%', rot: '2deg', z: 1 },
-                { img: '/svc-implants.png', top: '52%', left: '0%', w: '42%', rot: '2deg', z: 1 },
-                { img: '/svc-ortho.png', top: '48%', left: '46%', w: '48%', rot: '-2deg', z: 3 },
+                { img: '/svc-rct.webp', top: '0%', left: '6%', w: '46%', rot: '-3deg', z: 2 },
+                { img: '/svc-cosmetic.webp', top: '4%', left: '52%', w: '44%', rot: '2deg', z: 1 },
+                { img: '/svc-implants.webp', top: '52%', left: '0%', w: '42%', rot: '2deg', z: 1 },
+                { img: '/svc-ortho.webp', top: '48%', left: '46%', w: '48%', rot: '-2deg', z: 3 },
               ].map((it, i) => (
                 <div key={i} style={{ position: 'absolute', top: it.top, left: it.left, width: it.w, transform: `rotate(${it.rot})`, zIndex: it.z }}>
                   <div style={{ borderRadius: '8px', overflow: 'hidden', border: '3px solid var(--white)', boxShadow: '0 16px 32px -10px rgba(15,39,68,0.28)' }}>
@@ -151,7 +151,7 @@ export default function Specializations() {
                 <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'var(--gold)' }} />
                 <div style={{ position: 'absolute', bottom: '-20px', right: '-20px', width: '120px', height: '120px', borderRadius: '50%', background: 'rgba(199,166,106,0.1)' }} />
                 {s.image && (
-                  <img src={s.image} alt={`${s.title} — Usha Multi Speciality Dental Clinic, Sitamarhi`} style={{ width: '100%', height: '160px', objectFit: 'cover', borderRadius: '6px', marginBottom: '20px', border: '1px solid rgba(199,166,106,0.35)' }} />
+                  <img loading="lazy" decoding="async" src={s.image} alt={`${s.title} — Usha Multi Speciality Dental Clinic, Sitamarhi`} style={{ width: '100%', height: '160px', objectFit: 'cover', borderRadius: '6px', marginBottom: '20px', border: '1px solid rgba(199,166,106,0.35)' }} />
                 )}
                 <div style={{ fontSize: '40px', marginBottom: '20px' }}>{s.icon}</div>
                 <div style={{ fontSize: '10px', color: 'var(--gold-deep)', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '12px' }}>Core Specialty</div>
@@ -179,7 +179,7 @@ export default function Specializations() {
                 onMouseEnter={e => { e.currentTarget.style.borderBottom = '3px solid var(--gold)'; e.currentTarget.style.background = 'var(--ivory)' }}
                 onMouseLeave={e => { e.currentTarget.style.borderBottom = '3px solid transparent'; e.currentTarget.style.background = 'var(--white)' }}>
                 {s.image && (
-                  <img src={s.image} alt={`${s.title} — Usha Multi Speciality Dental Clinic, Sitamarhi`} style={{ width: '100%', height: '130px', objectFit: 'cover', borderRadius: '6px', marginBottom: '16px' }} />
+                  <img loading="lazy" decoding="async" src={s.image} alt={`${s.title} — Usha Multi Speciality Dental Clinic, Sitamarhi`} style={{ width: '100%', height: '130px', objectFit: 'cover', borderRadius: '6px', marginBottom: '16px' }} />
                 )}
                 <div style={{ fontSize: '32px', marginBottom: '16px' }}>{s.icon}</div>
                 <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '20px', fontWeight: 600, color: 'var(--navy-800)', marginBottom: '8px' }}>{s.title}</h3>
